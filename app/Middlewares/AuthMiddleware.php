@@ -12,11 +12,10 @@ final class AuthMiddleware
     public function handle(callable $next): void
     {
         if (!Session::has('auth_user')) {
-            Session::flash('error', 'Faça login para acessar o dashboard.');
+            Session::flash('error', 'Faça login para acessar a area restrita.');
             Response::redirect('/login');
         }
 
         $next();
     }
 }
-

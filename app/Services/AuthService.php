@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Core\Session;
+use App\Models\UserModel;
 use PDO;
 
 final class AuthService
@@ -15,12 +16,11 @@ final class AuthService
 
     public function attempt(string $email, string $password): bool
     {
-        $sql = 'SELECT id, name, email, password_hash, role, is_active FROM users WHERE email = :email LIMIT 1';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['email' => $email]);
-
-        $user = $stmt->fetch();
+        $user = (new UserModel($this->pdo))->findAuthByEmail($email);
         if ($user === false) {
+            return false;
+        }
+        if ($user === null) {
             return false;
         }
 
@@ -62,4 +62,3 @@ final class AuthService
         session_regenerate_id(true);
     }
 }
-

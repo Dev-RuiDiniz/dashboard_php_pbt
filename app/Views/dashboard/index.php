@@ -18,6 +18,7 @@ $userRole = is_array($user ?? null) ? (string) ($user['role'] ?? '-') : '-';
         .alert { border-radius: 8px; padding: .75rem; margin-bottom: 1rem; background: #dcfce7; color: #166534; }
         .meta { color: #475569; }
         button { background: #dc2626; color: #fff; border: 0; border-radius: 8px; padding: .6rem .9rem; cursor: pointer; font-weight: 600; }
+        .btn-link { display:inline-block; background:#0f766e; color:#fff; text-decoration:none; border-radius:8px; padding:.55rem .8rem; font-weight:600; margin-right:.5rem; }
         code { background: #e2e8f0; padding: .1rem .25rem; border-radius: 4px; }
     </style>
 </head>
@@ -41,7 +42,12 @@ $userRole = is_array($user ?? null) ? (string) ($user['role'] ?? '-') : '-';
             <p class="meta">Sessao autenticada com sucesso.</p>
             <p>Usuario: <strong><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></strong></p>
             <p>Perfil: <code><?= htmlspecialchars($userRole, ENT_QUOTES, 'UTF-8') ?></code></p>
-            <p class="meta">Sprint 2 concluida: login, sessao, logout e middleware de autenticacao.</p>
+            <p>
+                <?php if ($userRole === 'admin') : ?>
+                    <a class="btn-link" href="/users">Gerenciar usuarios</a>
+                <?php endif; ?>
+            </p>
+            <p class="meta">Sprint 3: modulo de usuarios + RBAC por permissao (rota/acao) para admin.</p>
         </div>
     </main>
 </body>
