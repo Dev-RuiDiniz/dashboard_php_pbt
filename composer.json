@@ -1,0 +1,17 @@
+{
+  "name": "dashboard-php-pbt/igreja-social",
+  "description": "Sistema web de acao social (Igreja Social) em PHP + MySQL",
+  "type": "project",
+  "require": {
+    "php": "^8.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "scripts": {
+    "serve": "php -S localhost:8000 -t public"
+  }
+}
+

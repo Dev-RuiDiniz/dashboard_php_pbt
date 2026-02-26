@@ -1,0 +1,9 @@
+/vendor/
+/.env
+/storage/logs/*
+/storage/exports/*
+/storage/uploads/*
+!/storage/logs/.gitkeep
+!/storage/exports/.gitkeep
+!/storage/uploads/.gitkeep
+
