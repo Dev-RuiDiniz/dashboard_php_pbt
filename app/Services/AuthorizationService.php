@@ -8,9 +8,9 @@ final class AuthorizationService
 {
     private const ROLE_PERMISSIONS = [
         'admin' => ['*'],
-        'voluntario' => [],
-        'pastoral' => [],
-        'viewer' => [],
+        'voluntario' => ['families.view', 'families.manage'],
+        'pastoral' => ['families.view'],
+        'viewer' => ['families.view'],
     ];
 
     public static function can(?string $role, string $permission): bool
@@ -24,4 +24,3 @@ final class AuthorizationService
         return in_array('*', $permissions, true) || in_array($permission, $permissions, true);
     }
 }
-

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
+use App\Controllers\FamilyController;
 use App\Controllers\UserController;
 use App\Core\Container;
 use App\Core\Router;
@@ -18,6 +19,18 @@ return static function (Router $router, Container $container): void {
     $adminOnly = static function (callable $action): void {
         (new AuthMiddleware())->handle(static function () use ($action): void {
             (new PermissionMiddleware())->handle('users.manage', $action);
+        });
+    };
+
+    $familyView = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('families.view', $action);
+        });
+    };
+
+    $familyManage = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('families.manage', $action);
         });
     };
 
@@ -48,6 +61,36 @@ return static function (Router $router, Container $container): void {
     $router->get('/dashboard', static function () use ($container, $authOnly): void {
         $authOnly(static function () use ($container): void {
             (new DashboardController($container))->index();
+        });
+    });
+
+    $router->get('/families', static function () use ($container, $familyView): void {
+        $familyView(static function () use ($container): void {
+            (new FamilyController($container))->index();
+        });
+    });
+
+    $router->get('/families/create', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->create();
+        });
+    });
+
+    $router->post('/families', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->store();
+        });
+    });
+
+    $router->get('/families/edit', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->edit();
+        });
+    });
+
+    $router->post('/families/update', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->update();
         });
     });
 

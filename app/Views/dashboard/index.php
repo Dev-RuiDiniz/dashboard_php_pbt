@@ -79,6 +79,7 @@ $userRole = is_array($user ?? null) ? (string) ($user['role'] ?? '-') : '-';
                 </div>
 
                 <div class="mt-3 d-flex flex-wrap gap-2">
+                    <a class="btn btn-outline-secondary" href="/families">Familias</a>
                     <?php if ($userRole === 'admin') : ?>
                         <a class="btn btn-teal text-white" href="/users">Gerenciar usuarios</a>
                     <?php endif; ?>
@@ -94,10 +95,10 @@ $userRole = is_array($user ?? null) ? (string) ($user['role'] ?? '-') : '-';
                 <h2 class="h6 text-uppercase text-secondary mb-3">Navegacao de modulos</h2>
                 <div class="list-group list-group-flush">
                     <a class="list-group-item list-group-item-action px-0" href="/dashboard">Dashboard</a>
+                    <a class="list-group-item list-group-item-action px-0" href="/families">Familias</a>
                     <?php if ($userRole === 'admin') : ?>
                         <a class="list-group-item list-group-item-action px-0" href="/users">Usuarios (admin)</a>
                     <?php endif; ?>
-                    <div class="list-group-item px-0 text-secondary">Familias (Sprint futura)</div>
                     <div class="list-group-item px-0 text-secondary">Fichas sociais (Sprint futura)</div>
                     <div class="list-group-item px-0 text-secondary">Entregas (Sprint futura)</div>
                     <div class="list-group-item px-0 text-secondary">Equipamentos (Sprint futura)</div>
