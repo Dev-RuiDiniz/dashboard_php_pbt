@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Controllers\AuthController;
 use App\Controllers\ChildController;
 use App\Controllers\DashboardController;
+use App\Controllers\DeliveryEventController;
 use App\Controllers\FamilyController;
 use App\Controllers\PersonController;
 use App\Controllers\UserController;
@@ -57,6 +58,18 @@ return static function (Router $router, Container $container): void {
     $personManage = static function (callable $action): void {
         (new AuthMiddleware())->handle(static function () use ($action): void {
             (new PermissionMiddleware())->handle('people.manage', $action);
+        });
+    };
+
+    $deliveryView = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('deliveries.view', $action);
+        });
+    };
+
+    $deliveryManage = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('deliveries.manage', $action);
         });
     };
 
@@ -255,6 +268,36 @@ return static function (Router $router, Container $container): void {
     $router->post('/people/spiritual-followups/delete', static function () use ($container, $personManage): void {
         $personManage(static function () use ($container): void {
             (new PersonController($container))->deleteSpiritualFollowup();
+        });
+    });
+
+    $router->get('/delivery-events', static function () use ($container, $deliveryView): void {
+        $deliveryView(static function () use ($container): void {
+            (new DeliveryEventController($container))->index();
+        });
+    });
+
+    $router->get('/delivery-events/create', static function () use ($container, $deliveryManage): void {
+        $deliveryManage(static function () use ($container): void {
+            (new DeliveryEventController($container))->create();
+        });
+    });
+
+    $router->post('/delivery-events', static function () use ($container, $deliveryManage): void {
+        $deliveryManage(static function () use ($container): void {
+            (new DeliveryEventController($container))->store();
+        });
+    });
+
+    $router->get('/delivery-events/edit', static function () use ($container, $deliveryManage): void {
+        $deliveryManage(static function () use ($container): void {
+            (new DeliveryEventController($container))->edit();
+        });
+    });
+
+    $router->post('/delivery-events/update', static function () use ($container, $deliveryManage): void {
+        $deliveryManage(static function () use ($container): void {
+            (new DeliveryEventController($container))->update();
         });
     });
 
