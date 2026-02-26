@@ -30,7 +30,10 @@ final class UserController
         }
 
         View::render('users.index', [
+            '_layout' => 'layouts.app',
             'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
+            'pageTitle' => 'Usuarios',
+            'activeMenu' => 'users',
             'users' => $users,
             'authUser' => Session::get('auth_user', []),
             'success' => Session::consumeFlash('success'),
@@ -244,7 +247,11 @@ final class UserController
     private function renderForm(array $payload): void
     {
         View::render('users.form', [
+            '_layout' => 'layouts.app',
             'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
+            'pageTitle' => ($payload['mode'] ?? 'create') === 'edit' ? 'Editar usuario' : 'Novo usuario',
+            'activeMenu' => 'users',
+            'authUser' => Session::get('auth_user', []),
             'mode' => $payload['mode'] ?? 'create',
             'user' => $payload['user'] ?? [],
             'roles' => self::ROLES,

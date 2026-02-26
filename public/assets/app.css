@@ -1,0 +1,73 @@
+body.app-shell {
+  background: #eef2f7;
+  color: #0f172a;
+}
+
+.app-sidebar {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+}
+
+.app-sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.8rem;
+}
+
+.app-sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.app-sidebar .nav-link.active {
+  background: rgba(20, 184, 166, 0.2);
+  color: #ccfbf1;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+}
+
+.icon-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.app-header {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+}
+
+.metric-card {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.btn-teal {
+  background: #0f766e;
+  border-color: #0f766e;
+}
+
+.btn-teal:hover,
+.btn-teal:focus {
+  background: #115e59;
+  border-color: #115e59;
+}
+
+.metric-value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.placeholder-panel {
+  border: 1px dashed #cbd5e1;
+  border-radius: 1rem;
+  background: #f8fafc;
+}
+
+@media (max-width: 991.98px) {
+  .app-sidebar {
+    min-height: auto;
+  }
+}

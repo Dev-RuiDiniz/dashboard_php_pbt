@@ -19,10 +19,13 @@ final class DashboardController
         $user = Session::get('auth_user', []);
 
         View::render('dashboard.index', [
+            '_layout' => 'layouts.app',
             'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
+            'pageTitle' => 'Dashboard',
+            'activeMenu' => 'dashboard',
             'user' => is_array($user) ? $user : [],
+            'authUser' => is_array($user) ? $user : [],
             'success' => Session::consumeFlash('success'),
         ]);
     }
 }
-
