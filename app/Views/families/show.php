@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 $family = is_array($family ?? null) ? $family : [];
 $members = is_array($members ?? null) ? $members : [];
+$children = is_array($children ?? null) ? $children : [];
 $memberForm = is_array($memberForm ?? null) ? $memberForm : [];
 $memberEditMode = (bool) ($memberEditMode ?? false);
 $familyId = (int) ($family['id'] ?? 0);
@@ -212,3 +213,66 @@ $addressLine = implode(' / ', array_filter([
     </div>
 </div>
 
+<div class="row g-3 mt-1">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+                    <div>
+                        <h2 class="h5 mb-1">Criancas vinculadas (aba da familia)</h2>
+                        <p class="text-secondary mb-0">Cadastro e consulta de criancas relacionadas a esta familia.</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-sm btn-outline-secondary" href="/children?family_id=<?= $familyId ?>">Ver lista de criancas</a>
+                        <a class="btn btn-sm btn-teal text-white" href="/children/create?family_id=<?= $familyId ?>">Nova crianca</a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Nascimento / Idade</th>
+                                <th>Parentesco</th>
+                                <th>Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if (empty($children)) : ?>
+                            <tr>
+                                <td colspan="4" class="text-secondary">Nenhuma crianca vinculada.</td>
+                            </tr>
+                        <?php else : ?>
+                            <?php foreach ($children as $child) : ?>
+                                <?php $childId = (int) ($child['id'] ?? 0); ?>
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold"><?= htmlspecialchars((string) ($child['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
+                                        <?php if (!empty($child['notes'])) : ?>
+                                            <div class="small text-secondary"><?= htmlspecialchars((string) $child['notes'], ENT_QUOTES, 'UTF-8') ?></div>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <div><?= htmlspecialchars((string) ($child['birth_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                        <div class="small text-secondary">idade aprox.: <?= htmlspecialchars((string) (($child['age_years'] ?? '') !== null ? (string) ($child['age_years'] ?? '') : '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                    </td>
+                                    <td><?= htmlspecialchars((string) ($child['relationship'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a class="btn btn-sm btn-outline-secondary" href="/children/edit?id=<?= $childId ?>">Editar</a>
+                                            <form method="post" action="/children/delete?id=<?= $childId ?>&back=family" class="m-0" onsubmit="return confirm('Remover crianca?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -9,6 +9,7 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
 use App\Models\FamilyModel;
+use App\Models\ChildModel;
 use App\Services\CpfService;
 use PDO;
 use Throwable;
@@ -173,6 +174,7 @@ final class FamilyController
             }
 
             $members = $this->familyModel()->getMembersByFamilyId($familyId);
+            $children = $this->childModel()->findByFamilyId($familyId);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao carregar detalhes da familia.');
             Response::redirect('/families');
@@ -202,6 +204,7 @@ final class FamilyController
             'authUser' => Session::get('auth_user', []),
             'family' => $family,
             'members' => $members,
+            'children' => $children,
             'memberForm' => $memberEdit ?? $this->defaultMemberFormData($familyId),
             'memberEditMode' => $memberEdit !== null && isset($memberEdit['id']),
             'success' => Session::consumeFlash('success'),
@@ -322,6 +325,13 @@ final class FamilyController
         /** @var PDO $pdo */
         $pdo = $this->container->get('db');
         return new FamilyModel($pdo);
+    }
+
+    private function childModel(): ChildModel
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new ChildModel($pdo);
     }
 
     private function defaultFormData(): array

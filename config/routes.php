@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\ChildController;
 use App\Controllers\DashboardController;
 use App\Controllers\FamilyController;
 use App\Controllers\UserController;
@@ -31,6 +32,18 @@ return static function (Router $router, Container $container): void {
     $familyManage = static function (callable $action): void {
         (new AuthMiddleware())->handle(static function () use ($action): void {
             (new PermissionMiddleware())->handle('families.manage', $action);
+        });
+    };
+
+    $childView = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('children.view', $action);
+        });
+    };
+
+    $childManage = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('children.manage', $action);
         });
     };
 
@@ -115,6 +128,42 @@ return static function (Router $router, Container $container): void {
     $router->post('/families/members/delete', static function () use ($container, $familyManage): void {
         $familyManage(static function () use ($container): void {
             (new FamilyController($container))->deleteMember();
+        });
+    });
+
+    $router->get('/children', static function () use ($container, $childView): void {
+        $childView(static function () use ($container): void {
+            (new ChildController($container))->index();
+        });
+    });
+
+    $router->get('/children/create', static function () use ($container, $childManage): void {
+        $childManage(static function () use ($container): void {
+            (new ChildController($container))->create();
+        });
+    });
+
+    $router->post('/children', static function () use ($container, $childManage): void {
+        $childManage(static function () use ($container): void {
+            (new ChildController($container))->store();
+        });
+    });
+
+    $router->get('/children/edit', static function () use ($container, $childManage): void {
+        $childManage(static function () use ($container): void {
+            (new ChildController($container))->edit();
+        });
+    });
+
+    $router->post('/children/update', static function () use ($container, $childManage): void {
+        $childManage(static function () use ($container): void {
+            (new ChildController($container))->update();
+        });
+    });
+
+    $router->post('/children/delete', static function () use ($container, $childManage): void {
+        $childManage(static function () use ($container): void {
+            (new ChildController($container))->delete();
         });
     });
 
