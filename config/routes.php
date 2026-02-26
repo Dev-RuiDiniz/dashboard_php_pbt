@@ -6,6 +6,7 @@ use App\Controllers\AuthController;
 use App\Controllers\ChildController;
 use App\Controllers\DashboardController;
 use App\Controllers\FamilyController;
+use App\Controllers\PersonController;
 use App\Controllers\UserController;
 use App\Core\Container;
 use App\Core\Router;
@@ -44,6 +45,18 @@ return static function (Router $router, Container $container): void {
     $childManage = static function (callable $action): void {
         (new AuthMiddleware())->handle(static function () use ($action): void {
             (new PermissionMiddleware())->handle('children.manage', $action);
+        });
+    };
+
+    $personView = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('people.view', $action);
+        });
+    };
+
+    $personManage = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('people.manage', $action);
         });
     };
 
@@ -164,6 +177,36 @@ return static function (Router $router, Container $container): void {
     $router->post('/children/delete', static function () use ($container, $childManage): void {
         $childManage(static function () use ($container): void {
             (new ChildController($container))->delete();
+        });
+    });
+
+    $router->get('/people', static function () use ($container, $personView): void {
+        $personView(static function () use ($container): void {
+            (new PersonController($container))->index();
+        });
+    });
+
+    $router->get('/people/create', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->create();
+        });
+    });
+
+    $router->post('/people', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->store();
+        });
+    });
+
+    $router->get('/people/edit', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->edit();
+        });
+    });
+
+    $router->post('/people/update', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->update();
         });
     });
 

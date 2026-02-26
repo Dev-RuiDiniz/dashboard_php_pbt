@@ -12,6 +12,7 @@ $menu = [
     ['key' => 'dashboard', 'label' => 'Dashboard', 'href' => '/dashboard', 'icon' => 'grid'],
     ['key' => 'familias', 'label' => 'Familias', 'href' => '/families', 'icon' => 'people'],
     ['key' => 'criancas', 'label' => 'Criancas', 'href' => '/children', 'icon' => 'balloon-heart'],
+    ['key' => 'pessoas', 'label' => 'Pessoas', 'href' => '/people', 'icon' => 'person-lines-fill'],
     ['key' => 'fichas', 'label' => 'Fichas Sociais', 'href' => '/dashboard', 'icon' => 'clipboard2-heart'],
     ['key' => 'entregas', 'label' => 'Entregas', 'href' => '/dashboard', 'icon' => 'box-seam'],
     ['key' => 'equipamentos', 'label' => 'Equipamentos', 'href' => '/dashboard', 'icon' => 'wheelchair'],
