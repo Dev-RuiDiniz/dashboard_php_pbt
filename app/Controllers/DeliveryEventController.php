@@ -8,6 +8,7 @@ use App\Core\Container;
 use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
+use App\Models\AuditLogModel;
 use App\Models\DeliveryModel;
 use App\Models\DeliveryEventModel;
 use App\Models\FamilyModel;
@@ -247,7 +248,20 @@ final class DeliveryEventController
                 }
             }
 
-            $this->deliveryModel()->create((array) $resolved['data']);
+            $deliveryData = (array) $resolved['data'];
+            $createdDeliveryId = $this->deliveryModel()->create($deliveryData);
+            $this->logDeliveryOperation(
+                'delivery.create',
+                $createdDeliveryId,
+                [
+                    'event_id' => $eventId,
+                    'family_id' => $deliveryData['family_id'] ?? null,
+                    'person_id' => $deliveryData['person_id'] ?? null,
+                    'ticket_number' => $deliveryData['ticket_number'] ?? null,
+                    'quantity' => $deliveryData['quantity'] ?? null,
+                    'status' => $deliveryData['status'] ?? null,
+                ]
+            );
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao registrar convidado/entrega na lista operacional.');
             Session::flash('delivery_form_old', $input);
@@ -299,6 +313,20 @@ final class DeliveryEventController
                 'delivered_by' => $isRetirou ? $userId : ($targetStatus === 'presente' ? null : ($delivery['delivered_by'] ?? null)),
                 'signature_name' => $isRetirou ? $signatureName : ($delivery['signature_name'] ?? null),
             ]);
+
+            $this->logDeliveryOperation(
+                'delivery.status_update',
+                $deliveryId,
+                [
+                    'event_id' => $eventId,
+                    'from_status' => $current,
+                    'to_status' => $targetStatus,
+                    'family_id' => $delivery['family_id'] ?? null,
+                    'person_id' => $delivery['person_id'] ?? null,
+                    'ticket_number' => $delivery['ticket_number'] ?? null,
+                    'signature_name' => $targetStatus === 'retirou' ? $signatureName : null,
+                ]
+            );
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao atualizar status da entrega.');
             Response::redirect('/delivery-events/show?id=' . $eventId);
@@ -392,6 +420,13 @@ final class DeliveryEventController
         return new PersonModel($pdo);
     }
 
+    private function auditLogModel(): AuditLogModel
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new AuditLogModel($pdo);
+    }
+
     private function sanitizeDeliveryInput(array $post): array
     {
         return [
@@ -417,6 +452,9 @@ final class DeliveryEventController
         if ($input['target_type'] === 'person' && (int) ($input['person_id'] ?? 0) <= 0) {
             return 'Selecione uma pessoa acompanhada para convidado manual.';
         }
+        if ((int) ($input['quantity'] ?? 0) <= 0) {
+            return 'Quantidade de cestas deve ser maior que zero.';
+        }
         return null;
     }
 
@@ -433,6 +471,9 @@ final class DeliveryEventController
                 return ['error' => 'Familia nao encontrada.', 'data' => null];
             }
             $familyId = (int) $family['id'];
+            if ($this->deliveryModel()->existsFamilyInEvent($eventId, $familyId)) {
+                return ['error' => 'Esta familia ja esta cadastrada na lista operacional deste evento.', 'data' => null];
+            }
             $documentId = (string) (($family['cpf_responsible'] ?? '') ?: ($family['rg_responsible'] ?? ''));
 
             if ((int) ($event['block_multiple_same_month'] ?? 0) === 1) {
@@ -447,7 +488,17 @@ final class DeliveryEventController
                 return ['error' => 'Pessoa acompanhada nao encontrada.', 'data' => null];
             }
             $personId = (int) $person['id'];
+            if ($this->deliveryModel()->existsPersonInEvent($eventId, $personId)) {
+                return ['error' => 'Esta pessoa ja esta cadastrada na lista operacional deste evento.', 'data' => null];
+            }
             $documentId = (string) (($person['cpf'] ?? '') ?: ($person['rg'] ?? ''));
+
+            if ((int) ($event['block_multiple_same_month'] ?? 0) === 1) {
+                $already = $this->deliveryModel()->existsPersonDeliveryInMonth($personId, (string) $event['event_date'], $eventId);
+                if ($already) {
+                    return ['error' => 'Bloqueio mensal ativo: esta pessoa ja retirou cesta em outro evento no mesmo mes.', 'data' => null];
+                }
+            }
         }
 
         return [
@@ -485,5 +536,28 @@ final class DeliveryEventController
         }
 
         return null;
+    }
+
+    private function logDeliveryOperation(string $action, int $deliveryId, array $details): void
+    {
+        try {
+            $authUser = Session::get('auth_user', []);
+            $userId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : 0;
+            $ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : null;
+            $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? (string) $_SERVER['HTTP_USER_AGENT'] : null;
+
+            $encoded = json_encode($details, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $this->auditLogModel()->create([
+                'user_id' => $userId > 0 ? $userId : null,
+                'action' => $action,
+                'entity' => 'deliveries',
+                'entity_id' => $deliveryId,
+                'ip_address' => $ip !== '' ? $ip : null,
+                'user_agent' => $userAgent !== '' ? $userAgent : null,
+                'details_json' => $encoded !== false ? $encoded : null,
+            ]);
+        } catch (Throwable $exception) {
+            // Nao interrompe fluxo operacional por falha de auditoria.
+        }
     }
 }

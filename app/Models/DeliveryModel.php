@@ -41,6 +41,30 @@ final class DeliveryModel
         return is_array($row) ? $row : null;
     }
 
+    public function existsFamilyInEvent(int $eventId, int $familyId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT 1 FROM deliveries WHERE event_id = :event_id AND family_id = :family_id LIMIT 1'
+        );
+        $stmt->execute([
+            'event_id' => $eventId,
+            'family_id' => $familyId,
+        ]);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    public function existsPersonInEvent(int $eventId, int $personId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT 1 FROM deliveries WHERE event_id = :event_id AND person_id = :person_id LIMIT 1'
+        );
+        $stmt->execute([
+            'event_id' => $eventId,
+            'person_id' => $personId,
+        ]);
+        return $stmt->fetchColumn() !== false;
+    }
+
     public function nextTicketNumber(int $eventId): int
     {
         $stmt = $this->pdo->prepare('SELECT COALESCE(MAX(ticket_number), 0) + 1 AS next_ticket FROM deliveries WHERE event_id = :event_id');
@@ -98,6 +122,32 @@ final class DeliveryModel
                 LIMIT 1';
         $params = [
             'family_id' => $familyId,
+            'event_date' => $eventDate,
+            'status' => 'retirou',
+        ];
+
+        if ($excludeEventId !== null) {
+            $sql = str_replace('LIMIT 1', 'AND d.event_id <> :exclude_event_id LIMIT 1', $sql);
+            $params['exclude_event_id'] = $excludeEventId;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    public function existsPersonDeliveryInMonth(int $personId, string $eventDate, ?int $excludeEventId = null): bool
+    {
+        $sql = 'SELECT 1
+                FROM deliveries d
+                INNER JOIN delivery_events de ON de.id = d.event_id
+                WHERE d.person_id = :person_id
+                  AND YEAR(de.event_date) = YEAR(:event_date)
+                  AND MONTH(de.event_date) = MONTH(:event_date)
+                  AND d.status = :status
+                LIMIT 1';
+        $params = [
+            'person_id' => $personId,
             'event_date' => $eventDate,
             'status' => 'retirou',
         ];
