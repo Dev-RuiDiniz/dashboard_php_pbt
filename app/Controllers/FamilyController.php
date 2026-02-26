@@ -157,6 +157,151 @@ final class FamilyController
         Response::redirect('/families');
     }
 
+    public function show(): void
+    {
+        $familyId = (int) ($_GET['id'] ?? 0);
+        if ($familyId <= 0) {
+            Session::flash('error', 'Familia invalida.');
+            Response::redirect('/families');
+        }
+
+        try {
+            $family = $this->familyModel()->findById($familyId);
+            if ($family === null) {
+                Session::flash('error', 'Familia nao encontrada.');
+                Response::redirect('/families');
+            }
+
+            $members = $this->familyModel()->getMembersByFamilyId($familyId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao carregar detalhes da familia.');
+            Response::redirect('/families');
+        }
+
+        $memberEditId = (int) ($_GET['member_edit'] ?? 0);
+        $memberEdit = null;
+        if ($memberEditId > 0) {
+            foreach ($members as $member) {
+                if ((int) ($member['id'] ?? 0) === $memberEditId) {
+                    $memberEdit = $member;
+                    break;
+                }
+            }
+        }
+
+        $memberOld = Session::consumeFlash('member_form_old');
+        if (is_array($memberOld)) {
+            $memberEdit = array_merge($this->defaultMemberFormData($familyId), $memberOld);
+        }
+
+        View::render('families.show', [
+            '_layout' => 'layouts.app',
+            'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
+            'pageTitle' => 'Detalhe da familia',
+            'activeMenu' => 'familias',
+            'authUser' => Session::get('auth_user', []),
+            'family' => $family,
+            'members' => $members,
+            'memberForm' => $memberEdit ?? $this->defaultMemberFormData($familyId),
+            'memberEditMode' => $memberEdit !== null && isset($memberEdit['id']),
+            'success' => Session::consumeFlash('success'),
+            'error' => Session::consumeFlash('error'),
+        ]);
+    }
+
+    public function storeMember(): void
+    {
+        $familyId = (int) ($_GET['family_id'] ?? 0);
+        if ($familyId <= 0) {
+            Session::flash('error', 'Familia invalida.');
+            Response::redirect('/families');
+        }
+
+        $input = $this->sanitizeMemberInput($_POST, $familyId);
+        $error = $this->validateMemberInput($input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            Session::flash('member_form_old', $input);
+            Response::redirect('/families/show?id=' . $familyId);
+        }
+
+        try {
+            if ($this->familyModel()->findById($familyId) === null) {
+                Session::flash('error', 'Familia nao encontrada.');
+                Response::redirect('/families');
+            }
+
+            $this->familyModel()->createMember($this->toMemberPersistenceData($input));
+            $this->familyModel()->recalculateFamilyIndicators($familyId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao adicionar membro.');
+            Session::flash('member_form_old', $input);
+            Response::redirect('/families/show?id=' . $familyId);
+        }
+
+        Session::flash('success', 'Membro adicionado com sucesso.');
+        Response::redirect('/families/show?id=' . $familyId);
+    }
+
+    public function updateMember(): void
+    {
+        $familyId = (int) ($_GET['family_id'] ?? 0);
+        $memberId = (int) ($_GET['id'] ?? 0);
+        if ($familyId <= 0 || $memberId <= 0) {
+            Session::flash('error', 'Membro invalido.');
+            Response::redirect('/families');
+        }
+
+        $input = $this->sanitizeMemberInput($_POST, $familyId);
+        $error = $this->validateMemberInput($input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            $input['id'] = $memberId;
+            Session::flash('member_form_old', $input);
+            Response::redirect('/families/show?id=' . $familyId . '&member_edit=' . $memberId);
+        }
+
+        try {
+            $member = $this->familyModel()->findMemberById($memberId);
+            if ($member === null || (int) ($member['family_id'] ?? 0) !== $familyId) {
+                Session::flash('error', 'Membro nao encontrado.');
+                Response::redirect('/families/show?id=' . $familyId);
+            }
+
+            $this->familyModel()->updateMember($memberId, $this->toMemberPersistenceData($input));
+            $this->familyModel()->recalculateFamilyIndicators($familyId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao atualizar membro.');
+            $input['id'] = $memberId;
+            Session::flash('member_form_old', $input);
+            Response::redirect('/families/show?id=' . $familyId . '&member_edit=' . $memberId);
+        }
+
+        Session::flash('success', 'Membro atualizado com sucesso.');
+        Response::redirect('/families/show?id=' . $familyId);
+    }
+
+    public function deleteMember(): void
+    {
+        $familyId = (int) ($_GET['family_id'] ?? 0);
+        $memberId = (int) ($_GET['id'] ?? 0);
+        if ($familyId <= 0 || $memberId <= 0) {
+            Session::flash('error', 'Membro invalido.');
+            Response::redirect('/families');
+        }
+
+        try {
+            $this->familyModel()->deleteMember($memberId, $familyId);
+            $this->familyModel()->recalculateFamilyIndicators($familyId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao remover membro.');
+            Response::redirect('/families/show?id=' . $familyId);
+        }
+
+        Session::flash('success', 'Membro removido com sucesso.');
+        Response::redirect('/families/show?id=' . $familyId);
+    }
+
     private function renderForm(string $mode, array $family): void
     {
         View::render('families.form', [
@@ -297,6 +442,55 @@ final class FamilyController
         }
 
         return $duplicate !== null ? 'Ja existe familia cadastrada com este CPF.' : null;
+    }
+
+    private function defaultMemberFormData(int $familyId): array
+    {
+        return [
+            'family_id' => $familyId,
+            'name' => '',
+            'relationship' => '',
+            'birth_date' => '',
+            'works' => 0,
+            'income' => '0.00',
+        ];
+    }
+
+    private function sanitizeMemberInput(array $post, int $familyId): array
+    {
+        return [
+            'family_id' => $familyId,
+            'name' => trim((string) ($post['name'] ?? '')),
+            'relationship' => trim((string) ($post['relationship'] ?? '')),
+            'birth_date' => trim((string) ($post['birth_date'] ?? '')),
+            'works' => isset($post['works']) ? 1 : 0,
+            'income' => $this->sanitizeMoney((string) ($post['income'] ?? '0')),
+        ];
+    }
+
+    private function validateMemberInput(array $input): ?string
+    {
+        if (trim((string) ($input['name'] ?? '')) === '') {
+            return 'Nome do membro e obrigatorio.';
+        }
+
+        if (!is_numeric((string) ($input['income'] ?? '0'))) {
+            return 'Renda do membro invalida.';
+        }
+
+        return null;
+    }
+
+    private function toMemberPersistenceData(array $input): array
+    {
+        return [
+            'family_id' => (int) $input['family_id'],
+            'name' => $input['name'],
+            'relationship' => $input['relationship'] !== '' ? $input['relationship'] : null,
+            'birth_date' => $input['birth_date'] !== '' ? $input['birth_date'] : null,
+            'works' => (int) $input['works'],
+            'income' => $input['income'],
+        ];
     }
 
     private function toPersistenceData(array $input): array

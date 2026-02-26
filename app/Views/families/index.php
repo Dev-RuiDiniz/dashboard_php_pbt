@@ -99,7 +99,10 @@ $filters = is_array($filters ?? null) ? $filters : [];
                                 : '<span class="badge text-bg-danger">Inativo</span>' ?>
                         </td>
                         <td>
-                            <a class="btn btn-sm btn-outline-secondary" href="/families/edit?id=<?= $id ?>">Editar</a>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-sm btn-outline-primary" href="/families/show?id=<?= $id ?>">Detalhe</a>
+                                <a class="btn btn-sm btn-outline-secondary" href="/families/edit?id=<?= $id ?>">Editar</a>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -108,4 +111,3 @@ $filters = is_array($filters ?? null) ? $filters : [];
         </table>
     </div>
 </div>
-

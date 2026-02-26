@@ -142,5 +142,100 @@ final class FamilyModel
 
         $stmt->execute($data);
     }
-}
 
+    public function getMembersByFamilyId(int $familyId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, family_id, name, relationship, birth_date, works, income, created_at, updated_at
+             FROM family_members
+             WHERE family_id = :family_id
+             ORDER BY name ASC, id ASC'
+        );
+        $stmt->execute(['family_id' => $familyId]);
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
+
+    public function findMemberById(int $memberId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, family_id, name, relationship, birth_date, works, income
+             FROM family_members
+             WHERE id = :id
+             LIMIT 1'
+        );
+        $stmt->execute(['id' => $memberId]);
+        $row = $stmt->fetch();
+        return is_array($row) ? $row : null;
+    }
+
+    public function createMember(array $data): int
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO family_members (family_id, name, relationship, birth_date, works, income)
+             VALUES (:family_id, :name, :relationship, :birth_date, :works, :income)'
+        );
+        $stmt->execute($data);
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    public function updateMember(int $memberId, array $data): void
+    {
+        $data['id'] = $memberId;
+        $stmt = $this->pdo->prepare(
+            'UPDATE family_members
+             SET name = :name,
+                 relationship = :relationship,
+                 birth_date = :birth_date,
+                 works = :works,
+                 income = :income
+             WHERE id = :id AND family_id = :family_id'
+        );
+        $stmt->execute($data);
+    }
+
+    public function deleteMember(int $memberId, int $familyId): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM family_members WHERE id = :id AND family_id = :family_id');
+        $stmt->execute([
+            'id' => $memberId,
+            'family_id' => $familyId,
+        ]);
+    }
+
+    public function recalculateFamilyIndicators(int $familyId): void
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+                COALESCE(SUM(CASE WHEN works = 1 THEN 1 ELSE 0 END), 0) AS workers_count,
+                COALESCE(SUM(income), 0) AS total_income,
+                COALESCE(SUM(
+                    CASE
+                        WHEN birth_date IS NOT NULL AND birth_date <= DATE_SUB(CURDATE(), INTERVAL 18 YEAR) THEN 1
+                        ELSE 0
+                    END
+                ), 0) AS adults_count
+             FROM family_members
+             WHERE family_id = :family_id'
+        );
+        $stmt->execute(['family_id' => $familyId]);
+        $summary = $stmt->fetch();
+        if (!is_array($summary)) {
+            return;
+        }
+
+        $update = $this->pdo->prepare(
+            'UPDATE families
+             SET adults_count = :adults_count,
+                 workers_count = :workers_count,
+                 family_income_total = :family_income_total
+             WHERE id = :id'
+        );
+        $update->execute([
+            'id' => $familyId,
+            'adults_count' => (int) ($summary['adults_count'] ?? 0),
+            'workers_count' => (int) ($summary['workers_count'] ?? 0),
+            'family_income_total' => number_format((float) ($summary['total_income'] ?? 0), 2, '.', ''),
+        ]);
+    }
+}

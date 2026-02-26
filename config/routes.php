@@ -70,6 +70,12 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->get('/families/show', static function () use ($container, $familyView): void {
+        $familyView(static function () use ($container): void {
+            (new FamilyController($container))->show();
+        });
+    });
+
     $router->get('/families/create', static function () use ($container, $familyManage): void {
         $familyManage(static function () use ($container): void {
             (new FamilyController($container))->create();
@@ -91,6 +97,24 @@ return static function (Router $router, Container $container): void {
     $router->post('/families/update', static function () use ($container, $familyManage): void {
         $familyManage(static function () use ($container): void {
             (new FamilyController($container))->update();
+        });
+    });
+
+    $router->post('/families/members', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->storeMember();
+        });
+    });
+
+    $router->post('/families/members/update', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->updateMember();
+        });
+    });
+
+    $router->post('/families/members/delete', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->deleteMember();
         });
     });
 
