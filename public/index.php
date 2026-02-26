@@ -13,6 +13,15 @@ require $basePath . '/vendor/autoload.php';
 
 Env::load($basePath);
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_name('dashboard_php_pbt');
+    session_set_cookie_params([
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    session_start();
+}
+
 $container = new Container();
 
 $container->set('config', [
@@ -31,4 +40,3 @@ $routes = require $basePath . '/config/routes.php';
 $routes($router, $container);
 
 $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');
-
