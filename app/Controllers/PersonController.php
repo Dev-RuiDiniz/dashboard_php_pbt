@@ -9,6 +9,8 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
 use App\Models\PersonModel;
+use App\Models\FamilyModel;
+use App\Models\SocialRecordModel;
 use App\Services\CpfService;
 use PDO;
 use Throwable;
@@ -140,6 +142,88 @@ final class PersonController
         Response::redirect('/people');
     }
 
+    public function show(): void
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            Session::flash('error', 'Pessoa invalida.');
+            Response::redirect('/people');
+        }
+
+        try {
+            $person = $this->personModel()->findById($id);
+            if ($person === null) {
+                Session::flash('error', 'Pessoa nao encontrada.');
+                Response::redirect('/people');
+            }
+
+            $timeline = $this->socialRecordModel()->findByPersonId($id);
+            $families = $this->familyModel()->search([]);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao carregar detalhe da pessoa.');
+            Response::redirect('/people');
+        }
+
+        $recordOld = Session::consumeFlash('record_form_old');
+        $recordForm = $this->defaultSocialRecordFormData();
+        if (is_array($recordOld)) {
+            $recordForm = array_merge($recordForm, $recordOld);
+        }
+
+        View::render('people.show', [
+            '_layout' => 'layouts.app',
+            'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
+            'pageTitle' => 'Detalhe da pessoa',
+            'activeMenu' => 'pessoas',
+            'authUser' => Session::get('auth_user', []),
+            'person' => $person,
+            'timeline' => $timeline,
+            'families' => $families,
+            'recordForm' => $recordForm,
+            'success' => Session::consumeFlash('success'),
+            'error' => Session::consumeFlash('error'),
+        ]);
+    }
+
+    public function storeSocialRecord(): void
+    {
+        $personId = (int) ($_GET['person_id'] ?? 0);
+        if ($personId <= 0) {
+            Session::flash('error', 'Pessoa invalida para atendimento.');
+            Response::redirect('/people');
+        }
+
+        $input = $this->sanitizeSocialRecordInput($_POST, $personId);
+        $error = $this->validateSocialRecordInput($input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            Session::flash('record_form_old', $input);
+            Response::redirect('/people/show?id=' . $personId);
+        }
+
+        try {
+            if ($this->personModel()->findById($personId) === null) {
+                Session::flash('error', 'Pessoa nao encontrada.');
+                Response::redirect('/people');
+            }
+
+            if (!empty($input['family_id']) && $this->familyModel()->findById((int) $input['family_id']) === null) {
+                Session::flash('error', 'Familia vinculada nao encontrada.');
+                Session::flash('record_form_old', $input);
+                Response::redirect('/people/show?id=' . $personId);
+            }
+
+            $this->socialRecordModel()->create($this->toSocialRecordPersistenceData($input));
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao registrar atendimento social.');
+            Session::flash('record_form_old', $input);
+            Response::redirect('/people/show?id=' . $personId);
+        }
+
+        Session::flash('success', 'Atendimento social registrado com sucesso.');
+        Response::redirect('/people/show?id=' . $personId);
+    }
+
     private function renderForm(string $mode, array $person): void
     {
         View::render('people.form', [
@@ -254,5 +338,99 @@ final class PersonController
         $pdo = $this->container->get('db');
         return new PersonModel($pdo);
     }
-}
 
+    private function familyModel(): FamilyModel
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new FamilyModel($pdo);
+    }
+
+    private function socialRecordModel(): SocialRecordModel
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new SocialRecordModel($pdo);
+    }
+
+    private function defaultSocialRecordFormData(): array
+    {
+        return [
+            'family_id' => 0,
+            'chronic_diseases' => '',
+            'continuous_medication' => '',
+            'substance_use' => '',
+            'disability' => '',
+            'immediate_needs' => '',
+            'spiritual_wants_prayer' => 0,
+            'spiritual_accepts_visit' => 0,
+            'church_name' => '',
+            'spiritual_decision' => '',
+            'notes' => '',
+            'consent_text_version' => 'v1.0',
+            'consent_name' => '',
+        ];
+    }
+
+    private function sanitizeSocialRecordInput(array $post, int $personId): array
+    {
+        return [
+            'person_id' => $personId,
+            'family_id' => (int) ($post['family_id'] ?? 0),
+            'chronic_diseases' => trim((string) ($post['chronic_diseases'] ?? '')),
+            'continuous_medication' => trim((string) ($post['continuous_medication'] ?? '')),
+            'substance_use' => trim((string) ($post['substance_use'] ?? '')),
+            'disability' => trim((string) ($post['disability'] ?? '')),
+            'immediate_needs' => trim((string) ($post['immediate_needs'] ?? '')),
+            'spiritual_wants_prayer' => isset($post['spiritual_wants_prayer']) ? 1 : 0,
+            'spiritual_accepts_visit' => isset($post['spiritual_accepts_visit']) ? 1 : 0,
+            'church_name' => trim((string) ($post['church_name'] ?? '')),
+            'spiritual_decision' => trim((string) ($post['spiritual_decision'] ?? '')),
+            'notes' => trim((string) ($post['notes'] ?? '')),
+            'consent_text_version' => trim((string) ($post['consent_text_version'] ?? 'v1.0')),
+            'consent_name' => trim((string) ($post['consent_name'] ?? '')),
+        ];
+    }
+
+    private function validateSocialRecordInput(array $input): ?string
+    {
+        if ((int) ($input['person_id'] ?? 0) <= 0) {
+            return 'Pessoa invalida.';
+        }
+
+        if (trim((string) ($input['consent_name'] ?? '')) === '') {
+            return 'Consentimento digital obrigatorio: informe o nome no termo.';
+        }
+
+        if (trim((string) ($input['consent_text_version'] ?? '')) === '') {
+            return 'Versao do termo de consentimento obrigatoria.';
+        }
+
+        return null;
+    }
+
+    private function toSocialRecordPersistenceData(array $input): array
+    {
+        $authUser = Session::get('auth_user', []);
+        $createdBy = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : 0;
+
+        return [
+            'person_id' => (int) $input['person_id'],
+            'family_id' => ((int) ($input['family_id'] ?? 0)) > 0 ? (int) $input['family_id'] : null,
+            'chronic_diseases' => $input['chronic_diseases'] !== '' ? $input['chronic_diseases'] : null,
+            'continuous_medication' => $input['continuous_medication'] !== '' ? $input['continuous_medication'] : null,
+            'substance_use' => $input['substance_use'] !== '' ? $input['substance_use'] : null,
+            'disability' => $input['disability'] !== '' ? $input['disability'] : null,
+            'immediate_needs' => $input['immediate_needs'] !== '' ? $input['immediate_needs'] : null,
+            'spiritual_wants_prayer' => (int) $input['spiritual_wants_prayer'],
+            'spiritual_accepts_visit' => (int) $input['spiritual_accepts_visit'],
+            'church_name' => $input['church_name'] !== '' ? $input['church_name'] : null,
+            'spiritual_decision' => $input['spiritual_decision'] !== '' ? $input['spiritual_decision'] : null,
+            'notes' => $input['notes'] !== '' ? $input['notes'] : null,
+            'consent_text_version' => $input['consent_text_version'],
+            'consent_name' => $input['consent_name'],
+            'consent_at' => date('Y-m-d H:i:s'),
+            'created_by' => $createdBy,
+        ];
+    }
+}

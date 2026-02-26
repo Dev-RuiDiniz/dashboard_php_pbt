@@ -186,6 +186,12 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->get('/people/show', static function () use ($container, $personView): void {
+        $personView(static function () use ($container): void {
+            (new PersonController($container))->show();
+        });
+    });
+
     $router->get('/people/create', static function () use ($container, $personManage): void {
         $personManage(static function () use ($container): void {
             (new PersonController($container))->create();
@@ -207,6 +213,12 @@ return static function (Router $router, Container $container): void {
     $router->post('/people/update', static function () use ($container, $personManage): void {
         $personManage(static function () use ($container): void {
             (new PersonController($container))->update();
+        });
+    });
+
+    $router->post('/people/social-records', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->storeSocialRecord();
         });
     });
 

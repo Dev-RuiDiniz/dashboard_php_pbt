@@ -92,7 +92,10 @@ $filters = is_array($filters ?? null) ? $filters : [];
                         </td>
                         <td><?= htmlspecialchars((string) (($person['updated_at'] ?? '') ?: ($person['created_at'] ?? '-')), ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
-                            <a class="btn btn-sm btn-outline-secondary" href="/people/edit?id=<?= $id ?>">Editar</a>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-sm btn-outline-primary" href="/people/show?id=<?= $id ?>">Detalhe</a>
+                                <a class="btn btn-sm btn-outline-secondary" href="/people/edit?id=<?= $id ?>">Editar</a>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -101,4 +104,3 @@ $filters = is_array($filters ?? null) ? $filters : [];
         </table>
     </div>
 </div>
-
