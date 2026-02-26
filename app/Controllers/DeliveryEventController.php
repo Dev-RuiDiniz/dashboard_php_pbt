@@ -8,7 +8,10 @@ use App\Core\Container;
 use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
+use App\Models\DeliveryModel;
 use App\Models\DeliveryEventModel;
+use App\Models\FamilyModel;
+use App\Models\PersonModel;
 use PDO;
 use Throwable;
 
@@ -149,6 +152,162 @@ final class DeliveryEventController
         Response::redirect('/delivery-events');
     }
 
+    public function show(): void
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            Session::flash('error', 'Evento invalido.');
+            Response::redirect('/delivery-events');
+        }
+
+        try {
+            $event = $this->model()->findById($id);
+            if ($event === null) {
+                Session::flash('error', 'Evento nao encontrado.');
+                Response::redirect('/delivery-events');
+            }
+
+            $deliveries = $this->deliveryModel()->listByEventId($id);
+            $families = $this->familyModel()->search(['status' => 'ativo']);
+            $people = $this->personModel()->search([]);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao carregar lista operacional do evento.');
+            Response::redirect('/delivery-events');
+        }
+
+        $deliveryForm = [
+            'target_type' => 'family',
+            'family_id' => 0,
+            'person_id' => 0,
+            'quantity' => 1,
+            'observations' => '',
+        ];
+        $old = Session::consumeFlash('delivery_form_old');
+        if (is_array($old)) {
+            $deliveryForm = array_merge($deliveryForm, $old);
+        }
+
+        View::render('delivery_events.show', [
+            '_layout' => 'layouts.app',
+            'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
+            'pageTitle' => 'Lista operacional de entregas',
+            'activeMenu' => 'entregas',
+            'authUser' => Session::get('auth_user', []),
+            'event' => $event,
+            'deliveries' => $deliveries,
+            'families' => $families,
+            'people' => $people,
+            'deliveryForm' => $deliveryForm,
+            'success' => Session::consumeFlash('success'),
+            'error' => Session::consumeFlash('error'),
+        ]);
+    }
+
+    public function storeDelivery(): void
+    {
+        $eventId = (int) ($_GET['event_id'] ?? 0);
+        if ($eventId <= 0) {
+            Session::flash('error', 'Evento invalido.');
+            Response::redirect('/delivery-events');
+        }
+
+        $input = $this->sanitizeDeliveryInput($_POST);
+        $error = $this->validateDeliveryInput($eventId, $input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            Session::flash('delivery_form_old', $input);
+            Response::redirect('/delivery-events/show?id=' . $eventId);
+        }
+
+        try {
+            $event = $this->model()->findById($eventId);
+            if ($event === null) {
+                Session::flash('error', 'Evento nao encontrado.');
+                Response::redirect('/delivery-events');
+            }
+            if ((string) ($event['status'] ?? '') === 'concluido') {
+                Session::flash('error', 'Evento concluido nao permite incluir novos convidados.');
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            $resolved = $this->resolveDeliveryTarget((int) $eventId, $input, $event);
+            if ($resolved['error'] !== null) {
+                Session::flash('error', (string) $resolved['error']);
+                Session::flash('delivery_form_old', $input);
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            if (($event['max_baskets'] ?? null) !== null) {
+                $currentQty = $this->deliveryModel()->totalQuantityByEvent($eventId);
+                $newQty = (int) (((array) $resolved['data'])['quantity'] ?? 0);
+                if (($currentQty + $newQty) > (int) $event['max_baskets']) {
+                    Session::flash('error', 'Limite de cestas do evento excedido.');
+                    Session::flash('delivery_form_old', $input);
+                    Response::redirect('/delivery-events/show?id=' . $eventId);
+                }
+            }
+
+            $this->deliveryModel()->create((array) $resolved['data']);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao registrar convidado/entrega na lista operacional.');
+            Session::flash('delivery_form_old', $input);
+            Response::redirect('/delivery-events/show?id=' . $eventId);
+        }
+
+        Session::flash('success', 'Convidado adicionado na lista operacional com senha sequencial.');
+        Response::redirect('/delivery-events/show?id=' . $eventId);
+    }
+
+    public function updateDeliveryStatus(): void
+    {
+        $eventId = (int) ($_GET['event_id'] ?? 0);
+        $deliveryId = (int) ($_GET['id'] ?? 0);
+        $targetStatus = trim((string) ($_POST['target_status'] ?? ''));
+        $signatureName = trim((string) ($_POST['signature_name'] ?? ''));
+
+        if ($eventId <= 0 || $deliveryId <= 0) {
+            Session::flash('error', 'Entrega invalida.');
+            Response::redirect('/delivery-events');
+        }
+
+        try {
+            $delivery = $this->deliveryModel()->findById($deliveryId);
+            if ($delivery === null || (int) ($delivery['event_id'] ?? 0) !== $eventId) {
+                Session::flash('error', 'Registro de entrega nao encontrado.');
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+            $event = $this->model()->findById($eventId);
+            if ($event !== null && (string) ($event['status'] ?? '') === 'concluido') {
+                Session::flash('error', 'Evento concluido nao permite alterar status das entregas.');
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            $current = (string) ($delivery['status'] ?? 'nao_veio');
+            $flowError = $this->validateDeliveryStatusTransition($current, $targetStatus, $signatureName);
+            if ($flowError !== null) {
+                Session::flash('error', $flowError);
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            $authUser = Session::get('auth_user', []);
+            $userId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : null;
+
+            $isRetirou = $targetStatus === 'retirou';
+            $this->deliveryModel()->updateStatus($deliveryId, [
+                'status' => $targetStatus,
+                'delivered_at' => $isRetirou ? date('Y-m-d H:i:s') : ($targetStatus === 'presente' ? null : ($delivery['delivered_at'] ?? null)),
+                'delivered_by' => $isRetirou ? $userId : ($targetStatus === 'presente' ? null : ($delivery['delivered_by'] ?? null)),
+                'signature_name' => $isRetirou ? $signatureName : ($delivery['signature_name'] ?? null),
+            ]);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao atualizar status da entrega.');
+            Response::redirect('/delivery-events/show?id=' . $eventId);
+        }
+
+        Session::flash('success', 'Status da entrega atualizado para ' . $targetStatus . '.');
+        Response::redirect('/delivery-events/show?id=' . $eventId);
+    }
+
     private function renderForm(string $mode, array $event): void
     {
         View::render('delivery_events.form', [
@@ -210,5 +369,121 @@ final class DeliveryEventController
         /** @var PDO $pdo */
         $pdo = $this->container->get('db');
         return new DeliveryEventModel($pdo);
+    }
+
+    private function deliveryModel(): DeliveryModel
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new DeliveryModel($pdo);
+    }
+
+    private function familyModel(): FamilyModel
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new FamilyModel($pdo);
+    }
+
+    private function personModel(): PersonModel
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new PersonModel($pdo);
+    }
+
+    private function sanitizeDeliveryInput(array $post): array
+    {
+        return [
+            'target_type' => trim((string) ($post['target_type'] ?? 'family')),
+            'family_id' => (int) ($post['family_id'] ?? 0),
+            'person_id' => (int) ($post['person_id'] ?? 0),
+            'quantity' => max(1, (int) ($post['quantity'] ?? 1)),
+            'observations' => trim((string) ($post['observations'] ?? '')),
+        ];
+    }
+
+    private function validateDeliveryInput(int $eventId, array $input): ?string
+    {
+        if ($eventId <= 0) {
+            return 'Evento invalido.';
+        }
+        if (!in_array((string) ($input['target_type'] ?? ''), ['family', 'person'], true)) {
+            return 'Tipo de convidado invalido.';
+        }
+        if ($input['target_type'] === 'family' && (int) ($input['family_id'] ?? 0) <= 0) {
+            return 'Selecione uma familia para convidado manual.';
+        }
+        if ($input['target_type'] === 'person' && (int) ($input['person_id'] ?? 0) <= 0) {
+            return 'Selecione uma pessoa acompanhada para convidado manual.';
+        }
+        return null;
+    }
+
+    private function resolveDeliveryTarget(int $eventId, array $input, array $event): array
+    {
+        $ticket = $this->deliveryModel()->nextTicketNumber($eventId);
+        $familyId = null;
+        $personId = null;
+        $documentId = null;
+
+        if ($input['target_type'] === 'family') {
+            $family = $this->familyModel()->findById((int) $input['family_id']);
+            if ($family === null) {
+                return ['error' => 'Familia nao encontrada.', 'data' => null];
+            }
+            $familyId = (int) $family['id'];
+            $documentId = (string) (($family['cpf_responsible'] ?? '') ?: ($family['rg_responsible'] ?? ''));
+
+            if ((int) ($event['block_multiple_same_month'] ?? 0) === 1) {
+                $already = $this->deliveryModel()->existsFamilyDeliveryInMonth($familyId, (string) $event['event_date'], $eventId);
+                if ($already) {
+                    return ['error' => 'Bloqueio mensal ativo: esta familia ja retirou cesta em outro evento no mesmo mes.', 'data' => null];
+                }
+            }
+        } else {
+            $person = $this->personModel()->findById((int) $input['person_id']);
+            if ($person === null) {
+                return ['error' => 'Pessoa acompanhada nao encontrada.', 'data' => null];
+            }
+            $personId = (int) $person['id'];
+            $documentId = (string) (($person['cpf'] ?? '') ?: ($person['rg'] ?? ''));
+        }
+
+        return [
+            'error' => null,
+            'data' => [
+                'event_id' => $eventId,
+                'family_id' => $familyId,
+                'person_id' => $personId,
+                'ticket_number' => $ticket,
+                'document_id' => $documentId !== '' ? $documentId : null,
+                'observations' => $input['observations'] !== '' ? $input['observations'] : null,
+                'status' => 'nao_veio',
+                'quantity' => (int) $input['quantity'],
+                'delivered_at' => null,
+                'delivered_by' => null,
+                'signature_name' => null,
+            ],
+        ];
+    }
+
+    private function validateDeliveryStatusTransition(string $current, string $target, string $signatureName): ?string
+    {
+        $allowed = [
+            'nao_veio' => ['presente'],
+            'presente' => ['retirou'],
+            'retirou' => [],
+        ];
+
+        if (!isset($allowed[$current]) || !in_array($target, $allowed[$current], true)) {
+            return 'Transicao de status invalida. Fluxo permitido: nao_veio -> presente -> retirou.';
+        }
+
+        if ($target === 'retirou' && $signatureName === '') {
+            return 'Assinatura simples obrigatoria para marcar como retirou.';
+        }
+
+        return null;
     }
 }

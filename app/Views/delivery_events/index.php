@@ -85,7 +85,10 @@ $statuses = is_array($statuses ?? null) ? $statuses : [];
                         <td><span class="badge text-bg-light border"><?= htmlspecialchars((string) ($event['status'] ?? ''), ENT_QUOTES, 'UTF-8') ?></span></td>
                         <td><?= htmlspecialchars((string) (($event['created_by_name'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
-                            <a class="btn btn-sm btn-outline-secondary" href="/delivery-events/edit?id=<?= $id ?>">Editar</a>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-sm btn-outline-primary" href="/delivery-events/show?id=<?= $id ?>">Lista operacional</a>
+                                <a class="btn btn-sm btn-outline-secondary" href="/delivery-events/edit?id=<?= $id ?>">Editar</a>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -94,4 +97,3 @@ $statuses = is_array($statuses ?? null) ? $statuses : [];
         </table>
     </div>
 </div>
-

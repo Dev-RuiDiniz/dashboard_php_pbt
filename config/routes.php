@@ -277,6 +277,12 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->get('/delivery-events/show', static function () use ($container, $deliveryView): void {
+        $deliveryView(static function () use ($container): void {
+            (new DeliveryEventController($container))->show();
+        });
+    });
+
     $router->get('/delivery-events/create', static function () use ($container, $deliveryManage): void {
         $deliveryManage(static function () use ($container): void {
             (new DeliveryEventController($container))->create();
@@ -298,6 +304,18 @@ return static function (Router $router, Container $container): void {
     $router->post('/delivery-events/update', static function () use ($container, $deliveryManage): void {
         $deliveryManage(static function () use ($container): void {
             (new DeliveryEventController($container))->update();
+        });
+    });
+
+    $router->post('/delivery-events/deliveries', static function () use ($container, $deliveryManage): void {
+        $deliveryManage(static function () use ($container): void {
+            (new DeliveryEventController($container))->storeDelivery();
+        });
+    });
+
+    $router->post('/delivery-events/deliveries/status', static function () use ($container, $deliveryManage): void {
+        $deliveryManage(static function () use ($container): void {
+            (new DeliveryEventController($container))->updateDeliveryStatus();
         });
     });
 
