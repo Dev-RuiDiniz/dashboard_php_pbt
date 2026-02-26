@@ -10,7 +10,9 @@ use App\Core\Session;
 use App\Core\View;
 use App\Models\PersonModel;
 use App\Models\FamilyModel;
+use App\Models\ReferralModel;
 use App\Models\SocialRecordModel;
+use App\Models\SpiritualFollowupModel;
 use App\Services\CpfService;
 use PDO;
 use Throwable;
@@ -159,6 +161,15 @@ final class PersonController
 
             $timeline = $this->socialRecordModel()->findByPersonId($id);
             $families = $this->familyModel()->search([]);
+            $referralFilters = [
+                'referral_type' => trim((string) ($_GET['referral_type'] ?? '')),
+                'status' => trim((string) ($_GET['referral_status'] ?? '')),
+            ];
+            $spiritualFilters = [
+                'action' => trim((string) ($_GET['spiritual_action'] ?? '')),
+            ];
+            $referrals = $this->referralModel()->findByPersonId($id, $referralFilters);
+            $spiritualFollowups = $this->spiritualFollowupModel()->findByPersonId($id, $spiritualFilters);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao carregar detalhe da pessoa.');
             Response::redirect('/people');
@@ -170,6 +181,46 @@ final class PersonController
             $recordForm = array_merge($recordForm, $recordOld);
         }
 
+        $referralOld = Session::consumeFlash('referral_form_old');
+        $referralForm = $this->defaultReferralFormData();
+        if (is_array($referralOld)) {
+            $referralForm = array_merge($referralForm, $referralOld);
+        }
+
+        $spiritualOld = Session::consumeFlash('spiritual_form_old');
+        $spiritualForm = $this->defaultSpiritualFormData();
+        if (is_array($spiritualOld)) {
+            $spiritualForm = array_merge($spiritualForm, $spiritualOld);
+        }
+
+        $referralEditId = (int) ($_GET['referral_edit'] ?? 0);
+        $referralEdit = null;
+        if ($referralEditId > 0) {
+            foreach ($referrals as $r) {
+                if ((int) ($r['id'] ?? 0) === $referralEditId) {
+                    $referralEdit = $r;
+                    break;
+                }
+            }
+        }
+        if ($referralEdit !== null && !is_array($referralOld)) {
+            $referralForm = array_merge($referralForm, $referralEdit);
+        }
+
+        $spiritualEditId = (int) ($_GET['spiritual_edit'] ?? 0);
+        $spiritualEdit = null;
+        if ($spiritualEditId > 0) {
+            foreach ($spiritualFollowups as $s) {
+                if ((int) ($s['id'] ?? 0) === $spiritualEditId) {
+                    $spiritualEdit = $s;
+                    break;
+                }
+            }
+        }
+        if ($spiritualEdit !== null && !is_array($spiritualOld)) {
+            $spiritualForm = array_merge($spiritualForm, $spiritualEdit);
+        }
+
         View::render('people.show', [
             '_layout' => 'layouts.app',
             'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
@@ -179,7 +230,15 @@ final class PersonController
             'person' => $person,
             'timeline' => $timeline,
             'families' => $families,
+            'referrals' => $referrals,
+            'spiritualFollowups' => $spiritualFollowups,
+            'referralFilters' => $referralFilters,
+            'spiritualFilters' => $spiritualFilters,
             'recordForm' => $recordForm,
+            'referralForm' => $referralForm,
+            'spiritualForm' => $spiritualForm,
+            'referralEditMode' => $referralEdit !== null,
+            'spiritualEditMode' => $spiritualEdit !== null,
             'success' => Session::consumeFlash('success'),
             'error' => Session::consumeFlash('error'),
         ]);
@@ -221,6 +280,145 @@ final class PersonController
         }
 
         Session::flash('success', 'Atendimento social registrado com sucesso.');
+        Response::redirect('/people/show?id=' . $personId);
+    }
+
+    public function storeReferral(): void
+    {
+        $personId = (int) ($_GET['person_id'] ?? 0);
+        $input = $this->sanitizeReferralInput($_POST);
+        $error = $this->validateReferralInput($personId, $input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            Session::flash('referral_form_old', $input);
+            Response::redirect('/people/show?id=' . $personId);
+        }
+
+        try {
+            $this->referralModel()->create($this->toReferralPersistenceData($input));
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao registrar encaminhamento.');
+            Session::flash('referral_form_old', $input);
+            Response::redirect('/people/show?id=' . $personId);
+        }
+
+        Session::flash('success', 'Encaminhamento registrado com sucesso.');
+        Response::redirect('/people/show?id=' . $personId);
+    }
+
+    public function updateReferral(): void
+    {
+        $personId = (int) ($_GET['person_id'] ?? 0);
+        $referralId = (int) ($_GET['id'] ?? 0);
+        $input = $this->sanitizeReferralInput($_POST);
+        $error = $this->validateReferralInput($personId, $input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            $input['id'] = $referralId;
+            Session::flash('referral_form_old', $input);
+            Response::redirect('/people/show?id=' . $personId . '&referral_edit=' . $referralId);
+        }
+
+        try {
+            $existing = $this->referralModel()->findById($referralId);
+            if ($existing === null || (int) ($existing['person_id'] ?? 0) !== $personId) {
+                Session::flash('error', 'Encaminhamento nao encontrado.');
+                Response::redirect('/people/show?id=' . $personId);
+            }
+            $this->referralModel()->update($referralId, $this->toReferralPersistenceData($input));
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao atualizar encaminhamento.');
+            Response::redirect('/people/show?id=' . $personId . '&referral_edit=' . $referralId);
+        }
+
+        Session::flash('success', 'Encaminhamento atualizado com sucesso.');
+        Response::redirect('/people/show?id=' . $personId);
+    }
+
+    public function deleteReferral(): void
+    {
+        $personId = (int) ($_GET['person_id'] ?? 0);
+        $referralId = (int) ($_GET['id'] ?? 0);
+
+        try {
+            $existing = $this->referralModel()->findById($referralId);
+            if ($existing !== null && (int) ($existing['person_id'] ?? 0) === $personId) {
+                $this->referralModel()->delete($referralId);
+            }
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao remover encaminhamento.');
+            Response::redirect('/people/show?id=' . $personId);
+        }
+
+        Session::flash('success', 'Encaminhamento removido com sucesso.');
+        Response::redirect('/people/show?id=' . $personId);
+    }
+
+    public function storeSpiritualFollowup(): void
+    {
+        $personId = (int) ($_GET['person_id'] ?? 0);
+        $input = $this->sanitizeSpiritualInput($_POST, $personId);
+        $error = $this->validateSpiritualInput($input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            Session::flash('spiritual_form_old', $input);
+            Response::redirect('/people/show?id=' . $personId);
+        }
+
+        try {
+            $this->spiritualFollowupModel()->create($this->toSpiritualPersistenceData($input));
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao registrar acompanhamento espiritual.');
+            Session::flash('spiritual_form_old', $input);
+            Response::redirect('/people/show?id=' . $personId);
+        }
+
+        Session::flash('success', 'Acompanhamento espiritual registrado com sucesso.');
+        Response::redirect('/people/show?id=' . $personId);
+    }
+
+    public function updateSpiritualFollowup(): void
+    {
+        $personId = (int) ($_GET['person_id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? 0);
+        $input = $this->sanitizeSpiritualInput($_POST, $personId);
+        $error = $this->validateSpiritualInput($input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            $input['id'] = $id;
+            Session::flash('spiritual_form_old', $input);
+            Response::redirect('/people/show?id=' . $personId . '&spiritual_edit=' . $id);
+        }
+
+        try {
+            $existing = $this->spiritualFollowupModel()->findById($id);
+            if ($existing === null || (int) ($existing['person_id'] ?? 0) !== $personId) {
+                Session::flash('error', 'Acompanhamento espiritual nao encontrado.');
+                Response::redirect('/people/show?id=' . $personId);
+            }
+            $this->spiritualFollowupModel()->update($id, $this->toSpiritualPersistenceData($input));
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao atualizar acompanhamento espiritual.');
+            Response::redirect('/people/show?id=' . $personId . '&spiritual_edit=' . $id);
+        }
+
+        Session::flash('success', 'Acompanhamento espiritual atualizado com sucesso.');
+        Response::redirect('/people/show?id=' . $personId);
+    }
+
+    public function deleteSpiritualFollowup(): void
+    {
+        $personId = (int) ($_GET['person_id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? 0);
+
+        try {
+            $this->spiritualFollowupModel()->delete($id, $personId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao remover acompanhamento espiritual.');
+            Response::redirect('/people/show?id=' . $personId);
+        }
+
+        Session::flash('success', 'Acompanhamento espiritual removido com sucesso.');
         Response::redirect('/people/show?id=' . $personId);
     }
 
@@ -353,6 +551,20 @@ final class PersonController
         return new SocialRecordModel($pdo);
     }
 
+    private function referralModel(): ReferralModel
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new ReferralModel($pdo);
+    }
+
+    private function spiritualFollowupModel(): SpiritualFollowupModel
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new SpiritualFollowupModel($pdo);
+    }
+
     private function defaultSocialRecordFormData(): array
     {
         return [
@@ -369,6 +581,26 @@ final class PersonController
             'notes' => '',
             'consent_text_version' => 'v1.0',
             'consent_name' => '',
+        ];
+    }
+
+    private function defaultReferralFormData(): array
+    {
+        return [
+            'social_record_id' => 0,
+            'referral_type' => '',
+            'referral_date' => date('Y-m-d'),
+            'status' => 'encaminhado',
+            'notes' => '',
+        ];
+    }
+
+    private function defaultSpiritualFormData(): array
+    {
+        return [
+            'followup_date' => date('Y-m-d'),
+            'action' => '',
+            'notes' => '',
         ];
     }
 
@@ -431,6 +663,97 @@ final class PersonController
             'consent_name' => $input['consent_name'],
             'consent_at' => date('Y-m-d H:i:s'),
             'created_by' => $createdBy,
+        ];
+    }
+
+    private function sanitizeReferralInput(array $post): array
+    {
+        return [
+            'social_record_id' => (int) ($post['social_record_id'] ?? 0),
+            'referral_type' => trim((string) ($post['referral_type'] ?? '')),
+            'referral_date' => trim((string) ($post['referral_date'] ?? '')),
+            'status' => trim((string) ($post['status'] ?? 'encaminhado')),
+            'notes' => trim((string) ($post['notes'] ?? '')),
+        ];
+    }
+
+    private function validateReferralInput(int $personId, array $input): ?string
+    {
+        if ($personId <= 0) {
+            return 'Pessoa invalida.';
+        }
+        if ((int) ($input['social_record_id'] ?? 0) <= 0) {
+            return 'Selecione um atendimento para vincular o encaminhamento.';
+        }
+        if (trim((string) ($input['referral_type'] ?? '')) === '') {
+            return 'Tipo de encaminhamento obrigatorio.';
+        }
+        if (trim((string) ($input['referral_date'] ?? '')) === '') {
+            return 'Data do encaminhamento obrigatoria.';
+        }
+
+        try {
+            $record = $this->socialRecordModel()->findById((int) $input['social_record_id']);
+        } catch (Throwable $exception) {
+            return 'Falha ao validar atendimento vinculado.';
+        }
+        if ($record === null || (int) ($record['person_id'] ?? 0) !== $personId) {
+            return 'O encaminhamento deve estar vinculado a um atendimento da propria pessoa.';
+        }
+
+        return null;
+    }
+
+    private function toReferralPersistenceData(array $input): array
+    {
+        $authUser = Session::get('auth_user', []);
+        $userId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : 0;
+
+        return [
+            'social_record_id' => (int) $input['social_record_id'],
+            'referral_type' => $input['referral_type'],
+            'referral_date' => $input['referral_date'],
+            'responsible_user_id' => $userId,
+            'status' => $input['status'] !== '' ? $input['status'] : 'encaminhado',
+            'notes' => $input['notes'] !== '' ? $input['notes'] : null,
+        ];
+    }
+
+    private function sanitizeSpiritualInput(array $post, int $personId): array
+    {
+        return [
+            'person_id' => $personId,
+            'followup_date' => trim((string) ($post['followup_date'] ?? '')),
+            'action' => trim((string) ($post['action'] ?? '')),
+            'notes' => trim((string) ($post['notes'] ?? '')),
+        ];
+    }
+
+    private function validateSpiritualInput(array $input): ?string
+    {
+        if ((int) ($input['person_id'] ?? 0) <= 0) {
+            return 'Pessoa invalida.';
+        }
+        if (trim((string) ($input['followup_date'] ?? '')) === '') {
+            return 'Data do acompanhamento espiritual obrigatoria.';
+        }
+        if (trim((string) ($input['action'] ?? '')) === '') {
+            return 'Acao do acompanhamento espiritual obrigatoria.';
+        }
+        return null;
+    }
+
+    private function toSpiritualPersistenceData(array $input): array
+    {
+        $authUser = Session::get('auth_user', []);
+        $userId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : 0;
+
+        return [
+            'person_id' => (int) $input['person_id'],
+            'followup_date' => $input['followup_date'],
+            'action' => $input['action'],
+            'notes' => $input['notes'] !== '' ? $input['notes'] : null,
+            'created_by' => $userId,
         ];
     }
 }

@@ -5,6 +5,14 @@ $person = is_array($person ?? null) ? $person : [];
 $timeline = is_array($timeline ?? null) ? $timeline : [];
 $families = is_array($families ?? null) ? $families : [];
 $recordForm = is_array($recordForm ?? null) ? $recordForm : [];
+$referrals = is_array($referrals ?? null) ? $referrals : [];
+$spiritualFollowups = is_array($spiritualFollowups ?? null) ? $spiritualFollowups : [];
+$referralFilters = is_array($referralFilters ?? null) ? $referralFilters : [];
+$spiritualFilters = is_array($spiritualFilters ?? null) ? $spiritualFilters : [];
+$referralForm = is_array($referralForm ?? null) ? $referralForm : [];
+$spiritualForm = is_array($spiritualForm ?? null) ? $spiritualForm : [];
+$referralEditMode = (bool) ($referralEditMode ?? false);
+$spiritualEditMode = (bool) ($spiritualEditMode ?? false);
 $personId = (int) ($person['id'] ?? 0);
 $displayName = (string) (($person['full_name'] ?? '') ?: ($person['social_name'] ?? 'Sem identificacao'));
 ?>
@@ -207,3 +215,192 @@ $displayName = (string) (($person['full_name'] ?? '') ?: ($person['social_name']
     </div>
 </div>
 
+<div class="row g-3 mt-1">
+    <div class="col-12 col-xl-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mb-3">
+                    <h2 class="h5 mb-0"><?= $referralEditMode ? 'Editar encaminhamento' : 'Novo encaminhamento' ?></h2>
+                    <?php if ($referralEditMode) : ?>
+                        <a class="btn btn-sm btn-outline-secondary" href="/people/show?id=<?= $personId ?>">Cancelar edicao</a>
+                    <?php endif; ?>
+                </div>
+
+                <form method="post" action="<?= $referralEditMode
+                    ? '/people/referrals/update?id=' . (int) ($referralForm['id'] ?? 0) . '&person_id=' . $personId
+                    : '/people/referrals?person_id=' . $personId ?>">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Atendimento vinculado</label>
+                            <select class="form-select" name="social_record_id" required>
+                                <option value="0">Selecione</option>
+                                <?php foreach ($timeline as $record) : ?>
+                                    <?php $rid = (int) ($record['id'] ?? 0); ?>
+                                    <option value="<?= $rid ?>" <?= ((int) ($referralForm['social_record_id'] ?? 0) === $rid) ? 'selected' : '' ?>>
+                                        #<?= $rid ?> - <?= htmlspecialchars((string) ($record['created_at'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Tipo</label>
+                            <input class="form-control" name="referral_type" placeholder="CRAS, CAPS, UBS..." value="<?= htmlspecialchars((string) ($referralForm['referral_type'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Data</label>
+                            <input type="date" class="form-control" name="referral_date" value="<?= htmlspecialchars((string) ($referralForm['referral_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <?php foreach (['encaminhado','acompanhamento','concluido','interrompido'] as $status) : ?>
+                                    <option value="<?= $status ?>" <?= ((string) ($referralForm['status'] ?? 'encaminhado') === $status) ? 'selected' : '' ?>><?= $status ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <label class="form-label">Observacoes</label>
+                            <input class="form-control" name="notes" value="<?= htmlspecialchars((string) ($referralForm['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-teal text-white"><?= $referralEditMode ? 'Salvar encaminhamento' : 'Adicionar encaminhamento' ?></button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <form method="get" action="/people/show" class="row g-2 mb-3">
+                    <input type="hidden" name="id" value="<?= $personId ?>">
+                    <div class="col-12 col-md-5">
+                        <input type="text" class="form-control" name="referral_type" placeholder="Filtrar por tipo" value="<?= htmlspecialchars((string) ($referralFilters['referral_type'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <select class="form-select" name="referral_status">
+                            <option value="">Status (todos)</option>
+                            <?php foreach (['encaminhado','acompanhamento','concluido','interrompido'] as $status) : ?>
+                                <option value="<?= $status ?>" <?= (($referralFilters['status'] ?? '') === $status) ? 'selected' : '' ?>><?= $status ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 d-grid">
+                        <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Status</th>
+                                <th>Atendimento</th>
+                                <th>Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if (empty($referrals)) : ?>
+                            <tr><td colspan="5" class="text-secondary">Nenhum encaminhamento encontrado.</td></tr>
+                        <?php else : ?>
+                            <?php foreach ($referrals as $ref) : ?>
+                                <?php $refId = (int) ($ref['id'] ?? 0); ?>
+                                <tr>
+                                    <td><?= htmlspecialchars((string) ($ref['referral_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars((string) ($ref['referral_type'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><span class="badge text-bg-light border"><?= htmlspecialchars((string) ($ref['status'] ?? ''), ENT_QUOTES, 'UTF-8') ?></span></td>
+                                    <td>#<?= (int) ($ref['social_record_id'] ?? 0) ?></td>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a class="btn btn-sm btn-outline-secondary" href="/people/show?id=<?= $personId ?>&referral_edit=<?= $refId ?>">Editar</a>
+                                            <form method="post" action="/people/referrals/delete?id=<?= $refId ?>&person_id=<?= $personId ?>" class="m-0" onsubmit="return confirm('Remover encaminhamento?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                                            </form>
+                                        </div>
+                                        <?php if (!empty($ref['notes'])) : ?>
+                                            <div class="small text-secondary mt-1"><?= htmlspecialchars((string) $ref['notes'], ENT_QUOTES, 'UTF-8') ?></div>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mb-3">
+                    <h2 class="h5 mb-0"><?= $spiritualEditMode ? 'Editar acompanhamento espiritual' : 'Novo acompanhamento espiritual' ?></h2>
+                    <?php if ($spiritualEditMode) : ?>
+                        <a class="btn btn-sm btn-outline-secondary" href="/people/show?id=<?= $personId ?>">Cancelar edicao</a>
+                    <?php endif; ?>
+                </div>
+
+                <form method="post" action="<?= $spiritualEditMode
+                    ? '/people/spiritual-followups/update?id=' . (int) ($spiritualForm['id'] ?? 0) . '&person_id=' . $personId
+                    : '/people/spiritual-followups?person_id=' . $personId ?>">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-5">
+                            <label class="form-label">Data</label>
+                            <input type="date" class="form-control" name="followup_date" value="<?= htmlspecialchars((string) ($spiritualForm['followup_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-7">
+                            <label class="form-label">Acao</label>
+                            <input class="form-control" name="action" placeholder="visita, oracao, aconselhamento" value="<?= htmlspecialchars((string) ($spiritualForm['action'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Observacoes</label>
+                            <textarea class="form-control" name="notes" rows="2"><?= htmlspecialchars((string) ($spiritualForm['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-teal text-white"><?= $spiritualEditMode ? 'Salvar acompanhamento' : 'Adicionar acompanhamento' ?></button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <form method="get" action="/people/show" class="row g-2 mb-3">
+                    <input type="hidden" name="id" value="<?= $personId ?>">
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" name="spiritual_action" placeholder="Filtrar por acao" value="<?= htmlspecialchars((string) ($spiritualFilters['action'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                    </div>
+                    <div class="col-12 col-md-4 d-grid">
+                        <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
+                    </div>
+                </form>
+
+                <div class="vstack gap-2">
+                    <?php if (empty($spiritualFollowups)) : ?>
+                        <div class="text-secondary">Nenhum acompanhamento espiritual registrado.</div>
+                    <?php else : ?>
+                        <?php foreach ($spiritualFollowups as $sf) : ?>
+                            <?php $sfId = (int) ($sf['id'] ?? 0); ?>
+                            <div class="border rounded-3 p-3 bg-light-subtle">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <div class="fw-semibold"><?= htmlspecialchars((string) ($sf['action'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                    <div class="small text-secondary"><?= htmlspecialchars((string) ($sf['followup_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                </div>
+                                <?php if (!empty($sf['notes'])) : ?>
+                                    <div class="small mt-1"><?= nl2br(htmlspecialchars((string) $sf['notes'], ENT_QUOTES, 'UTF-8')) ?></div>
+                                <?php endif; ?>
+                                <div class="small text-secondary mt-1">por <?= htmlspecialchars((string) (($sf['created_by_name'] ?? '') ?: 'usuario'), ENT_QUOTES, 'UTF-8') ?></div>
+                                <div class="d-flex gap-2 mt-2">
+                                    <a class="btn btn-sm btn-outline-secondary" href="/people/show?id=<?= $personId ?>&spiritual_edit=<?= $sfId ?>">Editar</a>
+                                    <form method="post" action="/people/spiritual-followups/delete?id=<?= $sfId ?>&person_id=<?= $personId ?>" class="m-0" onsubmit="return confirm('Remover acompanhamento espiritual?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                                    </form>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

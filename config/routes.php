@@ -222,6 +222,42 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->post('/people/referrals', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->storeReferral();
+        });
+    });
+
+    $router->post('/people/referrals/update', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->updateReferral();
+        });
+    });
+
+    $router->post('/people/referrals/delete', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->deleteReferral();
+        });
+    });
+
+    $router->post('/people/spiritual-followups', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->storeSpiritualFollowup();
+        });
+    });
+
+    $router->post('/people/spiritual-followups/update', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->updateSpiritualFollowup();
+        });
+    });
+
+    $router->post('/people/spiritual-followups/delete', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->deleteSpiritualFollowup();
+        });
+    });
+
     $router->get('/users', static function () use ($container, $adminOnly): void {
         $adminOnly(static function () use ($container): void {
             (new UserController($container))->index();
