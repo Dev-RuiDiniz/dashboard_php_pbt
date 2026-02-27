@@ -10,6 +10,7 @@ use App\Controllers\EquipmentController;
 use App\Controllers\EquipmentLoanController;
 use App\Controllers\FamilyController;
 use App\Controllers\PersonController;
+use App\Controllers\ReportController;
 use App\Controllers\UserController;
 use App\Controllers\VisitController;
 use App\Core\Container;
@@ -97,6 +98,12 @@ return static function (Router $router, Container $container): void {
     $visitManage = static function (callable $action): void {
         (new AuthMiddleware())->handle(static function () use ($action): void {
             (new PermissionMiddleware())->handle('visits.manage', $action);
+        });
+    };
+
+    $reportView = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('reports.view', $action);
         });
     };
 
@@ -439,6 +446,18 @@ return static function (Router $router, Container $container): void {
     $router->post('/visits/delete', static function () use ($container, $visitManage): void {
         $visitManage(static function () use ($container): void {
             (new VisitController($container))->delete();
+        });
+    });
+
+    $router->get('/reports', static function () use ($container, $reportView): void {
+        $reportView(static function () use ($container): void {
+            (new ReportController($container))->index();
+        });
+    });
+
+    $router->get('/reports/pdf', static function () use ($container, $reportView): void {
+        $reportView(static function () use ($container): void {
+            (new ReportController($container))->exportPdf();
         });
     });
 

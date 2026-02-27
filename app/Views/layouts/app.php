@@ -17,7 +17,7 @@ $menu = [
     ['key' => 'entregas', 'label' => 'Entregas', 'href' => '/delivery-events', 'icon' => 'box-seam'],
     ['key' => 'equipamentos', 'label' => 'Equipamentos', 'href' => '/equipment', 'icon' => 'wheelchair'],
     ['key' => 'visitas', 'label' => 'Visitas', 'href' => '/visits', 'icon' => 'house-heart'],
-    ['key' => 'relatorios', 'label' => 'Relatorios', 'href' => '/dashboard', 'icon' => 'bar-chart'],
+    ['key' => 'relatorios', 'label' => 'Relatorios', 'href' => '/reports', 'icon' => 'bar-chart'],
 ];
 
 if ($layoutUserRole === 'admin') {

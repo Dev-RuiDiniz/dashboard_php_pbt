@@ -3,7 +3,9 @@
   "description": "Sistema web de acao social (Igreja Social) em PHP + MySQL",
   "type": "project",
   "require": {
-    "php": "^8.2"
+    "php": "^8.2",
+    "dompdf/dompdf": "^2.0",
+    "symfony/polyfill-mbstring": "^1.33"
   },
   "autoload": {
     "psr-4": {
@@ -14,4 +16,3 @@
     "serve": "php -S localhost:8000 -t public"
   }
 }
-

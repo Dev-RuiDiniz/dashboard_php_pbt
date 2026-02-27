@@ -8,9 +8,9 @@ final class AuthorizationService
 {
     private const ROLE_PERMISSIONS = [
         'admin' => ['*'],
-        'voluntario' => ['families.view', 'families.manage', 'children.view', 'children.manage', 'people.view', 'people.manage', 'deliveries.view', 'deliveries.manage', 'equipment.view', 'equipment.manage', 'visits.view', 'visits.manage'],
-        'pastoral' => ['families.view', 'children.view', 'people.view', 'people.manage', 'deliveries.view', 'equipment.view', 'visits.view', 'visits.manage'],
-        'viewer' => ['families.view', 'children.view', 'people.view', 'deliveries.view', 'equipment.view', 'visits.view'],
+        'voluntario' => ['families.view', 'families.manage', 'children.view', 'children.manage', 'people.view', 'people.manage', 'deliveries.view', 'deliveries.manage', 'equipment.view', 'equipment.manage', 'visits.view', 'visits.manage', 'reports.view'],
+        'pastoral' => ['families.view', 'children.view', 'people.view', 'people.manage', 'deliveries.view', 'equipment.view', 'visits.view', 'visits.manage', 'reports.view'],
+        'viewer' => ['families.view', 'children.view', 'people.view', 'deliveries.view', 'equipment.view', 'visits.view', 'reports.view'],
     ];
 
     public static function can(?string $role, string $permission): bool

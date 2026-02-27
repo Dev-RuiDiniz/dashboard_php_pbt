@@ -85,6 +85,7 @@ $userRole = is_array($user ?? null) ? (string) ($user['role'] ?? '-') : '-';
                     <a class="btn btn-outline-secondary" href="/delivery-events">Eventos de entrega</a>
                     <a class="btn btn-outline-secondary" href="/equipment">Equipamentos</a>
                     <a class="btn btn-outline-secondary" href="/visits">Visitas</a>
+                    <a class="btn btn-outline-secondary" href="/reports">Relatorios</a>
                     <?php if ($userRole === 'admin') : ?>
                         <a class="btn btn-teal text-white" href="/users">Gerenciar usuarios</a>
                     <?php endif; ?>
@@ -110,7 +111,7 @@ $userRole = is_array($user ?? null) ? (string) ($user['role'] ?? '-') : '-';
                     <a class="list-group-item list-group-item-action px-0" href="/delivery-events">Eventos de entrega</a>
                     <a class="list-group-item list-group-item-action px-0" href="/equipment">Equipamentos</a>
                     <a class="list-group-item list-group-item-action px-0" href="/visits">Visitas</a>
-                    <div class="list-group-item px-0 text-secondary">Relatorios (Sprint futura)</div>
+                    <a class="list-group-item list-group-item-action px-0" href="/reports">Relatorios</a>
                 </div>
             </div>
         </div>
