@@ -11,6 +11,7 @@ use App\Controllers\EquipmentLoanController;
 use App\Controllers\FamilyController;
 use App\Controllers\PersonController;
 use App\Controllers\UserController;
+use App\Controllers\VisitController;
 use App\Core\Container;
 use App\Core\Router;
 use App\Middlewares\AuthMiddleware;
@@ -84,6 +85,18 @@ return static function (Router $router, Container $container): void {
     $equipmentManage = static function (callable $action): void {
         (new AuthMiddleware())->handle(static function () use ($action): void {
             (new PermissionMiddleware())->handle('equipment.manage', $action);
+        });
+    };
+
+    $visitView = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('visits.view', $action);
+        });
+    };
+
+    $visitManage = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('visits.manage', $action);
         });
     };
 
@@ -384,6 +397,48 @@ return static function (Router $router, Container $container): void {
     $router->post('/equipment-loans/return', static function () use ($container, $equipmentManage): void {
         $equipmentManage(static function () use ($container): void {
             (new EquipmentLoanController($container))->returnLoan();
+        });
+    });
+
+    $router->get('/visits', static function () use ($container, $visitView): void {
+        $visitView(static function () use ($container): void {
+            (new VisitController($container))->index();
+        });
+    });
+
+    $router->get('/visits/create', static function () use ($container, $visitManage): void {
+        $visitManage(static function () use ($container): void {
+            (new VisitController($container))->create();
+        });
+    });
+
+    $router->post('/visits', static function () use ($container, $visitManage): void {
+        $visitManage(static function () use ($container): void {
+            (new VisitController($container))->store();
+        });
+    });
+
+    $router->get('/visits/edit', static function () use ($container, $visitManage): void {
+        $visitManage(static function () use ($container): void {
+            (new VisitController($container))->edit();
+        });
+    });
+
+    $router->post('/visits/update', static function () use ($container, $visitManage): void {
+        $visitManage(static function () use ($container): void {
+            (new VisitController($container))->update();
+        });
+    });
+
+    $router->post('/visits/conclude', static function () use ($container, $visitManage): void {
+        $visitManage(static function () use ($container): void {
+            (new VisitController($container))->conclude();
+        });
+    });
+
+    $router->post('/visits/delete', static function () use ($container, $visitManage): void {
+        $visitManage(static function () use ($container): void {
+            (new VisitController($container))->delete();
         });
     });
 

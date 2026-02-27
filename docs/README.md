@@ -18,3 +18,4 @@ Este diretorio contem o historico separado de cada sprint concluida no projeto.
 - [Sprint 14](sprints/sprint-14.md)
 - [Sprint 15](sprints/sprint-15.md)
 - [Sprint 16](sprints/sprint-16.md)
+- [Sprint 17](sprints/sprint-17.md)

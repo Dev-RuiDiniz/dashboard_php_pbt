@@ -16,7 +16,7 @@ $menu = [
     ['key' => 'fichas', 'label' => 'Fichas Sociais', 'href' => '/dashboard', 'icon' => 'clipboard2-heart'],
     ['key' => 'entregas', 'label' => 'Entregas', 'href' => '/delivery-events', 'icon' => 'box-seam'],
     ['key' => 'equipamentos', 'label' => 'Equipamentos', 'href' => '/equipment', 'icon' => 'wheelchair'],
-    ['key' => 'visitas', 'label' => 'Visitas', 'href' => '/dashboard', 'icon' => 'house-heart'],
+    ['key' => 'visitas', 'label' => 'Visitas', 'href' => '/visits', 'icon' => 'house-heart'],
     ['key' => 'relatorios', 'label' => 'Relatorios', 'href' => '/dashboard', 'icon' => 'bar-chart'],
 ];
 
