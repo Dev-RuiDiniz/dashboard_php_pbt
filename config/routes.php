@@ -115,6 +115,15 @@ return static function (Router $router, Container $container): void {
         \App\Core\Response::redirect('/login');
     });
 
+    $router->get('/health', static function (): void {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'status' => 'ok',
+            'app' => 'dashboard_php_pbt',
+            'time' => date('c'),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    });
+
     $router->get('/login', static function () use ($container): void {
         (new AuthController($container))->showLogin();
     });

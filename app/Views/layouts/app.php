@@ -54,7 +54,7 @@ if ($layoutUserRole === 'admin') {
                     </nav>
 
                     <div class="mt-auto p-3 border-top border-light-subtle text-white-50 small">
-                        Sprint 4: layout base + dashboard inicial
+                        MVP v1.0 concluido (Sprint 20)
                     </div>
                 </div>
             </aside>
@@ -86,7 +86,7 @@ if ($layoutUserRole === 'admin') {
                 <footer class="app-footer border-top bg-white">
                     <div class="container-fluid px-3 px-md-4 py-2 small text-secondary d-flex justify-content-between flex-wrap gap-2">
                         <span>Dashboard PHP PBT</span>
-                        <span>Layout responsivo com Bootstrap 5</span>
+                        <span>MVP pronto para deploy</span>
                     </div>
                 </footer>
             </div>

@@ -21,3 +21,10 @@ Este diretorio contem o historico separado de cada sprint concluida no projeto.
 - [Sprint 17](sprints/sprint-17.md)
 - [Sprint 18](sprints/sprint-18.md)
 - [Sprint 19](sprints/sprint-19.md)
+- [Sprint 20](sprints/sprint-20.md)
+
+## Operacao e Deploy
+- [Deploy Hostinger - Checklist](DEPLOY_HOSTINGER_CHECKLIST.md)
+- [Teste Integrado MVP](TESTE_INTEGRADO_MVP.md)
+- [Operacao MVP](OPERACAO_MVP.md)
+- [Publicacao Inicial](PUBLICACAO_INICIAL.md)

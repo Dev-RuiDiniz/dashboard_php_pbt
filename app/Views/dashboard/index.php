@@ -53,10 +53,10 @@ $userRole = is_array($user ?? null) ? (string) ($user['role'] ?? '-') : '-';
             <div class="card-body">
                 <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start mb-3">
                     <div>
-                        <h2 class="h5 mb-1">Painel inicial</h2>
-                        <p class="text-secondary mb-0">Dashboard base com layout responsivo em Bootstrap.</p>
+                        <h2 class="h5 mb-1">Painel operacional</h2>
+                        <p class="text-secondary mb-0">MVP finalizado com modulos principais e hardening de seguranca.</p>
                     </div>
-                    <span class="badge text-bg-light border">Sprint 4</span>
+                    <span class="badge text-bg-light border">Sprint 20 MVP</span>
                 </div>
 
                 <div class="placeholder-panel p-3">
@@ -71,8 +71,8 @@ $userRole = is_array($user ?? null) ? (string) ($user['role'] ?? '-') : '-';
                         <div class="col-12 col-md-6">
                             <div class="bg-white rounded-3 border p-3 h-100">
                                 <div class="small text-secondary text-uppercase mb-1">Status</div>
-                                <div class="fw-semibold">Sessao autenticada</div>
-                                <div class="small text-secondary">Rotas protegidas ativas desde Sprint 2/3</div>
+                                <div class="fw-semibold">Sistema operacional</div>
+                                <div class="small text-secondary">Fluxos principais validados para publicacao inicial</div>
                             </div>
                         </div>
                     </div>
