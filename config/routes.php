@@ -7,6 +7,7 @@ use App\Controllers\ChildController;
 use App\Controllers\DashboardController;
 use App\Controllers\DeliveryEventController;
 use App\Controllers\EquipmentController;
+use App\Controllers\EquipmentLoanController;
 use App\Controllers\FamilyController;
 use App\Controllers\PersonController;
 use App\Controllers\UserController;
@@ -365,6 +366,24 @@ return static function (Router $router, Container $container): void {
     $router->post('/equipment/delete', static function () use ($container, $equipmentManage): void {
         $equipmentManage(static function () use ($container): void {
             (new EquipmentController($container))->delete();
+        });
+    });
+
+    $router->get('/equipment-loans', static function () use ($container, $equipmentView): void {
+        $equipmentView(static function () use ($container): void {
+            (new EquipmentLoanController($container))->index();
+        });
+    });
+
+    $router->post('/equipment-loans', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentLoanController($container))->store();
+        });
+    });
+
+    $router->post('/equipment-loans/return', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentLoanController($container))->returnLoan();
         });
     });
 

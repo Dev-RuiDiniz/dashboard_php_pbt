@@ -19,7 +19,10 @@ $statuses = is_array($statuses ?? null) ? $statuses : [];
                 <h2 class="h5 mb-1">Estoque de equipamentos</h2>
                 <p class="text-secondary mb-0">Filtro por tipo, status e codigo.</p>
             </div>
-            <a class="btn btn-teal text-white" href="/equipment/create">Novo equipamento</a>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-secondary" href="/equipment-loans">Emprestimos</a>
+                <a class="btn btn-teal text-white" href="/equipment/create">Novo equipamento</a>
+            </div>
         </div>
 
         <form method="get" action="/equipment" class="row g-2">
@@ -95,4 +98,3 @@ $statuses = is_array($statuses ?? null) ? $statuses : [];
         </table>
     </div>
 </div>
-

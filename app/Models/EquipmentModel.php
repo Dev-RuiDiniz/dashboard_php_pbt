@@ -53,6 +53,18 @@ final class EquipmentModel
         return is_array($row) ? $row : null;
     }
 
+    public function listAvailable(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT id, code, type, condition_state, status
+             FROM equipment
+             WHERE status = \'disponivel\'
+             ORDER BY type ASC, code ASC'
+        );
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
+
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
@@ -81,6 +93,34 @@ final class EquipmentModel
     {
         $stmt = $this->pdo->prepare('DELETE FROM equipment WHERE id = :id');
         $stmt->execute(['id' => $id]);
+    }
+
+    public function updateStatus(int $id, string $status): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE equipment
+             SET status = :status
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'status' => $status,
+        ]);
+    }
+
+    public function updateStatusAndCondition(int $id, string $status, ?string $conditionState): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE equipment
+             SET status = :status,
+                 condition_state = :condition_state
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'status' => $status,
+            'condition_state' => $conditionState,
+        ]);
     }
 
     public function listTypes(): array
@@ -137,4 +177,3 @@ final class EquipmentModel
         return str_pad($clean, 3, 'X');
     }
 }
-
