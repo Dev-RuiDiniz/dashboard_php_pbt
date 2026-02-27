@@ -11,6 +11,7 @@ use App\Core\View;
 use App\Models\FamilyModel;
 use App\Models\PersonModel;
 use App\Models\VisitModel;
+use App\Services\AuditService;
 use PDO;
 use Throwable;
 
@@ -116,6 +117,13 @@ final class VisitController
                 'notes' => $input['notes'] !== '' ? $input['notes'] : null,
                 'status' => $input['status'],
             ]);
+            $authUser = Session::get('auth_user', []);
+            $userId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : null;
+            $this->audit()->log('visit.create', 'visits', null, $userId, [
+                'family_id' => ((int) $input['family_id']) > 0 ? (int) $input['family_id'] : null,
+                'person_id' => ((int) $input['person_id']) > 0 ? (int) $input['person_id'] : null,
+                'status' => $input['status'],
+            ]);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao solicitar visita.');
             Session::flash('form_old', $input);
@@ -189,6 +197,12 @@ final class VisitController
                 'notes' => $input['notes'] !== '' ? $input['notes'] : null,
                 'status' => $input['status'],
             ]);
+            $authUser = Session::get('auth_user', []);
+            $userId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : null;
+            $this->audit()->log('visit.update', 'visits', $id, $userId, [
+                'status' => $input['status'],
+                'scheduled_date' => $input['scheduled_date'] !== '' ? $input['scheduled_date'] : null,
+            ]);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao atualizar visita.');
             Session::flash('form_old', $input);
@@ -233,6 +247,7 @@ final class VisitController
                 date('Y-m-d H:i:s'),
                 $notes !== '' ? $notes : null
             );
+            $this->audit()->log('visit.conclude', 'visits', $id, $completedBy, []);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao concluir visita.');
             Response::redirect('/visits');
@@ -257,6 +272,9 @@ final class VisitController
                 Response::redirect('/visits');
             }
             $this->visitModel()->delete($id);
+            $authUser = Session::get('auth_user', []);
+            $userId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : null;
+            $this->audit()->log('visit.delete', 'visits', $id, $userId, []);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao remover visita.');
             Response::redirect('/visits');
@@ -348,5 +366,11 @@ final class VisitController
         $pdo = $this->container->get('db');
         return new PersonModel($pdo);
     }
-}
 
+    private function audit(): AuditService
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new AuditService($pdo);
+    }
+}

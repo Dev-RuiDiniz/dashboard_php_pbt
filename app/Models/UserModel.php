@@ -41,13 +41,32 @@ final class UserModel
     public function findAuthByEmail(string $email): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, name, email, password_hash, role, is_active
+            'SELECT
+                id, name, email, password_hash, role, is_active,
+                failed_login_attempts, locked_until,
+                password_reset_token_hash, password_reset_expires_at, password_reset_requested_at
              FROM users
              WHERE email = :email
              LIMIT 1'
         );
         $stmt->execute(['email' => $email]);
 
+        $user = $stmt->fetch();
+        return is_array($user) ? $user : null;
+    }
+
+    public function findByEmail(string $email): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+                id, name, email, role, is_active,
+                failed_login_attempts, locked_until,
+                password_reset_token_hash, password_reset_expires_at, password_reset_requested_at
+             FROM users
+             WHERE email = :email
+             LIMIT 1'
+        );
+        $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
         return is_array($user) ? $user : null;
     }
@@ -124,5 +143,107 @@ final class UserModel
             'is_active' => $isActive ? 1 : 0,
         ]);
     }
-}
 
+    public function markFailedLogin(int $id, int $maxAttempts, int $lockMinutes): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT failed_login_attempts
+             FROM users
+             WHERE id = :id
+             LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        $current = (int) ($row['failed_login_attempts'] ?? 0);
+        $next = $current + 1;
+
+        $lockedUntil = null;
+        if ($next >= max(1, $maxAttempts)) {
+            $lockedUntil = date('Y-m-d H:i:s', strtotime('+' . max(1, $lockMinutes) . ' minutes'));
+        }
+
+        $update = $this->pdo->prepare(
+            'UPDATE users
+             SET failed_login_attempts = :failed_login_attempts,
+                 locked_until = :locked_until
+             WHERE id = :id'
+        );
+        $update->execute([
+            'id' => $id,
+            'failed_login_attempts' => $next,
+            'locked_until' => $lockedUntil,
+        ]);
+
+        return [
+            'attempts' => $next,
+            'locked_until' => $lockedUntil,
+        ];
+    }
+
+    public function clearLoginFailures(int $id): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE users
+             SET failed_login_attempts = 0,
+                 locked_until = NULL
+             WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id]);
+    }
+
+    public function setPasswordResetToken(int $id, string $tokenHash, string $expiresAt): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE users
+             SET password_reset_token_hash = :password_reset_token_hash,
+                 password_reset_expires_at = :password_reset_expires_at,
+                 password_reset_requested_at = :password_reset_requested_at
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'password_reset_token_hash' => $tokenHash,
+            'password_reset_expires_at' => $expiresAt,
+            'password_reset_requested_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    public function findByPasswordResetToken(string $token): ?array
+    {
+        $tokenHash = hash('sha256', $token);
+        $stmt = $this->pdo->prepare(
+            'SELECT id, name, email, is_active, password_reset_expires_at
+             FROM users
+             WHERE password_reset_token_hash = :password_reset_token_hash
+             LIMIT 1'
+        );
+        $stmt->execute(['password_reset_token_hash' => $tokenHash]);
+        $user = $stmt->fetch();
+        return is_array($user) ? $user : null;
+    }
+
+    public function updatePasswordById(int $id, string $passwordHash): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE users
+             SET password_hash = :password_hash
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'password_hash' => $passwordHash,
+        ]);
+    }
+
+    public function clearPasswordResetToken(int $id): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE users
+             SET password_reset_token_hash = NULL,
+                 password_reset_expires_at = NULL,
+                 password_reset_requested_at = NULL
+             WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id]);
+    }
+}

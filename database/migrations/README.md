@@ -6,6 +6,7 @@ Ordem atual:
 
 1. `001_schema_mvp.sql`
 2. `002_seeds_initial.sql`
+3. `003_security_hardening.sql`
 
 ## Como aplicar (manual)
 
@@ -29,4 +30,3 @@ O script:
 - registra o nome do arquivo aplicado
 
 Observacao: os arquivos versionados desta pasta sao wrappers de controle e o runner aplica `schema.sql` / `seeds.sql` diretamente com base no nome da migracao.
-

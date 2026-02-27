@@ -9,6 +9,7 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
 use App\Models\UserModel;
+use App\Services\AuditService;
 use PDO;
 use Throwable;
 
@@ -96,6 +97,13 @@ final class UserController
                 'name' => $input['name'],
                 'email' => $input['email'],
                 'password_hash' => password_hash($password, PASSWORD_BCRYPT),
+                'role' => $input['role'],
+                'is_active' => $input['is_active'],
+            ]);
+            $authUser = Session::get('auth_user', []);
+            $byUserId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : null;
+            $this->audit()->log('user.create', 'users', null, $byUserId, [
+                'email' => $input['email'],
                 'role' => $input['role'],
                 'is_active' => $input['is_active'],
             ]);
@@ -199,6 +207,12 @@ final class UserController
                 'is_active' => $input['is_active'],
                 'password_hash' => $passwordHash,
             ]);
+            $this->audit()->log('user.update', 'users', $id, $authUserId > 0 ? $authUserId : null, [
+                'email' => $input['email'],
+                'role' => $input['role'],
+                'is_active' => $input['is_active'],
+                'password_changed' => $passwordHash !== null,
+            ]);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao atualizar usuario.');
             Session::flash('form_old', $input);
@@ -235,6 +249,9 @@ final class UserController
 
             $newStatus = ((int) ($user['is_active'] ?? 0)) !== 1;
             $userModel->setActive($id, $newStatus);
+            $this->audit()->log('user.toggle_active', 'users', $id, $authUserId > 0 ? $authUserId : null, [
+                'is_active' => $newStatus ? 1 : 0,
+            ]);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao alterar status do usuario.');
             Response::redirect('/users');
@@ -285,5 +302,12 @@ final class UserController
     private function validateRequired(string $name, string $email): bool
     {
         return $name !== '' && $email !== '';
+    }
+
+    private function audit(): AuditService
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new AuditService($pdo);
     }
 }

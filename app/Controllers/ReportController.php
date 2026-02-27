@@ -9,6 +9,7 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
 use App\Models\ReportModel;
+use App\Services\AuditService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use PDO;
@@ -26,6 +27,9 @@ final class ReportController
 
         try {
             $reportData = $this->buildReportData($filters);
+            $auth = Session::get('auth_user', []);
+            $userId = is_array($auth) ? (int) ($auth['id'] ?? 0) : null;
+            $this->audit()->log('report.view', 'reports', null, $userId, $filters);
         } catch (Throwable $exception) {
             $reportData = [
                 'families' => ['summary' => [], 'items' => []],
@@ -55,6 +59,9 @@ final class ReportController
         try {
             $reportData = $this->buildReportData($filters);
             $html = $this->renderPdfHtml($filters, $reportData);
+            $auth = Session::get('auth_user', []);
+            $userId = is_array($auth) ? (int) ($auth['id'] ?? 0) : null;
+            $this->audit()->log('report.export_pdf', 'reports', null, $userId, $filters);
 
             $options = new Options();
             $options->set('isRemoteEnabled', true);
@@ -121,5 +128,11 @@ final class ReportController
         $pdo = $this->container->get('db');
         return new ReportModel($pdo);
     }
-}
 
+    private function audit(): AuditService
+    {
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        return new AuditService($pdo);
+    }
+}

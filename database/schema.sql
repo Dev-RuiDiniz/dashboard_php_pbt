@@ -11,10 +11,17 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(255) NOT NULL,
   role ENUM('admin','voluntario','pastoral','viewer') NOT NULL,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
+  failed_login_attempts INT NOT NULL DEFAULT 0,
+  locked_until DATETIME NULL,
+  password_reset_token_hash VARCHAR(64) NULL,
+  password_reset_expires_at DATETIME NULL,
+  password_reset_requested_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_users_role (role),
-  INDEX idx_users_is_active (is_active)
+  INDEX idx_users_is_active (is_active),
+  INDEX idx_users_locked_until (locked_until),
+  INDEX idx_users_password_reset_expires_at (password_reset_expires_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS families (
@@ -304,7 +311,7 @@ CREATE TABLE IF NOT EXISTS visits (
 
 CREATE TABLE IF NOT EXISTS audit_logs (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
+  user_id INT NULL,
   action VARCHAR(80) NOT NULL,
   entity VARCHAR(80) NOT NULL,
   entity_id INT NULL,
@@ -313,10 +320,9 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   details_json JSON NULL,
   CONSTRAINT fk_audit_logs_user FOREIGN KEY (user_id) REFERENCES users(id)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
+    ON DELETE SET NULL ON UPDATE CASCADE,
   INDEX idx_audit_logs_user_id (user_id),
   INDEX idx_audit_logs_action (action),
   INDEX idx_audit_logs_entity (entity),
   INDEX idx_audit_logs_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-

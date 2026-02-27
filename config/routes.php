@@ -123,6 +123,22 @@ return static function (Router $router, Container $container): void {
         (new AuthController($container))->login();
     });
 
+    $router->get('/forgot-password', static function () use ($container): void {
+        (new AuthController($container))->showForgotPassword();
+    });
+
+    $router->post('/forgot-password', static function () use ($container): void {
+        (new AuthController($container))->requestPasswordReset();
+    });
+
+    $router->get('/reset-password', static function () use ($container): void {
+        (new AuthController($container))->showResetPassword();
+    });
+
+    $router->post('/reset-password', static function () use ($container): void {
+        (new AuthController($container))->resetPassword();
+    });
+
     $router->post('/logout', static function () use ($container): void {
         (new AuthController($container))->logout();
     });
