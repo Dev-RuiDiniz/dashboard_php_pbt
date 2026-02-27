@@ -6,6 +6,7 @@ use App\Controllers\AuthController;
 use App\Controllers\ChildController;
 use App\Controllers\DashboardController;
 use App\Controllers\DeliveryEventController;
+use App\Controllers\EquipmentController;
 use App\Controllers\FamilyController;
 use App\Controllers\PersonController;
 use App\Controllers\UserController;
@@ -70,6 +71,18 @@ return static function (Router $router, Container $container): void {
     $deliveryManage = static function (callable $action): void {
         (new AuthMiddleware())->handle(static function () use ($action): void {
             (new PermissionMiddleware())->handle('deliveries.manage', $action);
+        });
+    };
+
+    $equipmentView = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('equipment.view', $action);
+        });
+    };
+
+    $equipmentManage = static function (callable $action): void {
+        (new AuthMiddleware())->handle(static function () use ($action): void {
+            (new PermissionMiddleware())->handle('equipment.manage', $action);
         });
     };
 
@@ -316,6 +329,42 @@ return static function (Router $router, Container $container): void {
     $router->post('/delivery-events/deliveries/status', static function () use ($container, $deliveryManage): void {
         $deliveryManage(static function () use ($container): void {
             (new DeliveryEventController($container))->updateDeliveryStatus();
+        });
+    });
+
+    $router->get('/equipment', static function () use ($container, $equipmentView): void {
+        $equipmentView(static function () use ($container): void {
+            (new EquipmentController($container))->index();
+        });
+    });
+
+    $router->get('/equipment/create', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentController($container))->create();
+        });
+    });
+
+    $router->post('/equipment', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentController($container))->store();
+        });
+    });
+
+    $router->get('/equipment/edit', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentController($container))->edit();
+        });
+    });
+
+    $router->post('/equipment/update', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentController($container))->update();
+        });
+    });
+
+    $router->post('/equipment/delete', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentController($container))->delete();
         });
     });
 
