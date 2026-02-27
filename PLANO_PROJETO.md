@@ -306,7 +306,6 @@ Formatos:
 ### Sprint 18 - Relatorios e exportacoes
 
 - Relatorios mensais (familias, cestas, criancas, encaminhamentos)
-- Exportacao CSV e XLSX
 - Exportacao PDF
 - Filtros por periodo/status/bairro
 
