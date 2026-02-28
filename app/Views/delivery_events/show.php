@@ -8,7 +8,10 @@ $people = is_array($people ?? null) ? $people : [];
 $childrenByEvent = is_array($childrenByEvent ?? null) ? $childrenByEvent : [];
 $deliveryForm = is_array($deliveryForm ?? null) ? $deliveryForm : [];
 $autoDeliveryForm = is_array($autoDeliveryForm ?? null) ? $autoDeliveryForm : [];
+$deliverySummary = is_array($deliverySummary ?? null) ? $deliverySummary : [];
 $eventId = (int) ($event['id'] ?? 0);
+$eventStatus = (string) ($event['status'] ?? '');
+$isConcluded = $eventStatus === 'concluido';
 ?>
 
 <?php if (!empty($success)) : ?>
@@ -21,6 +24,14 @@ $eventId = (int) ($event['id'] ?? 0);
 <div class="d-flex flex-wrap gap-2 mb-3">
     <a class="btn btn-outline-secondary" href="/delivery-events">Voltar aos eventos</a>
     <a class="btn btn-outline-primary" href="/delivery-events/edit?id=<?= $eventId ?>">Editar evento</a>
+    <a class="btn btn-outline-success" href="/delivery-events/deliveries/csv?event_id=<?= $eventId ?>">Exportar CSV</a>
+    <?php if (!$isConcluded) : ?>
+        <form method="post" action="/delivery-events/close?id=<?= $eventId ?>" onsubmit="return confirm('Deseja concluir o evento? Esta acao bloqueia novas alteracoes de entrega.');">
+            <button type="submit" class="btn btn-danger">Concluir evento</button>
+        </form>
+    <?php else : ?>
+        <span class="badge text-bg-success align-self-center">Evento concluido</span>
+    <?php endif; ?>
 </div>
 
 <div class="row g-3 mb-3">
@@ -51,57 +62,88 @@ $eventId = (int) ($event['id'] ?? 0);
     </div>
 </div>
 
+<div class="row g-3 mb-3">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="small text-secondary text-uppercase">Registros</div>
+            <div class="h4 mb-0"><?= (int) ($deliverySummary['total_records'] ?? 0) ?></div>
+        </div></div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="small text-secondary text-uppercase">Nao veio</div>
+            <div class="h4 mb-0"><?= (int) ($deliverySummary['status_nao_veio'] ?? 0) ?></div>
+        </div></div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="small text-secondary text-uppercase">Presentes</div>
+            <div class="h4 mb-0"><?= (int) ($deliverySummary['status_presente'] ?? 0) ?></div>
+        </div></div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="small text-secondary text-uppercase">Cestas retiradas</div>
+            <div class="h4 mb-0"><?= (int) ($deliverySummary['withdrawn_quantity'] ?? 0) ?></div>
+        </div></div>
+    </div>
+</div>
+
 <div class="row g-3">
     <div class="col-12 col-xl-5">
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h2 class="h5 mb-3">Geracao de convidados (manual)</h2>
-                <form method="post" action="/delivery-events/deliveries?event_id=<?= $eventId ?>">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label">Tipo de convidado</label>
-                            <select class="form-select" name="target_type">
-                                <option value="family" <?= (($deliveryForm['target_type'] ?? 'family') === 'family') ? 'selected' : '' ?>>Familia</option>
-                                <option value="person" <?= (($deliveryForm['target_type'] ?? '') === 'person') ? 'selected' : '' ?>>Pessoa acompanhada</option>
-                            </select>
+                <?php if ($isConcluded) : ?>
+                    <div class="alert alert-warning mb-0">Evento concluido. Inclusoes manuais estao bloqueadas.</div>
+                <?php else : ?>
+                    <form method="post" action="/delivery-events/deliveries?event_id=<?= $eventId ?>">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Tipo de convidado</label>
+                                <select class="form-select" name="target_type">
+                                    <option value="family" <?= (($deliveryForm['target_type'] ?? 'family') === 'family') ? 'selected' : '' ?>>Familia</option>
+                                    <option value="person" <?= (($deliveryForm['target_type'] ?? '') === 'person') ? 'selected' : '' ?>>Pessoa acompanhada</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Familia (quando tipo = familia)</label>
+                                <select class="form-select" name="family_id">
+                                    <option value="0">Selecione</option>
+                                    <?php foreach ($families as $family) : ?>
+                                        <?php $fid = (int) ($family['id'] ?? 0); ?>
+                                        <option value="<?= $fid ?>" <?= ((int) ($deliveryForm['family_id'] ?? 0) === $fid) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars((string) ($family['responsible_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Pessoa acompanhada (quando tipo = pessoa)</label>
+                                <select class="form-select" name="person_id">
+                                    <option value="0">Selecione</option>
+                                    <?php foreach ($people as $person) : ?>
+                                        <?php $pid = (int) ($person['id'] ?? 0); $pname = (string) (($person['full_name'] ?? '') ?: ($person['social_name'] ?? 'Sem identificacao')); ?>
+                                        <option value="<?= $pid ?>" <?= ((int) ($deliveryForm['person_id'] ?? 0) === $pid) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($pname, ENT_QUOTES, 'UTF-8') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">Quantidade</label>
+                                <input type="number" min="1" class="form-control" name="quantity" value="<?= htmlspecialchars((string) ($deliveryForm['quantity'] ?? 1), ENT_QUOTES, 'UTF-8') ?>">
+                            </div>
+                            <div class="col-12 col-md-8">
+                                <label class="form-label">Observacoes</label>
+                                <input class="form-control" name="observations" value="<?= htmlspecialchars((string) ($deliveryForm['observations'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            </div>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Familia (quando tipo = familia)</label>
-                            <select class="form-select" name="family_id">
-                                <option value="0">Selecione</option>
-                                <?php foreach ($families as $family) : ?>
-                                    <?php $fid = (int) ($family['id'] ?? 0); ?>
-                                    <option value="<?= $fid ?>" <?= ((int) ($deliveryForm['family_id'] ?? 0) === $fid) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars((string) ($family['responsible_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                        <div class="mt-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-teal text-white">Adicionar na lista</button>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Pessoa acompanhada (quando tipo = pessoa)</label>
-                            <select class="form-select" name="person_id">
-                                <option value="0">Selecione</option>
-                                <?php foreach ($people as $person) : ?>
-                                    <?php $pid = (int) ($person['id'] ?? 0); $pname = (string) (($person['full_name'] ?? '') ?: ($person['social_name'] ?? 'Sem identificacao')); ?>
-                                    <option value="<?= $pid ?>" <?= ((int) ($deliveryForm['person_id'] ?? 0) === $pid) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($pname, ENT_QUOTES, 'UTF-8') ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label class="form-label">Quantidade</label>
-                            <input type="number" min="1" class="form-control" name="quantity" value="<?= htmlspecialchars((string) ($deliveryForm['quantity'] ?? 1), ENT_QUOTES, 'UTF-8') ?>">
-                        </div>
-                        <div class="col-12 col-md-8">
-                            <label class="form-label">Observacoes</label>
-                            <input class="form-control" name="observations" value="<?= htmlspecialchars((string) ($deliveryForm['observations'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                        </div>
-                    </div>
-                    <div class="mt-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-teal text-white">Adicionar na lista</button>
-                    </div>
-                </form>
+                    </form>
+                <?php endif; ?>
 
                 <div class="alert alert-light border small mt-3 mb-0">
                     A senha (ticket) e gerada automaticamente em sequencia por evento e fica imutavel.
@@ -112,50 +154,54 @@ $eventId = (int) ($event['id'] ?? 0);
         <div class="card border-0 shadow-sm mt-3">
             <div class="card-body">
                 <h2 class="h5 mb-3">Geracao automatica por criterios</h2>
-                <form method="post" action="/delivery-events/deliveries/auto?event_id=<?= $eventId ?>">
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6">
-                            <label class="form-label">Cidade</label>
-                            <input class="form-control" name="city" value="<?= htmlspecialchars((string) ($autoDeliveryForm['city'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label">Bairro (contendo)</label>
-                            <input class="form-control" name="neighborhood" value="<?= htmlspecialchars((string) ($autoDeliveryForm['neighborhood'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label">Renda maxima familiar</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="max_income" value="<?= htmlspecialchars((string) ($autoDeliveryForm['max_income'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <label class="form-label">Limite familias</label>
-                            <input type="number" min="1" max="500" class="form-control" name="limit" value="<?= htmlspecialchars((string) ($autoDeliveryForm['limit'] ?? 30), ENT_QUOTES, 'UTF-8') ?>">
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <label class="form-label">Qtd cestas</label>
-                            <input type="number" min="1" max="10" class="form-control" name="quantity" value="<?= htmlspecialchars((string) ($autoDeliveryForm['quantity'] ?? 1), ENT_QUOTES, 'UTF-8') ?>">
-                        </div>
-                        <div class="col-12">
-                            <input class="form-control" name="observations" placeholder="Observacoes para os convidados gerados" value="<?= htmlspecialchars((string) ($autoDeliveryForm['observations'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                        </div>
-                        <div class="col-12 d-flex flex-wrap gap-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="only_pending_documentation" name="only_pending_documentation" <?= ((int) ($autoDeliveryForm['only_pending_documentation'] ?? 0) === 1) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="only_pending_documentation">Somente documentacao pendente/parcial</label>
+                <?php if ($isConcluded) : ?>
+                    <div class="alert alert-warning mb-0">Evento concluido. Geracao automatica bloqueada.</div>
+                <?php else : ?>
+                    <form method="post" action="/delivery-events/deliveries/auto?event_id=<?= $eventId ?>">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Cidade</label>
+                                <input class="form-control" name="city" value="<?= htmlspecialchars((string) ($autoDeliveryForm['city'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="only_needs_visit" name="only_needs_visit" <?= ((int) ($autoDeliveryForm['only_needs_visit'] ?? 0) === 1) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="only_needs_visit">Somente familias com visita pendente</label>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Bairro (contendo)</label>
+                                <input class="form-control" name="neighborhood" value="<?= htmlspecialchars((string) ($autoDeliveryForm['neighborhood'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="only_with_children" name="only_with_children" <?= ((int) ($autoDeliveryForm['only_with_children'] ?? 0) === 1) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="only_with_children">Somente familias com criancas</label>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Renda maxima familiar</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="max_income" value="<?= htmlspecialchars((string) ($autoDeliveryForm['max_income'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label">Limite familias</label>
+                                <input type="number" min="1" max="500" class="form-control" name="limit" value="<?= htmlspecialchars((string) ($autoDeliveryForm['limit'] ?? 30), ENT_QUOTES, 'UTF-8') ?>">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label">Qtd cestas</label>
+                                <input type="number" min="1" max="10" class="form-control" name="quantity" value="<?= htmlspecialchars((string) ($autoDeliveryForm['quantity'] ?? 1), ENT_QUOTES, 'UTF-8') ?>">
+                            </div>
+                            <div class="col-12">
+                                <input class="form-control" name="observations" placeholder="Observacoes para os convidados gerados" value="<?= htmlspecialchars((string) ($autoDeliveryForm['observations'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            </div>
+                            <div class="col-12 d-flex flex-wrap gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="only_pending_documentation" name="only_pending_documentation" <?= ((int) ($autoDeliveryForm['only_pending_documentation'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="only_pending_documentation">Somente documentacao pendente/parcial</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="only_needs_visit" name="only_needs_visit" <?= ((int) ($autoDeliveryForm['only_needs_visit'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="only_needs_visit">Somente familias com visita pendente</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="only_with_children" name="only_with_children" <?= ((int) ($autoDeliveryForm['only_with_children'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="only_with_children">Somente familias com criancas</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="mt-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-teal text-white">Gerar convidados automaticamente</button>
-                    </div>
-                </form>
+                        <div class="mt-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-teal text-white">Gerar convidados automaticamente</button>
+                        </div>
+                    </form>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -205,21 +251,25 @@ $eventId = (int) ($event['id'] ?? 0);
                                     </td>
                                     <td><?= (int) ($d['quantity'] ?? 1) ?></td>
                                     <td>
-                                        <form method="post" action="/delivery-events/deliveries/status?id=<?= $deliveryId ?>&event_id=<?= $eventId ?>" class="vstack gap-2">
-                                            <input type="hidden" name="target_status" value="presente">
-                                            <?php if ($status === 'nao_veio') : ?>
-                                                <button type="submit" class="btn btn-sm btn-outline-primary">Marcar presente</button>
-                                            <?php endif; ?>
-                                        </form>
-
-                                        <?php if ($status === 'presente') : ?>
-                                            <form method="post" action="/delivery-events/deliveries/status?id=<?= $deliveryId ?>&event_id=<?= $eventId ?>" class="vstack gap-2 mt-2">
-                                                <input type="hidden" name="target_status" value="retirou">
-                                                <input type="text" name="signature_name" class="form-control form-control-sm" placeholder="Assinatura (nome digitado)" required>
-                                                <button type="submit" class="btn btn-sm btn-success">Marcar retirou</button>
+                                        <?php if ($isConcluded) : ?>
+                                            <span class="text-secondary small">Evento concluido</span>
+                                        <?php else : ?>
+                                            <form method="post" action="/delivery-events/deliveries/status?id=<?= $deliveryId ?>&event_id=<?= $eventId ?>" class="vstack gap-2">
+                                                <input type="hidden" name="target_status" value="presente">
+                                                <?php if ($status === 'nao_veio') : ?>
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">Marcar presente</button>
+                                                <?php endif; ?>
                                             </form>
-                                        <?php elseif ($status === 'retirou') : ?>
-                                            <div class="small text-secondary">Retirado em <?= htmlspecialchars((string) (($d['delivered_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
+
+                                            <?php if ($status === 'presente') : ?>
+                                                <form method="post" action="/delivery-events/deliveries/status?id=<?= $deliveryId ?>&event_id=<?= $eventId ?>" class="vstack gap-2 mt-2">
+                                                    <input type="hidden" name="target_status" value="retirou">
+                                                    <input type="text" name="signature_name" class="form-control form-control-sm" placeholder="Assinatura (nome digitado)" required>
+                                                    <button type="submit" class="btn btn-sm btn-success">Marcar retirou</button>
+                                                </form>
+                                            <?php elseif ($status === 'retirou') : ?>
+                                                <div class="small text-secondary">Retirado em <?= htmlspecialchars((string) (($d['delivered_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

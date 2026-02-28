@@ -154,6 +154,24 @@ final class DeliveryModel
         return (int) ($row['total_qty'] ?? 0);
     }
 
+    public function summaryByEventId(int $eventId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+                COUNT(*) AS total_records,
+                COALESCE(SUM(quantity), 0) AS total_quantity,
+                COALESCE(SUM(CASE WHEN status = \'nao_veio\' THEN 1 ELSE 0 END), 0) AS status_nao_veio,
+                COALESCE(SUM(CASE WHEN status = \'presente\' THEN 1 ELSE 0 END), 0) AS status_presente,
+                COALESCE(SUM(CASE WHEN status = \'retirou\' THEN 1 ELSE 0 END), 0) AS status_retirou,
+                COALESCE(SUM(CASE WHEN status = \'retirou\' THEN quantity ELSE 0 END), 0) AS withdrawn_quantity
+             FROM deliveries
+             WHERE event_id = :event_id'
+        );
+        $stmt->execute(['event_id' => $eventId]);
+        $row = $stmt->fetch();
+        return is_array($row) ? $row : [];
+    }
+
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(

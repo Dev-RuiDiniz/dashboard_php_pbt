@@ -170,6 +170,7 @@ final class DeliveryEventController
             }
 
             $deliveries = $this->deliveryModel()->listByEventId($id);
+            $deliverySummary = $this->deliveryModel()->summaryByEventId($id);
             $families = $this->familyModel()->search(['status' => 'ativo']);
             $people = $this->personModel()->search([]);
             $childrenByEvent = $this->childModel()->findByEventId($id);
@@ -214,6 +215,7 @@ final class DeliveryEventController
             'authUser' => Session::get('auth_user', []),
             'event' => $event,
             'deliveries' => $deliveries,
+            'deliverySummary' => $deliverySummary,
             'families' => $families,
             'people' => $people,
             'childrenByEvent' => $childrenByEvent,
@@ -428,6 +430,131 @@ final class DeliveryEventController
             Session::flash('error', 'Falha na geracao automatica de convidados.');
             Session::flash('delivery_auto_form_old', $criteria);
             Response::redirect('/delivery-events/show?id=' . $eventId);
+        }
+
+        Response::redirect('/delivery-events/show?id=' . $eventId);
+    }
+
+    public function exportEventCsv(): void
+    {
+        $eventId = (int) ($_GET['event_id'] ?? 0);
+        if ($eventId <= 0) {
+            Session::flash('error', 'Evento invalido.');
+            Response::redirect('/delivery-events');
+        }
+
+        try {
+            $event = $this->model()->findById($eventId);
+            if ($event === null) {
+                Session::flash('error', 'Evento nao encontrado.');
+                Response::redirect('/delivery-events');
+            }
+
+            $deliveries = $this->deliveryModel()->listByEventId($eventId);
+            $summary = $this->deliveryModel()->summaryByEventId($eventId);
+
+            $slug = strtolower((string) preg_replace('/[^a-z0-9]+/i', '-', (string) ($event['name'] ?? 'evento')));
+            $slug = trim($slug, '-');
+            $filename = sprintf(
+                'evento-entregas-%d-%s.csv',
+                $eventId,
+                $slug !== '' ? $slug : 'lista'
+            );
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+            $handle = fopen('php://output', 'wb');
+            if ($handle === false) {
+                Session::flash('error', 'Falha ao exportar CSV do evento.');
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            fwrite($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, ['Evento', (string) ($event['name'] ?? ''), 'Data', (string) ($event['event_date'] ?? '')], ';');
+            fputcsv($handle, ['Status evento', (string) ($event['status'] ?? ''), 'Total registros', (string) ((int) ($summary['total_records'] ?? 0))], ';');
+            fputcsv($handle, ['Total cestas', (string) ((int) ($summary['total_quantity'] ?? 0)), 'Cestas retiradas', (string) ((int) ($summary['withdrawn_quantity'] ?? 0))], ';');
+            fputcsv($handle, [], ';');
+            fputcsv($handle, ['Senha', 'Convidado', 'Documento', 'Status', 'Quantidade', 'Assinatura', 'Retirado em'], ';');
+
+            foreach ($deliveries as $item) {
+                $name = (string) (($item['family_name'] ?? '') ?: (($item['person_full_name'] ?? '') ?: ($item['person_social_name'] ?? '')));
+                fputcsv($handle, [
+                    (int) ($item['ticket_number'] ?? 0),
+                    $name !== '' ? $name : 'Sem identificacao',
+                    (string) (($item['document_id'] ?? '') ?: '-'),
+                    (string) ($item['status'] ?? 'nao_veio'),
+                    (int) ($item['quantity'] ?? 1),
+                    (string) (($item['signature_name'] ?? '') ?: '-'),
+                    (string) (($item['delivered_at'] ?? '') ?: '-'),
+                ], ';');
+            }
+
+            fclose($handle);
+
+            $this->logEventOperation(
+                'delivery.export_csv_event',
+                $eventId,
+                [
+                    'event_name' => $event['name'] ?? null,
+                    'rows_exported' => count($deliveries),
+                ]
+            );
+            exit;
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao exportar CSV do evento.');
+            Response::redirect('/delivery-events/show?id=' . $eventId);
+        }
+    }
+
+    public function closeEvent(): void
+    {
+        $eventId = (int) ($_GET['id'] ?? 0);
+        if ($eventId <= 0) {
+            Session::flash('error', 'Evento invalido.');
+            Response::redirect('/delivery-events');
+        }
+
+        try {
+            $event = $this->model()->findById($eventId);
+            if ($event === null) {
+                Session::flash('error', 'Evento nao encontrado.');
+                Response::redirect('/delivery-events');
+            }
+
+            if ((string) ($event['status'] ?? '') === 'concluido') {
+                Session::flash('error', 'Evento ja esta concluido.');
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            $summary = $this->deliveryModel()->summaryByEventId($eventId);
+            if ((int) ($summary['status_presente'] ?? 0) > 0) {
+                Session::flash('error', 'Nao e possivel concluir: existem convidados marcados como presente aguardando retirada.');
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            $this->model()->updateStatus($eventId, 'concluido');
+            $this->logEventOperation(
+                'delivery_event.close',
+                $eventId,
+                [
+                    'event_name' => $event['name'] ?? null,
+                    'event_date' => $event['event_date'] ?? null,
+                    'summary' => $summary,
+                ]
+            );
+
+            Session::flash(
+                'success',
+                sprintf(
+                    'Evento concluido. Registros: %d | Retirou: %d | Cestas retiradas: %d.',
+                    (int) ($summary['total_records'] ?? 0),
+                    (int) ($summary['status_retirou'] ?? 0),
+                    (int) ($summary['withdrawn_quantity'] ?? 0)
+                )
+            );
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao concluir evento.');
         }
 
         Response::redirect('/delivery-events/show?id=' . $eventId);
@@ -754,6 +881,29 @@ final class DeliveryEventController
                 'action' => $action,
                 'entity' => 'deliveries',
                 'entity_id' => $deliveryId,
+                'ip_address' => $ip !== '' ? $ip : null,
+                'user_agent' => $userAgent !== '' ? $userAgent : null,
+                'details_json' => $encoded !== false ? $encoded : null,
+            ]);
+        } catch (Throwable $exception) {
+            // Nao interrompe fluxo operacional por falha de auditoria.
+        }
+    }
+
+    private function logEventOperation(string $action, int $eventId, array $details): void
+    {
+        try {
+            $authUser = Session::get('auth_user', []);
+            $userId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : 0;
+            $ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : null;
+            $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? (string) $_SERVER['HTTP_USER_AGENT'] : null;
+            $encoded = json_encode($details, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            $this->auditLogModel()->create([
+                'user_id' => $userId > 0 ? $userId : null,
+                'action' => $action,
+                'entity' => 'delivery_events',
+                'entity_id' => $eventId,
                 'ip_address' => $ip !== '' ? $ip : null,
                 'user_agent' => $userAgent !== '' ? $userAgent : null,
                 'details_json' => $encoded !== false ? $encoded : null,

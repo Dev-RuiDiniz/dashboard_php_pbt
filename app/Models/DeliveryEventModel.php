@@ -80,5 +80,18 @@ final class DeliveryEventModel
         );
         $stmt->execute($data);
     }
+
+    public function updateStatus(int $id, string $status): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE delivery_events
+             SET status = :status
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'status' => $status,
+        ]);
+    }
 }
 

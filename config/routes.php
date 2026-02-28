@@ -385,9 +385,21 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->get('/delivery-events/deliveries/csv', static function () use ($container, $deliveryView): void {
+        $deliveryView(static function () use ($container): void {
+            (new DeliveryEventController($container))->exportEventCsv();
+        });
+    });
+
     $router->post('/delivery-events/deliveries/status', static function () use ($container, $deliveryManage): void {
         $deliveryManage(static function () use ($container): void {
             (new DeliveryEventController($container))->updateDeliveryStatus();
+        });
+    });
+
+    $router->post('/delivery-events/close', static function () use ($container, $deliveryManage): void {
+        $deliveryManage(static function () use ($container): void {
+            (new DeliveryEventController($container))->closeEvent();
         });
     });
 
