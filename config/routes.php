@@ -493,6 +493,24 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->get('/reports/csv', static function () use ($container, $reportView): void {
+        $reportView(static function () use ($container): void {
+            (new ReportController($container))->exportCsv();
+        });
+    });
+
+    $router->get('/reports/excel', static function () use ($container, $reportView): void {
+        $reportView(static function () use ($container): void {
+            (new ReportController($container))->exportExcel();
+        });
+    });
+
+    $router->get('/reports/xlsx', static function () use ($container, $reportView): void {
+        $reportView(static function () use ($container): void {
+            (new ReportController($container))->exportExcel();
+        });
+    });
+
     $router->get('/users', static function () use ($container, $adminOnly): void {
         $adminOnly(static function () use ($container): void {
             (new UserController($container))->index();
