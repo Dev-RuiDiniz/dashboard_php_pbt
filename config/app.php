@@ -15,4 +15,10 @@ return [
     'alerts' => [
         'stale_days' => max(1, (int) ($_ENV['ALERT_STALE_DAYS'] ?? 30)),
     ],
+    'cep_lookup' => [
+        'correios_base_url' => trim((string) ($_ENV['CEP_CORREIOS_BASE_URL'] ?? 'https://api.correios.com.br/cep/v2')),
+        'correios_bearer_token' => trim((string) ($_ENV['CEP_CORREIOS_BEARER_TOKEN'] ?? '')),
+        'enable_viacep_fallback' => filter_var($_ENV['CEP_ENABLE_VIACEP_FALLBACK'] ?? true, FILTER_VALIDATE_BOOL),
+        'timeout_seconds' => max(2, (int) ($_ENV['CEP_LOOKUP_TIMEOUT'] ?? 6)),
+    ],
 ];

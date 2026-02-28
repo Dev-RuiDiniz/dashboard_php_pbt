@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AuthController;
 use App\Controllers\ChildController;
+use App\Controllers\CepController;
 use App\Controllers\DashboardController;
 use App\Controllers\DeliveryEventController;
 use App\Controllers\EquipmentController;
@@ -122,6 +123,12 @@ return static function (Router $router, Container $container): void {
             'app' => 'dashboard_php_pbt',
             'time' => date('c'),
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    });
+
+    $router->get('/api/cep', static function () use ($container, $authOnly): void {
+        $authOnly(static function () use ($container): void {
+            (new CepController($container))->lookup();
+        });
     });
 
     $router->get('/login', static function () use ($container): void {

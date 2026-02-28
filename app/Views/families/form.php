@@ -53,7 +53,8 @@ $docStatuses = is_array($docStatuses ?? null) ? $docStatuses : ['ok', 'pendente'
 
                         <div class="col-12 col-md-3">
                             <label class="form-label">CEP</label>
-                            <input class="form-control" name="cep" value="<?= htmlspecialchars((string) ($familyData['cep'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <input class="form-control" name="cep" placeholder="00000-000" value="<?= htmlspecialchars((string) ($familyData['cep'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <div class="form-text text-muted" data-cep-feedback></div>
                         </div>
                         <div class="col-12 col-md-7">
                             <label class="form-label">Logradouro</label>
