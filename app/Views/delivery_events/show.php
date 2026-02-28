@@ -5,7 +5,9 @@ $event = is_array($event ?? null) ? $event : [];
 $deliveries = is_array($deliveries ?? null) ? $deliveries : [];
 $families = is_array($families ?? null) ? $families : [];
 $people = is_array($people ?? null) ? $people : [];
+$childrenByEvent = is_array($childrenByEvent ?? null) ? $childrenByEvent : [];
 $deliveryForm = is_array($deliveryForm ?? null) ? $deliveryForm : [];
+$autoDeliveryForm = is_array($autoDeliveryForm ?? null) ? $autoDeliveryForm : [];
 $eventId = (int) ($event['id'] ?? 0);
 ?>
 
@@ -51,7 +53,7 @@ $eventId = (int) ($event['id'] ?? 0);
 
 <div class="row g-3">
     <div class="col-12 col-xl-5">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h2 class="h5 mb-3">Geracao de convidados (manual)</h2>
                 <form method="post" action="/delivery-events/deliveries?event_id=<?= $eventId ?>">
@@ -104,6 +106,56 @@ $eventId = (int) ($event['id'] ?? 0);
                 <div class="alert alert-light border small mt-3 mb-0">
                     A senha (ticket) e gerada automaticamente em sequencia por evento e fica imutavel.
                 </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Geracao automatica por criterios</h2>
+                <form method="post" action="/delivery-events/deliveries/auto?event_id=<?= $eventId ?>">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Cidade</label>
+                            <input class="form-control" name="city" value="<?= htmlspecialchars((string) ($autoDeliveryForm['city'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Bairro (contendo)</label>
+                            <input class="form-control" name="neighborhood" value="<?= htmlspecialchars((string) ($autoDeliveryForm['neighborhood'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Renda maxima familiar</label>
+                            <input type="number" step="0.01" min="0" class="form-control" name="max_income" value="<?= htmlspecialchars((string) ($autoDeliveryForm['max_income'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label">Limite familias</label>
+                            <input type="number" min="1" max="500" class="form-control" name="limit" value="<?= htmlspecialchars((string) ($autoDeliveryForm['limit'] ?? 30), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label">Qtd cestas</label>
+                            <input type="number" min="1" max="10" class="form-control" name="quantity" value="<?= htmlspecialchars((string) ($autoDeliveryForm['quantity'] ?? 1), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12">
+                            <input class="form-control" name="observations" placeholder="Observacoes para os convidados gerados" value="<?= htmlspecialchars((string) ($autoDeliveryForm['observations'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 d-flex flex-wrap gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="only_pending_documentation" name="only_pending_documentation" <?= ((int) ($autoDeliveryForm['only_pending_documentation'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="only_pending_documentation">Somente documentacao pendente/parcial</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="only_needs_visit" name="only_needs_visit" <?= ((int) ($autoDeliveryForm['only_needs_visit'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="only_needs_visit">Somente familias com visita pendente</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="only_with_children" name="only_with_children" <?= ((int) ($autoDeliveryForm['only_with_children'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="only_with_children">Somente familias com criancas</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-teal text-white">Gerar convidados automaticamente</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -170,6 +222,47 @@ $eventId = (int) ($event['id'] ?? 0);
                                             <div class="small text-secondary">Retirado em <?= htmlspecialchars((string) (($d['delivered_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                         <?php endif; ?>
                                     </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Criancas vinculadas ao evento</h2>
+                <div class="small text-secondary mb-2">Total: <?= count($childrenByEvent) ?> criancas listadas pelas familias convidadas.</div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Senha</th>
+                                <th>Crianca</th>
+                                <th>Familia</th>
+                                <th>Idade</th>
+                                <th>Nascimento</th>
+                                <th>Parentesco</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if (empty($childrenByEvent)) : ?>
+                            <tr><td colspan="6" class="text-secondary">Nenhuma crianca vinculada ao evento ate o momento.</td></tr>
+                        <?php else : ?>
+                            <?php foreach ($childrenByEvent as $child) : ?>
+                                <tr>
+                                    <td><span class="badge text-bg-dark"><?= (int) ($child['ticket_number'] ?? 0) ?></span></td>
+                                    <td><?= htmlspecialchars((string) ($child['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars((string) ($child['family_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars((string) (($child['age_years'] ?? null) !== null ? (int) $child['age_years'] : '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars((string) (($child['birth_date'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars((string) (($child['relationship'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>

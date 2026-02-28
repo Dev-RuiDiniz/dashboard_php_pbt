@@ -69,6 +69,30 @@ final class ChildModel
         return is_array($rows) ? $rows : [];
     }
 
+    public function findByEventId(int $eventId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+                c.id,
+                c.family_id,
+                c.name,
+                c.birth_date,
+                c.age_years,
+                c.relationship,
+                c.notes,
+                f.responsible_name AS family_name,
+                d.ticket_number
+             FROM deliveries d
+             INNER JOIN families f ON f.id = d.family_id
+             INNER JOIN children c ON c.family_id = d.family_id
+             WHERE d.event_id = :event_id
+             ORDER BY d.ticket_number ASC, c.name ASC, c.id ASC'
+        );
+        $stmt->execute(['event_id' => $eventId]);
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
+
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(

@@ -41,6 +41,79 @@ final class DeliveryModel
         return is_array($row) ? $row : null;
     }
 
+    public function findFamilyCandidates(array $criteria): array
+    {
+        $sql = 'SELECT
+                    f.id,
+                    f.responsible_name,
+                    f.cpf_responsible,
+                    f.rg_responsible,
+                    f.city,
+                    f.neighborhood,
+                    f.documentation_status,
+                    f.needs_visit,
+                    f.family_income_total,
+                    COALESCE(COUNT(c.id), 0) AS registered_children
+                FROM families f
+                LEFT JOIN children c ON c.family_id = f.id
+                WHERE f.is_active = 1';
+        $params = [];
+
+        $city = trim((string) ($criteria['city'] ?? ''));
+        if ($city !== '') {
+            $sql .= ' AND f.city = :city';
+            $params['city'] = $city;
+        }
+
+        $neighborhood = trim((string) ($criteria['neighborhood'] ?? ''));
+        if ($neighborhood !== '') {
+            $sql .= ' AND f.neighborhood LIKE :neighborhood';
+            $params['neighborhood'] = '%' . $neighborhood . '%';
+        }
+
+        if ((int) ($criteria['only_pending_documentation'] ?? 0) === 1) {
+            $sql .= ' AND f.documentation_status IN (\'pendente\', \'parcial\')';
+        }
+
+        if ((int) ($criteria['only_needs_visit'] ?? 0) === 1) {
+            $sql .= ' AND f.needs_visit = 1';
+        }
+
+        if ((int) ($criteria['only_with_children'] ?? 0) === 1) {
+            $sql .= ' AND f.children_count > 0';
+        }
+
+        $maxIncome = trim((string) ($criteria['max_income'] ?? ''));
+        if ($maxIncome !== '') {
+            $sql .= ' AND f.family_income_total <= :max_income';
+            $params['max_income'] = number_format((float) $maxIncome, 2, '.', '');
+        }
+
+        $sql .= ' GROUP BY
+                    f.id,
+                    f.responsible_name,
+                    f.cpf_responsible,
+                    f.rg_responsible,
+                    f.city,
+                    f.neighborhood,
+                    f.documentation_status,
+                    f.needs_visit,
+                    f.family_income_total
+                  ORDER BY
+                    f.neighborhood ASC,
+                    f.responsible_name ASC
+                  LIMIT :limit_rows';
+
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $stmt->bindValue(':limit_rows', max(1, min(500, (int) ($criteria['limit'] ?? 30))), PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
+
     public function existsFamilyInEvent(int $eventId, int $familyId): bool
     {
         $stmt = $this->pdo->prepare(
