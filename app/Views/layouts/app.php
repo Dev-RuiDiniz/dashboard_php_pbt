@@ -62,6 +62,10 @@ if ($layoutUserRole === 'admin') {
             <div class="col-12 col-lg-9 col-xl-10 p-0 d-flex flex-column">
                 <header class="app-header border-bottom">
                     <div class="container-fluid px-3 px-md-4 py-3">
+                        <div class="system-logos d-flex align-items-center justify-content-between mb-3">
+                            <img src="/assets/logo_cliente.jpeg" alt="Logo cliente" class="system-logo">
+                            <img src="/assets/plano_fundo.jpg" alt="Plano de fundo" class="system-logo">
+                        </div>
                         <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between">
                             <div>
                                 <h1 class="h4 mb-0"><?= htmlspecialchars($layoutTitle, ENT_QUOTES, 'UTF-8') ?></h1>

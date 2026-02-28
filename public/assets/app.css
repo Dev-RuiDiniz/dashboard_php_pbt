@@ -1,6 +1,15 @@
 body.app-shell {
-  background: #eef2f7;
+  background:
+    linear-gradient(rgba(238, 242, 247, 0.92), rgba(238, 242, 247, 0.92)),
+    url('/assets/logo_acao.jpg') center center / cover no-repeat fixed;
   color: #0f172a;
+}
+
+body.login-page {
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.55)),
+    url('/assets/logo_acao.jpg') center center / cover no-repeat fixed;
 }
 
 .app-sidebar {
@@ -66,8 +75,38 @@ body.app-shell {
   background: #f8fafc;
 }
 
+.system-logos {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+}
+
+.system-logo {
+  display: block;
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+}
+
+.login-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.95);
+}
+
 @media (max-width: 991.98px) {
   .app-sidebar {
     min-height: auto;
+  }
+
+  .system-logo {
+    height: 36px;
+  }
+
+  .login-logo {
+    height: 30px;
   }
 }
