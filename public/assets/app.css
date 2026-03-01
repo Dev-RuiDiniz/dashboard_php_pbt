@@ -21,6 +21,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: "Source Sans 3", "Segoe UI", Tahoma, sans-serif;
   color: var(--text-main);
@@ -136,6 +142,47 @@ body.bg-light {
   background: rgba(255, 255, 255, 0.9) !important;
 }
 
+.app-mobile-offcanvas {
+  background: linear-gradient(180deg, #fffdf8 0%, #f7f2e7 100%);
+  border-right: 1px solid var(--line);
+}
+
+.app-mobile-offcanvas .offcanvas-header {
+  border-color: var(--line) !important;
+}
+
+.app-mobile-offcanvas .offcanvas-title {
+  color: #3f2f1b;
+}
+
+.app-mobile-offcanvas .nav-link {
+  color: #5d4b36;
+  border-radius: 0.85rem;
+  border: 1px solid transparent;
+  padding: 0.65rem 0.8rem;
+}
+
+.app-mobile-offcanvas .nav-link:hover {
+  background: rgba(216, 177, 106, 0.14);
+  border-color: rgba(186, 138, 69, 0.28);
+  color: #4b3a26;
+}
+
+.app-mobile-offcanvas .nav-link.active {
+  background: linear-gradient(135deg, rgba(216, 177, 106, 0.26), rgba(216, 177, 106, 0.08));
+  border-color: rgba(186, 138, 69, 0.45);
+  color: #3f2f1b;
+}
+
+.app-mobile-offcanvas .text-white-50 {
+  color: #7c6d57 !important;
+}
+
+.app-mobile-toolbar {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
 .system-logos {
   border-bottom: 1px solid var(--line);
   padding-bottom: 0.75rem;
@@ -234,6 +281,18 @@ body.bg-light {
   --bs-table-bg: transparent;
   --bs-table-border-color: var(--line);
   color: var(--text-main);
+}
+
+.table-responsive {
+  border: 1px solid rgba(213, 195, 162, 0.45);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.7);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive > .table {
+  min-width: 680px;
 }
 
 .table > thead {
@@ -443,9 +502,25 @@ code {
   border-radius: 0.35rem;
 }
 
+@media (max-width: 1199.98px) {
+  .metric-value {
+    font-size: 1.8rem;
+  }
+}
+
 @media (max-width: 991.98px) {
+  .app-header .container-fluid,
+  .app-footer .container-fluid {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
   .app-sidebar {
     min-height: auto;
+  }
+
+  .system-logos {
+    gap: 0.6rem;
   }
 
   .system-logo {
@@ -454,5 +529,73 @@ code {
 
   .login-logo {
     height: 30px;
+  }
+
+  .app-header .h4 {
+    font-size: 1.45rem;
+  }
+
+  main .card .card-body {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .container-fluid.px-3,
+  .container-fluid.px-3.px-md-4 {
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+  }
+
+  .system-logos {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .system-logo {
+    width: 100%;
+    height: 34px;
+    object-fit: contain;
+  }
+
+  .metric-value {
+    font-size: 1.65rem;
+  }
+
+  .table-responsive > .table {
+    min-width: 620px;
+    font-size: 0.88rem;
+  }
+
+  main .d-flex.flex-wrap.gap-2 > .btn:not(.btn-sm),
+  main .d-flex.flex-wrap.gap-2 > a.btn:not(.btn-sm),
+  main .d-flex.flex-wrap.gap-2 > form {
+    width: 100%;
+  }
+
+  main .d-flex.flex-wrap.gap-2 > form > .btn:not(.btn-sm) {
+    width: 100%;
+  }
+
+  .btn.btn-sm {
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  main .card .card-body {
+    padding: 0.9rem;
+  }
+
+  .table-responsive > .table {
+    min-width: 560px;
+    font-size: 0.84rem;
+  }
+
+  .app-mobile-toolbar .btn {
+    min-width: 88px;
   }
 }

@@ -36,7 +36,7 @@ if ($layoutUserRole === 'admin') {
 <body class="app-shell">
     <div class="container-fluid">
         <div class="row min-vh-100">
-            <aside class="col-12 col-lg-3 col-xl-2 p-0 app-sidebar">
+            <aside class="d-none d-lg-block col-lg-3 col-xl-2 p-0 app-sidebar">
                 <div class="d-flex flex-column h-100">
                     <div class="px-3 py-3 border-bottom border-light-subtle">
                         <div class="small text-uppercase text-secondary fw-semibold">Sistema</div>
@@ -59,9 +59,36 @@ if ($layoutUserRole === 'admin') {
                 </div>
             </aside>
 
+            <div class="offcanvas offcanvas-start app-mobile-offcanvas d-lg-none" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+                <div class="offcanvas-header border-bottom">
+                    <h2 class="offcanvas-title h5 mb-0" id="mobileMenuLabel"><?= htmlspecialchars($layoutAppName, ENT_QUOTES, 'UTF-8') ?></h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar menu"></button>
+                </div>
+                <div class="offcanvas-body d-flex flex-column p-0">
+                    <nav class="nav nav-pills flex-column gap-1 px-2 py-3">
+                        <?php foreach ($menu as $item) : ?>
+                            <?php $active = $layoutActive === $item['key']; ?>
+                            <a class="nav-link d-flex align-items-center gap-2 <?= $active ? 'active' : '' ?>" href="<?= htmlspecialchars((string) $item['href'], ENT_QUOTES, 'UTF-8') ?>">
+                                <span class="icon-dot"></span>
+                                <span><?= htmlspecialchars((string) $item['label'], ENT_QUOTES, 'UTF-8') ?></span>
+                            </a>
+                        <?php endforeach; ?>
+                    </nav>
+                    <div class="mt-auto p-3 border-top border-light-subtle text-white-50 small">
+                        MVP v1.0 concluido (Sprint 20)
+                    </div>
+                </div>
+            </div>
+
             <div class="col-12 col-lg-9 col-xl-10 p-0 d-flex flex-column">
                 <header class="app-header border-bottom">
                     <div class="container-fluid px-3 px-md-4 py-3">
+                        <div class="d-lg-none d-flex align-items-center justify-content-between gap-2 mb-3 app-mobile-toolbar">
+                            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                                Menu
+                            </button>
+                            <div class="small text-uppercase text-secondary fw-semibold text-truncate"><?= htmlspecialchars($layoutAppName, ENT_QUOTES, 'UTF-8') ?></div>
+                        </div>
                         <div class="system-logos d-flex align-items-center justify-content-between mb-3">
                             <img src="/assets/logo_cliente.jpeg" alt="Logo cliente" class="system-logo">
                             <img src="/assets/plano_fundo.jpg" alt="Plano de fundo" class="system-logo">

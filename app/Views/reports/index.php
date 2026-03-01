@@ -110,18 +110,22 @@ $pendencyItems = is_array($pendencies['items'] ?? null) ? $pendencies['items'] :
         <h3 class="h6 mb-2">Criancas e encaminhamentos (amostra)</h3>
         <div class="row g-3">
             <div class="col-12 col-lg-6">
-                <table class="table table-sm mb-0"><thead><tr><th>Crianca</th><th>Familia</th></tr></thead><tbody>
-                <?php foreach (array_slice((array) ($children['items'] ?? []), 0, 10) as $item) : ?>
-                    <tr><td><?= htmlspecialchars((string) ($item['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td><td><?= htmlspecialchars((string) ($item['family_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td></tr>
-                <?php endforeach; ?>
-                </tbody></table>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0"><thead><tr><th>Crianca</th><th>Familia</th></tr></thead><tbody>
+                    <?php foreach (array_slice((array) ($children['items'] ?? []), 0, 10) as $item) : ?>
+                        <tr><td><?= htmlspecialchars((string) ($item['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td><td><?= htmlspecialchars((string) ($item['family_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td></tr>
+                    <?php endforeach; ?>
+                    </tbody></table>
+                </div>
             </div>
             <div class="col-12 col-lg-6">
-                <table class="table table-sm mb-0"><thead><tr><th>Tipo</th><th>Pessoa</th><th>Status</th></tr></thead><tbody>
-                <?php foreach (array_slice((array) ($referrals['items'] ?? []), 0, 10) as $item) : ?>
-                    <tr><td><?= htmlspecialchars((string) ($item['referral_type'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td><td><?= htmlspecialchars((string) ($item['person_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td><td><?= htmlspecialchars((string) ($item['status'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td></tr>
-                <?php endforeach; ?>
-                </tbody></table>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0"><thead><tr><th>Tipo</th><th>Pessoa</th><th>Status</th></tr></thead><tbody>
+                    <?php foreach (array_slice((array) ($referrals['items'] ?? []), 0, 10) as $item) : ?>
+                        <tr><td><?= htmlspecialchars((string) ($item['referral_type'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td><td><?= htmlspecialchars((string) ($item['person_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td><td><?= htmlspecialchars((string) ($item['status'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td></tr>
+                    <?php endforeach; ?>
+                    </tbody></table>
+                </div>
             </div>
         </div>
     </div>
