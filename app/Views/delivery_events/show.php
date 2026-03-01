@@ -9,9 +9,16 @@ $childrenByEvent = is_array($childrenByEvent ?? null) ? $childrenByEvent : [];
 $deliveryForm = is_array($deliveryForm ?? null) ? $deliveryForm : [];
 $autoDeliveryForm = is_array($autoDeliveryForm ?? null) ? $autoDeliveryForm : [];
 $deliverySummary = is_array($deliverySummary ?? null) ? $deliverySummary : [];
+$filteredSummary = is_array($filteredSummary ?? null) ? $filteredSummary : [];
+$deliveryFilters = is_array($deliveryFilters ?? null) ? $deliveryFilters : ['q' => '', 'status' => ''];
 $eventId = (int) ($event['id'] ?? 0);
 $eventStatus = (string) ($event['status'] ?? '');
 $isConcluded = $eventStatus === 'concluido';
+$filterQuery = http_build_query([
+    'q' => (string) ($deliveryFilters['q'] ?? ''),
+    'status' => (string) ($deliveryFilters['status'] ?? ''),
+]);
+$filterSuffix = $filterQuery !== '' ? '&' . $filterQuery : '';
 ?>
 
 <?php if (!empty($success)) : ?>
@@ -24,13 +31,16 @@ $isConcluded = $eventStatus === 'concluido';
 <div class="d-flex flex-wrap gap-2 mb-3">
     <a class="btn btn-outline-secondary" href="/delivery-events">Voltar aos eventos</a>
     <a class="btn btn-outline-primary" href="/delivery-events/edit?id=<?= $eventId ?>">Editar evento</a>
-    <a class="btn btn-outline-success" href="/delivery-events/deliveries/csv?event_id=<?= $eventId ?>">Exportar CSV</a>
-    <?php if (!$isConcluded) : ?>
+    <a class="btn btn-outline-success" href="/delivery-events/deliveries/csv?event_id=<?= $eventId ?><?= htmlspecialchars($filterSuffix, ENT_QUOTES, 'UTF-8') ?>">Exportar CSV</a>
+    <a class="btn btn-outline-dark" target="_blank" rel="noopener noreferrer" href="/delivery-events/print?event_id=<?= $eventId ?><?= htmlspecialchars($filterSuffix, ENT_QUOTES, 'UTF-8') ?>">Imprimir lista</a>
+    <?php if ($isConcluded) : ?>
+        <form method="post" action="/delivery-events/reopen?id=<?= $eventId ?>" onsubmit="return confirm('Deseja reabrir o evento para novas operacoes?');">
+            <button type="submit" class="btn btn-warning">Reabrir evento</button>
+        </form>
+    <?php else : ?>
         <form method="post" action="/delivery-events/close?id=<?= $eventId ?>" onsubmit="return confirm('Deseja concluir o evento? Esta acao bloqueia novas alteracoes de entrega.');">
             <button type="submit" class="btn btn-danger">Concluir evento</button>
         </form>
-    <?php else : ?>
-        <span class="badge text-bg-success align-self-center">Evento concluido</span>
     <?php endif; ?>
 </div>
 
@@ -210,6 +220,28 @@ $isConcluded = $eventStatus === 'concluido';
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <h2 class="h5 mb-3">Lista operacional</h2>
+                <form method="get" action="/delivery-events/show" class="row g-2 mb-3">
+                    <input type="hidden" name="id" value="<?= $eventId ?>">
+                    <div class="col-12 col-md-6">
+                        <input class="form-control" name="q" placeholder="Buscar por senha, nome ou documento" value="<?= htmlspecialchars((string) ($deliveryFilters['q'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <select class="form-select" name="status">
+                            <option value="" <?= ((string) ($deliveryFilters['status'] ?? '') === '') ? 'selected' : '' ?>>Todos status</option>
+                            <option value="nao_veio" <?= ((string) ($deliveryFilters['status'] ?? '') === 'nao_veio') ? 'selected' : '' ?>>nao_veio</option>
+                            <option value="presente" <?= ((string) ($deliveryFilters['status'] ?? '') === 'presente') ? 'selected' : '' ?>>presente</option>
+                            <option value="retirou" <?= ((string) ($deliveryFilters['status'] ?? '') === 'retirou') ? 'selected' : '' ?>>retirou</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-outline-primary flex-fill">Filtrar</button>
+                        <a class="btn btn-outline-secondary flex-fill" href="/delivery-events/show?id=<?= $eventId ?>">Limpar</a>
+                    </div>
+                </form>
+
+                <div class="small text-secondary mb-2">
+                    Exibindo <?= (int) ($filteredSummary['total_records'] ?? 0) ?> de <?= (int) ($deliverySummary['total_records'] ?? 0) ?> registros.
+                </div>
                 <div class="table-responsive">
                     <table class="table align-middle mb-0">
                         <thead>

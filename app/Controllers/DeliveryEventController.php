@@ -161,6 +161,7 @@ final class DeliveryEventController
             Session::flash('error', 'Evento invalido.');
             Response::redirect('/delivery-events');
         }
+        $deliveryFilters = $this->sanitizeDeliveryFilters($_GET);
 
         try {
             $event = $this->model()->findById($id);
@@ -169,8 +170,9 @@ final class DeliveryEventController
                 Response::redirect('/delivery-events');
             }
 
-            $deliveries = $this->deliveryModel()->listByEventId($id);
+            $deliveries = $this->deliveryModel()->listByEventIdFiltered($id, $deliveryFilters);
             $deliverySummary = $this->deliveryModel()->summaryByEventId($id);
+            $filteredSummary = $this->summarizeDeliveries($deliveries);
             $families = $this->familyModel()->search(['status' => 'ativo']);
             $people = $this->personModel()->search([]);
             $childrenByEvent = $this->childModel()->findByEventId($id);
@@ -216,11 +218,13 @@ final class DeliveryEventController
             'event' => $event,
             'deliveries' => $deliveries,
             'deliverySummary' => $deliverySummary,
+            'filteredSummary' => $filteredSummary,
             'families' => $families,
             'people' => $people,
             'childrenByEvent' => $childrenByEvent,
             'deliveryForm' => $deliveryForm,
             'autoDeliveryForm' => $autoDeliveryForm,
+            'deliveryFilters' => $deliveryFilters,
             'success' => Session::consumeFlash('success'),
             'error' => Session::consumeFlash('error'),
         ]);
@@ -442,6 +446,7 @@ final class DeliveryEventController
             Session::flash('error', 'Evento invalido.');
             Response::redirect('/delivery-events');
         }
+        $deliveryFilters = $this->sanitizeDeliveryFilters($_GET);
 
         try {
             $event = $this->model()->findById($eventId);
@@ -450,8 +455,9 @@ final class DeliveryEventController
                 Response::redirect('/delivery-events');
             }
 
-            $deliveries = $this->deliveryModel()->listByEventId($eventId);
+            $deliveries = $this->deliveryModel()->listByEventIdFiltered($eventId, $deliveryFilters);
             $summary = $this->deliveryModel()->summaryByEventId($eventId);
+            $filteredSummary = $this->summarizeDeliveries($deliveries);
 
             $slug = strtolower((string) preg_replace('/[^a-z0-9]+/i', '-', (string) ($event['name'] ?? 'evento')));
             $slug = trim($slug, '-');
@@ -474,6 +480,8 @@ final class DeliveryEventController
             fputcsv($handle, ['Evento', (string) ($event['name'] ?? ''), 'Data', (string) ($event['event_date'] ?? '')], ';');
             fputcsv($handle, ['Status evento', (string) ($event['status'] ?? ''), 'Total registros', (string) ((int) ($summary['total_records'] ?? 0))], ';');
             fputcsv($handle, ['Total cestas', (string) ((int) ($summary['total_quantity'] ?? 0)), 'Cestas retiradas', (string) ((int) ($summary['withdrawn_quantity'] ?? 0))], ';');
+            fputcsv($handle, ['Filtro status', (string) (($deliveryFilters['status'] ?? '') ?: 'todos'), 'Filtro busca', (string) (($deliveryFilters['q'] ?? '') ?: '-')], ';');
+            fputcsv($handle, ['Registros filtrados', (string) ((int) ($filteredSummary['total_records'] ?? 0)), 'Cestas filtradas', (string) ((int) ($filteredSummary['total_quantity'] ?? 0))], ';');
             fputcsv($handle, [], ';');
             fputcsv($handle, ['Senha', 'Convidado', 'Documento', 'Status', 'Quantidade', 'Assinatura', 'Retirado em'], ';');
 
@@ -498,11 +506,54 @@ final class DeliveryEventController
                 [
                     'event_name' => $event['name'] ?? null,
                     'rows_exported' => count($deliveries),
+                    'filters' => $deliveryFilters,
                 ]
             );
             exit;
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao exportar CSV do evento.');
+            Response::redirect('/delivery-events/show?id=' . $eventId);
+        }
+    }
+
+    public function printList(): void
+    {
+        $eventId = (int) ($_GET['event_id'] ?? 0);
+        if ($eventId <= 0) {
+            Session::flash('error', 'Evento invalido.');
+            Response::redirect('/delivery-events');
+        }
+        $deliveryFilters = $this->sanitizeDeliveryFilters($_GET);
+
+        try {
+            $event = $this->model()->findById($eventId);
+            if ($event === null) {
+                Session::flash('error', 'Evento nao encontrado.');
+                Response::redirect('/delivery-events');
+            }
+
+            $deliveries = $this->deliveryModel()->listByEventIdFiltered($eventId, $deliveryFilters);
+            $summary = $this->summarizeDeliveries($deliveries);
+
+            $this->logEventOperation(
+                'delivery.print_list',
+                $eventId,
+                [
+                    'event_name' => $event['name'] ?? null,
+                    'rows_printed' => count($deliveries),
+                    'filters' => $deliveryFilters,
+                ]
+            );
+
+            View::render('delivery_events.print', [
+                'event' => $event,
+                'deliveries' => $deliveries,
+                'deliveryFilters' => $deliveryFilters,
+                'summary' => $summary,
+                'generatedAt' => date('Y-m-d H:i:s'),
+            ]);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao gerar impressao da lista operacional.');
             Response::redirect('/delivery-events/show?id=' . $eventId);
         }
     }
@@ -555,6 +606,45 @@ final class DeliveryEventController
             );
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao concluir evento.');
+        }
+
+        Response::redirect('/delivery-events/show?id=' . $eventId);
+    }
+
+    public function reopenEvent(): void
+    {
+        $eventId = (int) ($_GET['id'] ?? 0);
+        if ($eventId <= 0) {
+            Session::flash('error', 'Evento invalido.');
+            Response::redirect('/delivery-events');
+        }
+
+        try {
+            $event = $this->model()->findById($eventId);
+            if ($event === null) {
+                Session::flash('error', 'Evento nao encontrado.');
+                Response::redirect('/delivery-events');
+            }
+
+            if ((string) ($event['status'] ?? '') !== 'concluido') {
+                Session::flash('error', 'Somente eventos concluidos podem ser reabertos.');
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            $this->model()->updateStatus($eventId, 'aberto');
+            $this->logEventOperation(
+                'delivery_event.reopen',
+                $eventId,
+                [
+                    'event_name' => $event['name'] ?? null,
+                    'event_date' => $event['event_date'] ?? null,
+                    'previous_status' => $event['status'] ?? null,
+                    'new_status' => 'aberto',
+                ]
+            );
+            Session::flash('success', 'Evento reaberto com sucesso.');
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao reabrir evento.');
         }
 
         Response::redirect('/delivery-events/show?id=' . $eventId);
@@ -747,6 +837,53 @@ final class DeliveryEventController
             'quantity' => max(1, min(10, (int) ($post['quantity'] ?? 1))),
             'observations' => trim((string) ($post['observations'] ?? '')),
         ];
+    }
+
+    private function sanitizeDeliveryFilters(array $query): array
+    {
+        $status = trim((string) ($query['status'] ?? ''));
+        if (!in_array($status, ['', 'nao_veio', 'presente', 'retirou'], true)) {
+            $status = '';
+        }
+
+        return [
+            'q' => trim((string) ($query['q'] ?? '')),
+            'status' => $status,
+        ];
+    }
+
+    private function summarizeDeliveries(array $deliveries): array
+    {
+        $summary = [
+            'total_records' => 0,
+            'total_quantity' => 0,
+            'status_nao_veio' => 0,
+            'status_presente' => 0,
+            'status_retirou' => 0,
+            'withdrawn_quantity' => 0,
+        ];
+
+        foreach ($deliveries as $delivery) {
+            if (!is_array($delivery)) {
+                continue;
+            }
+            $status = (string) ($delivery['status'] ?? 'nao_veio');
+            $quantity = max(0, (int) ($delivery['quantity'] ?? 0));
+
+            $summary['total_records']++;
+            $summary['total_quantity'] += $quantity;
+
+            if ($status === 'nao_veio') {
+                $summary['status_nao_veio']++;
+            } elseif ($status === 'presente') {
+                $summary['status_presente']++;
+            } elseif ($status === 'retirou') {
+                $summary['status_retirou']++;
+                $summary['withdrawn_quantity'] += $quantity;
+            }
+        }
+
+        return $summary;
     }
 
     private function validateDeliveryInput(int $eventId, array $input): ?string

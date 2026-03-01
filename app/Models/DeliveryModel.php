@@ -14,8 +14,12 @@ final class DeliveryModel
 
     public function listByEventId(int $eventId): array
     {
-        $stmt = $this->pdo->prepare(
-            'SELECT
+        return $this->listByEventIdFiltered($eventId, []);
+    }
+
+    public function listByEventIdFiltered(int $eventId, array $filters): array
+    {
+        $sql = 'SELECT
                 d.*,
                 f.responsible_name AS family_name,
                 p.full_name AS person_full_name,
@@ -25,10 +29,31 @@ final class DeliveryModel
              LEFT JOIN families f ON f.id = d.family_id
              LEFT JOIN people p ON p.id = d.person_id
              LEFT JOIN users u ON u.id = d.delivered_by
-             WHERE d.event_id = :event_id
-             ORDER BY d.ticket_number ASC, d.id ASC'
-        );
-        $stmt->execute(['event_id' => $eventId]);
+             WHERE d.event_id = :event_id';
+        $params = ['event_id' => $eventId];
+
+        $status = trim((string) ($filters['status'] ?? ''));
+        if (in_array($status, ['nao_veio', 'presente', 'retirou'], true)) {
+            $sql .= ' AND d.status = :status';
+            $params['status'] = $status;
+        }
+
+        $q = trim((string) ($filters['q'] ?? ''));
+        if ($q !== '') {
+            $sql .= ' AND (
+                f.responsible_name LIKE :q
+                OR p.full_name LIKE :q
+                OR p.social_name LIKE :q
+                OR d.document_id LIKE :q
+                OR CAST(d.ticket_number AS CHAR) LIKE :q
+            )';
+            $params['q'] = '%' . $q . '%';
+        }
+
+        $sql .= ' ORDER BY d.ticket_number ASC, d.id ASC';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $rows = $stmt->fetchAll();
         return is_array($rows) ? $rows : [];
     }
