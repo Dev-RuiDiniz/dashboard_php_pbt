@@ -1,0 +1,11 @@
+2026-02-28T22:15:13.589485Z 0 [System] [MY-013169] [Server] C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqld.exe (mysqld 8.0.36) initializing of server in progress as process 16552
+2026-02-28T22:15:13.788975Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-02-28T22:15:31.588916Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-02-28T22:15:41.462560Z 5 [Warning] [MY-010453] [Server] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+2026-02-28T22:17:16.589340Z 0 [System] [MY-010116] [Server] C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqld.exe (mysqld 8.0.36) starting as process 12360
+2026-02-28T22:17:16.995126Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-02-28T22:17:19.871764Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-02-28T22:17:35.207113Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-02-28T22:17:35.211046Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-02-28T22:17:35.835678Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060
+2026-02-28T22:17:35.835996Z 0 [System] [MY-010931] [Server] C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqld.exe: ready for connections. Version: '8.0.36'  socket: ''  port: 3307  MySQL Community Server - GPL.

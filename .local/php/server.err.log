@@ -1,0 +1,1321 @@
+[Sat Feb 28 19:22:26 2026] PHP 8.2.30 Development Server (http://127.0.0.1:8000) started
+[Sat Feb 28 19:22:56 2026] 127.0.0.1:57185 Accepted
+[Sat Feb 28 19:22:57 2026] 127.0.0.1:57185 [302]: GET /
+[Sat Feb 28 19:22:57 2026] 127.0.0.1:57185 Closing
+[Sat Feb 28 19:23:07 2026] 127.0.0.1:57191 Accepted
+[Sat Feb 28 19:23:08 2026] 127.0.0.1:57191 [302]: GET /
+[Sat Feb 28 19:23:08 2026] 127.0.0.1:57191 Closing
+[Sat Feb 28 19:23:18 2026] 127.0.0.1:57196 Accepted
+[Sat Feb 28 19:23:18 2026] 127.0.0.1:57196 [200]: GET /login
+[Sat Feb 28 19:23:18 2026] 127.0.0.1:57196 Closing
+[Sat Feb 28 19:23:53 2026] 127.0.0.1:57205 Accepted
+[Sat Feb 28 19:23:53 2026] 127.0.0.1:57205 [200]: GET /login
+[Sat Feb 28 19:23:53 2026] 127.0.0.1:57205 Closing
+[Sat Feb 28 19:23:53 2026] 127.0.0.1:57206 Accepted
+[Sat Feb 28 19:23:54 2026] 127.0.0.1:57206 [302]: POST /login
+[Sat Feb 28 19:23:54 2026] 127.0.0.1:57206 Closing
+[Sat Feb 28 19:24:05 2026] 127.0.0.1:57211 Accepted
+[Sat Feb 28 19:24:05 2026] 127.0.0.1:57211 [200]: GET /login
+[Sat Feb 28 19:24:05 2026] 127.0.0.1:57211 Closing
+[Sat Feb 28 19:24:05 2026] 127.0.0.1:57212 Accepted
+[Sat Feb 28 19:24:05 2026] 127.0.0.1:57212 [302]: POST /login
+[Sat Feb 28 19:24:05 2026] 127.0.0.1:57212 Closing
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57222 Accepted
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57222 [200]: GET /login
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57222 Closing
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57223 Accepted
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57223 [302]: POST /login
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57223 Closing
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57225 Accepted
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57225 [200]: GET /dashboard
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57225 Closing
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57226 Accepted
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57226 [200]: GET /dashboard
+[Sat Feb 28 19:24:42 2026] 127.0.0.1:57226 Closing
+[Sat Feb 28 19:29:59 2026] 127.0.0.1:50890 Accepted
+[Sat Feb 28 19:29:59 2026] 127.0.0.1:61300 Accepted
+[Sat Feb 28 19:30:00 2026] 127.0.0.1:50890 [302]: GET /
+[Sat Feb 28 19:30:00 2026] 127.0.0.1:50890 Closing
+[Sat Feb 28 19:30:00 2026] 127.0.0.1:61300 [200]: GET /login
+[Sat Feb 28 19:30:00 2026] 127.0.0.1:61300 Closing
+[Sat Feb 28 19:30:00 2026] 127.0.0.1:55664 Accepted
+[Sat Feb 28 19:30:00 2026] 127.0.0.1:55664 [200]: GET /assets/app.css
+[Sat Feb 28 19:30:00 2026] 127.0.0.1:55664 Closing
+[Sat Feb 28 19:30:01 2026] 127.0.0.1:56954 Accepted
+[Sat Feb 28 19:30:01 2026] 127.0.0.1:56954 [404]: GET /favicon.ico - No such file or directory
+[Sat Feb 28 19:30:01 2026] 127.0.0.1:56954 Closing
+[Sat Feb 28 19:30:12 2026] 127.0.0.1:58455 Accepted
+[Sat Feb 28 19:30:12 2026] 127.0.0.1:56403 Accepted
+[Sat Feb 28 19:30:12 2026] 127.0.0.1:58455 [302]: POST /login
+[Sat Feb 28 19:30:12 2026] 127.0.0.1:58455 Closing
+[Sat Feb 28 19:30:13 2026] 127.0.0.1:56403 [200]: GET /dashboard
+[Sat Feb 28 19:30:13 2026] 127.0.0.1:56403 Closing
+[Sat Feb 28 19:30:13 2026] 127.0.0.1:51339 Accepted
+[Sat Feb 28 19:30:13 2026] 127.0.0.1:51339 [200]: GET /assets/app.css
+[Sat Feb 28 19:30:13 2026] 127.0.0.1:51339 Closing
+[Sat Feb 28 19:30:31 2026] 127.0.0.1:65348 Accepted
+[Sat Feb 28 19:30:32 2026] 127.0.0.1:52579 Accepted
+[Sat Feb 28 19:30:32 2026] 127.0.0.1:65348 [200]: GET /families
+[Sat Feb 28 19:30:32 2026] 127.0.0.1:65348 Closing
+[Sat Feb 28 19:30:32 2026] 127.0.0.1:52579 [200]: GET /assets/app.css
+[Sat Feb 28 19:30:32 2026] 127.0.0.1:52579 Closing
+[Sat Feb 28 19:30:43 2026] 127.0.0.1:50861 Accepted
+[Sat Feb 28 19:30:43 2026] 127.0.0.1:57007 Accepted
+[Sat Feb 28 19:30:44 2026] 127.0.0.1:50861 [200]: GET /children
+[Sat Feb 28 19:30:44 2026] 127.0.0.1:50861 Closing
+[Sat Feb 28 19:30:44 2026] 127.0.0.1:57007 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 19:30:44 2026] 127.0.0.1:57007 Closing
+[Sat Feb 28 19:30:44 2026] 127.0.0.1:57673 Accepted
+[Sat Feb 28 19:30:44 2026] 127.0.0.1:57673 [200]: GET /assets/app.css
+[Sat Feb 28 19:30:44 2026] 127.0.0.1:57673 Closing
+[Sat Feb 28 19:30:46 2026] 127.0.0.1:65217 Accepted
+[Sat Feb 28 19:30:46 2026] 127.0.0.1:56728 Accepted
+[Sat Feb 28 19:30:46 2026] 127.0.0.1:65217 [200]: GET /people
+[Sat Feb 28 19:30:46 2026] 127.0.0.1:65217 Closing
+[Sat Feb 28 19:30:46 2026] 127.0.0.1:56728 [200]: GET /assets/app.css
+[Sat Feb 28 19:30:46 2026] 127.0.0.1:56728 Closing
+[Sat Feb 28 19:30:49 2026] 127.0.0.1:59683 Accepted
+[Sat Feb 28 19:30:49 2026] 127.0.0.1:59683 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 19:30:49 2026] 127.0.0.1:59683 Closing
+[Sat Feb 28 19:30:49 2026] 127.0.0.1:56871 Accepted
+[Sat Feb 28 19:30:49 2026] 127.0.0.1:64873 Accepted
+[Sat Feb 28 19:30:49 2026] 127.0.0.1:56871 [200]: GET /dashboard
+[Sat Feb 28 19:30:49 2026] 127.0.0.1:56871 Closing
+[Sat Feb 28 19:30:49 2026] 127.0.0.1:64873 [200]: GET /assets/app.css
+[Sat Feb 28 19:30:49 2026] 127.0.0.1:64873 Closing
+[Sat Feb 28 19:30:53 2026] 127.0.0.1:60803 Accepted
+[Sat Feb 28 19:30:54 2026] 127.0.0.1:62925 Accepted
+[Sat Feb 28 19:30:54 2026] 127.0.0.1:60803 [200]: GET /delivery-events
+[Sat Feb 28 19:30:54 2026] 127.0.0.1:60803 Closing
+[Sat Feb 28 19:30:54 2026] 127.0.0.1:62925 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 19:30:54 2026] 127.0.0.1:62925 Closing
+[Sat Feb 28 19:30:54 2026] 127.0.0.1:64832 Accepted
+[Sat Feb 28 19:30:54 2026] 127.0.0.1:64832 [200]: GET /assets/app.css
+[Sat Feb 28 19:30:54 2026] 127.0.0.1:64832 Closing
+[Sat Feb 28 19:30:56 2026] 127.0.0.1:64562 Accepted
+[Sat Feb 28 19:30:56 2026] 127.0.0.1:58229 Accepted
+[Sat Feb 28 19:30:56 2026] 127.0.0.1:64562 [200]: GET /dashboard
+[Sat Feb 28 19:30:56 2026] 127.0.0.1:64562 Closing
+[Sat Feb 28 19:30:56 2026] 127.0.0.1:58229 [200]: GET /assets/app.css
+[Sat Feb 28 19:30:56 2026] 127.0.0.1:58229 Closing
+[Sat Feb 28 19:30:57 2026] 127.0.0.1:52866 Accepted
+[Sat Feb 28 19:30:58 2026] 127.0.0.1:54868 Accepted
+[Sat Feb 28 19:30:58 2026] 127.0.0.1:52866 [200]: GET /dashboard
+[Sat Feb 28 19:30:58 2026] 127.0.0.1:52866 Closing
+[Sat Feb 28 19:30:58 2026] 127.0.0.1:54868 [200]: GET /assets/app.css
+[Sat Feb 28 19:30:58 2026] 127.0.0.1:54868 Closing
+[Sat Feb 28 19:31:05 2026] 127.0.0.1:63555 Accepted
+[Sat Feb 28 19:31:05 2026] 127.0.0.1:61901 Accepted
+[Sat Feb 28 19:31:05 2026] 127.0.0.1:63555 [200]: GET /delivery-events
+[Sat Feb 28 19:31:05 2026] 127.0.0.1:63555 Closing
+[Sat Feb 28 19:31:05 2026] 127.0.0.1:61901 [200]: GET /assets/app.css
+[Sat Feb 28 19:31:05 2026] 127.0.0.1:61901 Closing
+[Sat Feb 28 19:31:07 2026] 127.0.0.1:52979 Accepted
+[Sat Feb 28 19:31:07 2026] 127.0.0.1:51915 Accepted
+[Sat Feb 28 19:31:07 2026] 127.0.0.1:52979 [200]: GET /equipment
+[Sat Feb 28 19:31:07 2026] 127.0.0.1:52979 Closing
+[Sat Feb 28 19:31:07 2026] 127.0.0.1:51915 [200]: GET /assets/app.css
+[Sat Feb 28 19:31:07 2026] 127.0.0.1:51915 Closing
+[Sat Feb 28 19:31:14 2026] 127.0.0.1:58043 Accepted
+[Sat Feb 28 19:31:14 2026] 127.0.0.1:58043 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 19:31:14 2026] 127.0.0.1:58043 Closing
+[Sat Feb 28 19:31:14 2026] 127.0.0.1:63644 Accepted
+[Sat Feb 28 19:31:14 2026] 127.0.0.1:51436 Accepted
+[Sat Feb 28 19:31:15 2026] 127.0.0.1:63644 [200]: GET /visits
+[Sat Feb 28 19:31:15 2026] 127.0.0.1:63644 Closing
+[Sat Feb 28 19:31:15 2026] 127.0.0.1:51436 [200]: GET /assets/app.css
+[Sat Feb 28 19:31:15 2026] 127.0.0.1:51436 Closing
+[Sat Feb 28 19:31:20 2026] 127.0.0.1:62617 Accepted
+[Sat Feb 28 19:31:20 2026] 127.0.0.1:51681 Accepted
+[Sat Feb 28 19:31:21 2026] 127.0.0.1:62617 [200]: GET /reports
+[Sat Feb 28 19:31:21 2026] 127.0.0.1:62617 Closing
+[Sat Feb 28 19:31:21 2026] 127.0.0.1:51681 [200]: GET /assets/app.css
+[Sat Feb 28 19:31:21 2026] 127.0.0.1:51681 Closing
+[Sat Feb 28 19:31:25 2026] 127.0.0.1:49324 Accepted
+[Sat Feb 28 19:31:25 2026] 127.0.0.1:53045 Accepted
+[Sat Feb 28 19:31:45 2026] 127.0.0.1:49324 [200]: GET /reports/pdf?period_start=2026-02-01&period_end=2026-02-28&status=&neighborhood=
+[Sat Feb 28 19:31:45 2026] 127.0.0.1:49324 Closing
+[Sat Feb 28 19:31:45 2026] 127.0.0.1:52843 Accepted
+[Sat Feb 28 19:31:45 2026] 127.0.0.1:53045 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 19:31:45 2026] 127.0.0.1:53045 Closing
+[Sat Feb 28 19:31:45 2026] 127.0.0.1:58342 Accepted
+[Sat Feb 28 19:31:50 2026] 127.0.0.1:52843 [200]: GET /reports/pdf?period_start=2026-02-01&period_end=2026-02-28&status=&neighborhood=
+[Sat Feb 28 19:31:50 2026] 127.0.0.1:52843 Closing
+[Sat Feb 28 19:31:50 2026] 127.0.0.1:58342 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 19:31:50 2026] 127.0.0.1:58342 Closing
+[Sat Feb 28 19:32:09 2026] 127.0.0.1:62541 Accepted
+[Sat Feb 28 19:32:09 2026] 127.0.0.1:55608 Accepted
+[Sat Feb 28 19:32:09 2026] 127.0.0.1:62541 [200]: GET /dashboard
+[Sat Feb 28 19:32:10 2026] 127.0.0.1:62541 Closing
+[Sat Feb 28 19:32:10 2026] 127.0.0.1:55608 [200]: GET /assets/app.css
+[Sat Feb 28 19:32:10 2026] 127.0.0.1:55608 Closing
+[Sat Feb 28 19:32:59 2026] 127.0.0.1:56276 Accepted
+[Sat Feb 28 19:32:59 2026] 127.0.0.1:56898 Accepted
+[Sat Feb 28 19:32:59 2026] 127.0.0.1:56276 [200]: GET /families
+[Sat Feb 28 19:32:59 2026] 127.0.0.1:56276 Closing
+[Sat Feb 28 19:32:59 2026] 127.0.0.1:56898 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 19:32:59 2026] 127.0.0.1:56898 Closing
+[Sat Feb 28 19:32:59 2026] 127.0.0.1:52680 Accepted
+[Sat Feb 28 19:32:59 2026] 127.0.0.1:52680 [200]: GET /assets/app.css
+[Sat Feb 28 19:32:59 2026] 127.0.0.1:52680 Closing
+[Sat Feb 28 19:33:01 2026] 127.0.0.1:54752 Accepted
+[Sat Feb 28 19:33:01 2026] 127.0.0.1:61099 Accepted
+[Sat Feb 28 19:33:01 2026] 127.0.0.1:54752 [200]: GET /families/create
+[Sat Feb 28 19:33:01 2026] 127.0.0.1:54752 Closing
+[Sat Feb 28 19:33:01 2026] 127.0.0.1:61099 [200]: GET /assets/app.css
+[Sat Feb 28 19:33:01 2026] 127.0.0.1:61099 Closing
+[Sat Feb 28 19:38:47 2026] 127.0.0.1:64573 Accepted
+[Sat Feb 28 19:38:48 2026] 127.0.0.1:64573 [200]: GET /login
+[Sat Feb 28 19:38:49 2026] 127.0.0.1:64573 Closing
+[Sat Feb 28 19:38:49 2026] 127.0.0.1:64575 Accepted
+[Sat Feb 28 19:38:52 2026] 127.0.0.1:64575 [302]: POST /login
+[Sat Feb 28 19:38:53 2026] 127.0.0.1:64575 Closing
+[Sat Feb 28 19:38:53 2026] 127.0.0.1:64577 Accepted
+[Sat Feb 28 19:38:53 2026] 127.0.0.1:64577 [200]: GET /dashboard
+[Sat Feb 28 19:38:54 2026] 127.0.0.1:64577 Closing
+[Sat Feb 28 19:38:54 2026] 127.0.0.1:64578 Accepted
+[Sat Feb 28 19:38:57 2026] 127.0.0.1:64578 [200]: GET /api/cep?cep=01001000
+[Sat Feb 28 19:38:57 2026] 127.0.0.1:64578 Closing
+[Sat Feb 28 19:39:32 2026] 127.0.0.1:49793 Accepted
+[Sat Feb 28 19:39:32 2026] 127.0.0.1:49793 [200]: GET /login
+[Sat Feb 28 19:39:32 2026] 127.0.0.1:49793 Closing
+[Sat Feb 28 19:39:32 2026] 127.0.0.1:49794 Accepted
+[Sat Feb 28 19:39:33 2026] 127.0.0.1:49794 [302]: POST /login
+[Sat Feb 28 19:39:33 2026] 127.0.0.1:49794 Closing
+[Sat Feb 28 19:39:33 2026] 127.0.0.1:49796 Accepted
+[Sat Feb 28 19:39:33 2026] 127.0.0.1:49796 [200]: GET /dashboard
+[Sat Feb 28 19:39:33 2026] 127.0.0.1:49796 Closing
+[Sat Feb 28 19:39:33 2026] 127.0.0.1:49797 Accepted
+[Sat Feb 28 19:39:34 2026] 127.0.0.1:49797 [200]: GET /api/cep?cep=01001000
+[Sat Feb 28 19:39:34 2026] 127.0.0.1:49797 Closing
+[Sat Feb 28 19:39:45 2026] 127.0.0.1:49805 Accepted
+[Sat Feb 28 19:39:45 2026] 127.0.0.1:49805 [200]: GET /login
+[Sat Feb 28 19:39:45 2026] 127.0.0.1:49805 Closing
+[Sat Feb 28 19:39:45 2026] 127.0.0.1:49806 Accepted
+[Sat Feb 28 19:39:46 2026] 127.0.0.1:49806 [302]: POST /login
+[Sat Feb 28 19:39:46 2026] 127.0.0.1:49806 Closing
+[Sat Feb 28 19:39:46 2026] 127.0.0.1:49808 Accepted
+[Sat Feb 28 19:39:46 2026] 127.0.0.1:49808 [200]: GET /dashboard
+[Sat Feb 28 19:39:46 2026] 127.0.0.1:49808 Closing
+[Sat Feb 28 19:39:46 2026] 127.0.0.1:49809 Accepted
+[Sat Feb 28 19:39:46 2026] 127.0.0.1:49809 [200]: GET /families/create
+[Sat Feb 28 19:39:46 2026] 127.0.0.1:49809 Closing
+[Sat Feb 28 19:41:18 2026] 127.0.0.1:50886 Accepted
+[Sat Feb 28 19:41:19 2026] 127.0.0.1:62947 Accepted
+[Sat Feb 28 19:41:19 2026] 127.0.0.1:50886 [200]: GET /families/create
+[Sat Feb 28 19:41:20 2026] 127.0.0.1:50886 Closing
+[Sat Feb 28 19:41:20 2026] 127.0.0.1:51546 Accepted
+[Sat Feb 28 19:41:20 2026] 127.0.0.1:62947 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 19:41:21 2026] 127.0.0.1:62947 Closing
+[Sat Feb 28 19:41:21 2026] 127.0.0.1:65325 Accepted
+[Sat Feb 28 19:41:21 2026] 127.0.0.1:51546 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 19:41:22 2026] 127.0.0.1:65325 [200]: GET /assets/app.css
+[Sat Feb 28 19:41:22 2026] 127.0.0.1:51546 Closing
+[Sat Feb 28 19:41:22 2026] 127.0.0.1:65325 Closing
+[Sat Feb 28 19:41:30 2026] 127.0.0.1:63809 Accepted
+[Sat Feb 28 19:41:31 2026] 127.0.0.1:63809 [404]: GET /api/cep?cep=12041021
+[Sat Feb 28 19:41:31 2026] 127.0.0.1:63809 Closing
+[Sat Feb 28 19:41:38 2026] 127.0.0.1:53303 Accepted
+[Sat Feb 28 19:41:39 2026] 127.0.0.1:53303 [404]: GET /api/cep?cep=12041021
+[Sat Feb 28 19:41:39 2026] 127.0.0.1:53303 Closing
+[Sat Feb 28 19:41:50 2026] 127.0.0.1:62506 Accepted
+[Sat Feb 28 19:41:51 2026] 127.0.0.1:62506 [200]: GET /api/cep?cep=12209540
+[Sat Feb 28 19:41:51 2026] 127.0.0.1:62506 Closing
+[Sat Feb 28 19:42:27 2026] 127.0.0.1:59048 Accepted
+[Sat Feb 28 19:42:27 2026] 127.0.0.1:60106 Accepted
+[Sat Feb 28 19:42:28 2026] 127.0.0.1:59048 [200]: GET /dashboard
+[Sat Feb 28 19:42:28 2026] 127.0.0.1:59048 Closing
+[Sat Feb 28 19:42:28 2026] 127.0.0.1:60106 [200]: GET /assets/app.css
+[Sat Feb 28 19:42:28 2026] 127.0.0.1:60106 Closing
+[Sat Feb 28 19:42:28 2026] 127.0.0.1:64930 Accepted
+[Sat Feb 28 19:42:28 2026] 127.0.0.1:64930 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 19:42:28 2026] 127.0.0.1:64930 Closing
+[Sat Feb 28 19:42:36 2026] 127.0.0.1:57285 Accepted
+[Sat Feb 28 19:42:36 2026] 127.0.0.1:54399 Accepted
+[Sat Feb 28 19:42:36 2026] 127.0.0.1:57285 [200]: GET /users
+[Sat Feb 28 19:42:36 2026] 127.0.0.1:57285 Closing
+[Sat Feb 28 19:42:36 2026] 127.0.0.1:54399 [200]: GET /assets/app.css
+[Sat Feb 28 19:42:36 2026] 127.0.0.1:54399 Closing
+[Sat Feb 28 19:42:36 2026] 127.0.0.1:55023 Accepted
+[Sat Feb 28 19:42:36 2026] 127.0.0.1:55023 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 19:42:36 2026] 127.0.0.1:55023 Closing
+[Sat Feb 28 19:42:52 2026] 127.0.0.1:59213 Accepted
+[Sat Feb 28 19:42:52 2026] 127.0.0.1:61129 Accepted
+[Sat Feb 28 19:42:52 2026] 127.0.0.1:59213 [200]: GET /dashboard
+[Sat Feb 28 19:42:52 2026] 127.0.0.1:59213 Closing
+[Sat Feb 28 19:42:52 2026] 127.0.0.1:61129 [200]: GET /assets/app.css
+[Sat Feb 28 19:42:52 2026] 127.0.0.1:49670 Accepted
+[Sat Feb 28 19:42:52 2026] 127.0.0.1:49670 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 19:42:52 2026] 127.0.0.1:61129 Closing
+[Sat Feb 28 19:42:52 2026] 127.0.0.1:49670 Closing
+[Sat Feb 28 19:55:19 2026] 127.0.0.1:63938 Accepted
+[Sat Feb 28 19:55:19 2026] 127.0.0.1:63938 [200]: GET /login
+[Sat Feb 28 19:55:19 2026] 127.0.0.1:63938 Closing
+[Sat Feb 28 19:55:19 2026] 127.0.0.1:63939 Accepted
+[Sat Feb 28 19:55:19 2026] 127.0.0.1:63939 [200]: GET /login
+[Sat Feb 28 19:55:19 2026] 127.0.0.1:63939 Closing
+[Sat Feb 28 19:55:19 2026] 127.0.0.1:63940 Accepted
+[Sat Feb 28 19:55:21 2026] 127.0.0.1:63940 [302]: POST /login
+[Sat Feb 28 19:55:21 2026] 127.0.0.1:63940 Closing
+[Sat Feb 28 19:55:21 2026] 127.0.0.1:63942 Accepted
+[Sat Feb 28 19:55:21 2026] 127.0.0.1:63942 [200]: GET /dashboard
+[Sat Feb 28 19:55:21 2026] 127.0.0.1:63942 Closing
+[Sat Feb 28 19:55:21 2026] 127.0.0.1:63943 Accepted
+[Sat Feb 28 19:55:21 2026] 127.0.0.1:63943 [200]: GET /dashboard
+[Sat Feb 28 19:55:21 2026] 127.0.0.1:63943 Closing
+[Sat Feb 28 19:57:49 2026] 127.0.0.1:63178 Accepted
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:51990 Accepted
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:63178 [200]: GET /dashboard
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:63178 Closing
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:51990 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:52938 Accepted
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:52043 Accepted
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:52938 [200]: GET /assets/app.css
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:62488 Accepted
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:52043 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:51990 Closing
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:62488 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:52938 Closing
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:52043 Closing
+[Sat Feb 28 19:57:50 2026] 127.0.0.1:62488 Closing
+[Sat Feb 28 19:57:59 2026] 127.0.0.1:61878 Accepted
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:63458 Accepted
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:61878 [200]: GET /families
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:61878 Closing
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:63458 [200]: GET /assets/app.css
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:63458 Closing
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:58398 Accepted
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:54864 Accepted
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:58677 Accepted
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:58398 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:54864 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:58677 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:58398 Closing
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:54864 Closing
+[Sat Feb 28 19:58:00 2026] 127.0.0.1:58677 Closing
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:51986 Accepted
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:57642 Accepted
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:51986 [200]: GET /children
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:51986 Closing
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:57642 [200]: GET /assets/app.css
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:64203 Accepted
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:65485 Accepted
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:64203 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:57254 Accepted
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:65485 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:57642 Closing
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:57254 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:64203 Closing
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:65485 Closing
+[Sat Feb 28 19:58:01 2026] 127.0.0.1:57254 Closing
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:59973 Accepted
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:60185 Accepted
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:59973 [200]: GET /dashboard
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:59973 Closing
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:60185 [200]: GET /assets/app.css
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:59383 Accepted
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:53879 Accepted
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:59383 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:65393 Accepted
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:53879 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:60185 Closing
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:65393 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:59383 Closing
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:53879 Closing
+[Sat Feb 28 19:58:03 2026] 127.0.0.1:65393 Closing
+[Sat Feb 28 19:59:56 2026] 127.0.0.1:51010 Accepted
+[Sat Feb 28 19:59:56 2026] 127.0.0.1:51010 [200]: GET /login
+[Sat Feb 28 19:59:56 2026] 127.0.0.1:51010 Closing
+[Sat Feb 28 19:59:57 2026] 127.0.0.1:51011 Accepted
+[Sat Feb 28 19:59:57 2026] 127.0.0.1:51012 Accepted
+[Sat Feb 28 19:59:58 2026] 127.0.0.1:51011 [200]: GET /login
+[Sat Feb 28 19:59:58 2026] 127.0.0.1:51011 Closing
+[Sat Feb 28 20:00:00 2026] 127.0.0.1:51012 [302]: POST /login
+[Sat Feb 28 20:00:00 2026] 127.0.0.1:51012 Closing
+[Sat Feb 28 20:00:00 2026] 127.0.0.1:51015 Accepted
+[Sat Feb 28 20:00:00 2026] 127.0.0.1:51015 [200]: GET /dashboard
+[Sat Feb 28 20:00:00 2026] 127.0.0.1:51015 Closing
+[Sat Feb 28 20:00:00 2026] 127.0.0.1:51016 Accepted
+[Sat Feb 28 20:00:00 2026] 127.0.0.1:51016 [200]: GET /dashboard
+[Sat Feb 28 20:00:00 2026] 127.0.0.1:51016 Closing
+[Sat Feb 28 20:01:19 2026] 127.0.0.1:62749 Accepted
+[Sat Feb 28 20:01:19 2026] 127.0.0.1:56540 Accepted
+[Sat Feb 28 20:01:19 2026] 127.0.0.1:62749 [200]: GET /dashboard
+[Sat Feb 28 20:01:20 2026] 127.0.0.1:62749 Closing
+[Sat Feb 28 20:01:20 2026] 127.0.0.1:56540 [200]: GET /assets/app.css
+[Sat Feb 28 20:01:20 2026] 127.0.0.1:56334 Accepted
+[Sat Feb 28 20:01:20 2026] 127.0.0.1:52612 Accepted
+[Sat Feb 28 20:01:21 2026] 127.0.0.1:56334 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:01:21 2026] 127.0.0.1:60182 Accepted
+[Sat Feb 28 20:01:22 2026] 127.0.0.1:52612 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:01:22 2026] 127.0.0.1:56540 Closing
+[Sat Feb 28 20:01:22 2026] 127.0.0.1:60182 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:01:22 2026] 127.0.0.1:56334 Closing
+[Sat Feb 28 20:01:23 2026] 127.0.0.1:52612 Closing
+[Sat Feb 28 20:01:23 2026] 127.0.0.1:60182 Closing
+[Sat Feb 28 20:01:28 2026] 127.0.0.1:65423 Accepted
+[Sat Feb 28 20:01:28 2026] 127.0.0.1:65010 Accepted
+[Sat Feb 28 20:01:28 2026] 127.0.0.1:65423 [200]: GET /dashboard
+[Sat Feb 28 20:01:28 2026] 127.0.0.1:65423 Closing
+[Sat Feb 28 20:01:28 2026] 127.0.0.1:65010 [200]: GET /assets/app.css
+[Sat Feb 28 20:01:28 2026] 127.0.0.1:60080 Accepted
+[Sat Feb 28 20:01:29 2026] 127.0.0.1:50661 Accepted
+[Sat Feb 28 20:01:29 2026] 127.0.0.1:60080 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:01:29 2026] 127.0.0.1:50661 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:01:29 2026] 127.0.0.1:65010 Closing
+[Sat Feb 28 20:01:29 2026] 127.0.0.1:60080 Closing
+[Sat Feb 28 20:01:29 2026] 127.0.0.1:50661 Closing
+[Sat Feb 28 20:01:29 2026] 127.0.0.1:61348 Accepted
+[Sat Feb 28 20:01:29 2026] 127.0.0.1:61348 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:01:29 2026] 127.0.0.1:61348 Closing
+[Sat Feb 28 20:02:04 2026] 127.0.0.1:56447 Accepted
+[Sat Feb 28 20:02:04 2026] 127.0.0.1:55856 Accepted
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:56447 [200]: GET /families
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:56447 Closing
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:55856 [200]: GET /assets/app.css
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:55856 Closing
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:50106 Accepted
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:51435 Accepted
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:50106 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:51435 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:59464 Accepted
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:59464 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:50106 Closing
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:51435 Closing
+[Sat Feb 28 20:02:05 2026] 127.0.0.1:59464 Closing
+[Sat Feb 28 20:02:07 2026] 127.0.0.1:63064 Accepted
+[Sat Feb 28 20:02:07 2026] 127.0.0.1:61329 Accepted
+[Sat Feb 28 20:02:07 2026] 127.0.0.1:63064 [200]: GET /children
+[Sat Feb 28 20:02:07 2026] 127.0.0.1:63064 Closing
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:50920 Accepted
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:61329 [200]: GET /assets/app.css
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:60211 Accepted
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:50920 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:56095 Accepted
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:60211 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:56095 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:61329 Closing
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:50920 Closing
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:60211 Closing
+[Sat Feb 28 20:02:08 2026] 127.0.0.1:56095 Closing
+[Sat Feb 28 20:02:11 2026] 127.0.0.1:54423 Accepted
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:62926 Accepted
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:54423 [200]: GET /dashboard
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:54423 Closing
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:62926 [200]: GET /assets/app.css
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:50757 Accepted
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:64431 Accepted
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:50757 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:53232 Accepted
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:64431 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:62926 Closing
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:53232 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:50757 Closing
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:64431 Closing
+[Sat Feb 28 20:02:12 2026] 127.0.0.1:53232 Closing
+[Sat Feb 28 20:03:38 2026] 127.0.0.1:52556 Accepted
+[Sat Feb 28 20:03:38 2026] 127.0.0.1:52556 [200]: GET /login
+[Sat Feb 28 20:03:38 2026] 127.0.0.1:52556 Closing
+[Sat Feb 28 20:03:38 2026] 127.0.0.1:52557 Accepted
+[Sat Feb 28 20:03:39 2026] 127.0.0.1:52557 [302]: POST /login
+[Sat Feb 28 20:03:39 2026] 127.0.0.1:52557 Closing
+[Sat Feb 28 20:03:39 2026] 127.0.0.1:52559 Accepted
+[Sat Feb 28 20:03:39 2026] 127.0.0.1:52559 [200]: GET /dashboard
+[Sat Feb 28 20:03:39 2026] 127.0.0.1:52559 Closing
+[Sat Feb 28 20:03:39 2026] 127.0.0.1:52560 Accepted
+[Sat Feb 28 20:03:39 2026] 127.0.0.1:52560 [200]: GET /dashboard
+[Sat Feb 28 20:03:39 2026] 127.0.0.1:52560 Closing
+[Sat Feb 28 20:04:09 2026] 127.0.0.1:56136 Accepted
+[Sat Feb 28 20:04:09 2026] 127.0.0.1:61708 Accepted
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:56136 [200]: GET /dashboard
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:56136 Closing
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:61708 [200]: GET /assets/app.css
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:63572 Accepted
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:58166 Accepted
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:63572 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:58166 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:61708 Closing
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:61210 Accepted
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:61210 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:63572 Closing
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:58166 Closing
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:61210 Closing
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:59262 Accepted
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:59262 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:04:10 2026] 127.0.0.1:59262 Closing
+[Sat Feb 28 20:12:13 2026] 127.0.0.1:55447 Accepted
+[Sat Feb 28 20:12:13 2026] 127.0.0.1:55447 [200]: GET /login
+[Sat Feb 28 20:12:13 2026] 127.0.0.1:55447 Closing
+[Sat Feb 28 20:12:13 2026] 127.0.0.1:55448 Accepted
+[Sat Feb 28 20:12:14 2026] 127.0.0.1:55448 [302]: POST /login
+[Sat Feb 28 20:12:14 2026] 127.0.0.1:55448 Closing
+[Sat Feb 28 20:12:14 2026] 127.0.0.1:55450 Accepted
+[Sat Feb 28 20:12:14 2026] 127.0.0.1:55450 [200]: GET /dashboard
+[Sat Feb 28 20:12:14 2026] 127.0.0.1:55450 Closing
+[Sat Feb 28 20:12:14 2026] 127.0.0.1:55451 Accepted
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55451 [200]: GET /dashboard
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55451 Closing
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55452 Accepted
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55452 [200]: GET /families
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55452 Closing
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55454 Accepted
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55454 [200]: GET /families/create
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55454 Closing
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55455 Accepted
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55455 [200]: GET /children
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55455 Closing
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55457 Accepted
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55457 [200]: GET /children/create
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55457 Closing
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55459 Accepted
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55459 [200]: GET /people
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55459 Closing
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55461 Accepted
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55461 [200]: GET /people/create
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55461 Closing
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55462 Accepted
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55462 [200]: GET /delivery-events
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55462 Closing
+[Sat Feb 28 20:12:15 2026] 127.0.0.1:55464 Accepted
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55464 [200]: GET /delivery-events/create
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55464 Closing
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55465 Accepted
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55465 [200]: GET /equipment
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55465 Closing
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55467 Accepted
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55467 [200]: GET /equipment/create
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55467 Closing
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55468 Accepted
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55468 [200]: GET /equipment-loans
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55468 Closing
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55470 Accepted
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55470 [200]: GET /visits
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55470 Closing
+[Sat Feb 28 20:12:16 2026] 127.0.0.1:55472 Accepted
+[Sat Feb 28 20:12:17 2026] 127.0.0.1:55472 [200]: GET /visits/create
+[Sat Feb 28 20:12:17 2026] 127.0.0.1:55472 Closing
+[Sat Feb 28 20:12:17 2026] 127.0.0.1:55474 Accepted
+[Sat Feb 28 20:12:17 2026] 127.0.0.1:55474 [200]: GET /reports
+[Sat Feb 28 20:12:17 2026] 127.0.0.1:55474 Closing
+[Sat Feb 28 20:12:17 2026] 127.0.0.1:55476 Accepted
+[Sat Feb 28 20:12:17 2026] 127.0.0.1:55476 [200]: GET /users
+[Sat Feb 28 20:12:17 2026] 127.0.0.1:55476 Closing
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55481 Accepted
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55481 [200]: GET /login
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55481 Closing
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55482 Accepted
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55482 [302]: POST /login
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55482 Closing
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55484 Accepted
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55484 [200]: GET /dashboard
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55484 Closing
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55485 Accepted
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55485 [404]: GET /settings
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55485 Closing
+[Sat Feb 28 20:12:28 2026] 127.0.0.1:55486 Accepted
+[Sat Feb 28 20:12:29 2026] 127.0.0.1:55486 [404]: GET /configurations
+[Sat Feb 28 20:12:29 2026] 127.0.0.1:55486 Closing
+[Sat Feb 28 20:12:29 2026] 127.0.0.1:55487 Accepted
+[Sat Feb 28 20:12:29 2026] 127.0.0.1:55487 [404]: GET /reports/csv
+[Sat Feb 28 20:12:29 2026] 127.0.0.1:55487 Closing
+[Sat Feb 28 20:12:29 2026] 127.0.0.1:55488 Accepted
+[Sat Feb 28 20:12:29 2026] 127.0.0.1:55488 [404]: GET /reports/xlsx
+[Sat Feb 28 20:12:29 2026] 127.0.0.1:55488 Closing
+[Sat Feb 28 20:25:12 2026] 127.0.0.1:49320 Accepted
+[Sat Feb 28 20:25:12 2026] 127.0.0.1:49320 [200]: GET /login
+[Sat Feb 28 20:25:12 2026] 127.0.0.1:49320 Closing
+[Sat Feb 28 20:25:12 2026] 127.0.0.1:49321 Accepted
+[Sat Feb 28 20:25:13 2026] 127.0.0.1:49321 [302]: POST /login
+[Sat Feb 28 20:25:13 2026] 127.0.0.1:49321 Closing
+[Sat Feb 28 20:25:13 2026] 127.0.0.1:49324 Accepted
+[Sat Feb 28 20:25:14 2026] 127.0.0.1:49324 [200]: GET /dashboard
+[Sat Feb 28 20:25:14 2026] 127.0.0.1:49324 Closing
+[Sat Feb 28 20:25:14 2026] 127.0.0.1:49326 Accepted
+[Sat Feb 28 20:25:14 2026] 127.0.0.1:49326 [200]: GET /dashboard
+[Sat Feb 28 20:25:14 2026] 127.0.0.1:49326 Closing
+[Sat Feb 28 20:32:31 2026] 127.0.0.1:53107 Accepted
+[Sat Feb 28 20:32:32 2026] 127.0.0.1:53107 [200]: GET /login
+[Sat Feb 28 20:32:32 2026] 127.0.0.1:53107 Closing
+[Sat Feb 28 20:32:32 2026] 127.0.0.1:53108 Accepted
+[Sat Feb 28 20:32:33 2026] 127.0.0.1:53108 [302]: POST /login
+[Sat Feb 28 20:32:33 2026] 127.0.0.1:53108 Closing
+[Sat Feb 28 20:32:33 2026] 127.0.0.1:53110 Accepted
+[Sat Feb 28 20:32:33 2026] 127.0.0.1:53110 [200]: GET /dashboard
+[Sat Feb 28 20:32:33 2026] 127.0.0.1:53110 Closing
+[Sat Feb 28 20:32:33 2026] 127.0.0.1:53112 Accepted
+[Sat Feb 28 20:32:33 2026] 127.0.0.1:53112 [200]: GET /reports
+[Sat Feb 28 20:32:33 2026] 127.0.0.1:53112 Closing
+[Sat Feb 28 20:32:33 2026] 127.0.0.1:53114 Accepted
+[Sat Feb 28 20:32:38 2026] 127.0.0.1:53114 [200]: GET /reports/pdf
+[Sat Feb 28 20:32:38 2026] 127.0.0.1:53114 Closing
+[Sat Feb 28 20:32:38 2026] 127.0.0.1:53673 Accepted
+[Sat Feb 28 20:32:39 2026] 127.0.0.1:53673 [200]: GET /reports/csv
+[Sat Feb 28 20:32:39 2026] 127.0.0.1:53673 Closing
+[Sat Feb 28 20:32:39 2026] 127.0.0.1:53675 Accepted
+[Sat Feb 28 20:32:39 2026] 127.0.0.1:53675 [200]: GET /reports/excel
+[Sat Feb 28 20:32:39 2026] 127.0.0.1:53675 Closing
+[Sat Feb 28 20:32:39 2026] 127.0.0.1:53677 Accepted
+[Sat Feb 28 20:32:39 2026] 127.0.0.1:53677 [200]: GET /reports/xlsx
+[Sat Feb 28 20:32:39 2026] 127.0.0.1:53677 Closing
+[Sat Feb 28 20:32:53 2026] 127.0.0.1:53683 Accepted
+[Sat Feb 28 20:32:53 2026] 127.0.0.1:53683 [200]: GET /login
+[Sat Feb 28 20:32:53 2026] 127.0.0.1:53683 Closing
+[Sat Feb 28 20:32:53 2026] 127.0.0.1:53684 Accepted
+[Sat Feb 28 20:32:54 2026] 127.0.0.1:53684 [302]: POST /login
+[Sat Feb 28 20:32:54 2026] 127.0.0.1:53684 Closing
+[Sat Feb 28 20:32:54 2026] 127.0.0.1:53686 Accepted
+[Sat Feb 28 20:32:54 2026] 127.0.0.1:53686 [200]: GET /dashboard
+[Sat Feb 28 20:32:54 2026] 127.0.0.1:53686 Closing
+[Sat Feb 28 20:32:54 2026] 127.0.0.1:53688 Accepted
+[Sat Feb 28 20:32:54 2026] 127.0.0.1:53688 [200]: GET /reports
+[Sat Feb 28 20:32:54 2026] 127.0.0.1:53688 Closing
+[Sat Feb 28 20:34:50 2026] 127.0.0.1:64710 Accepted
+[Sat Feb 28 20:34:50 2026] 127.0.0.1:61796 Accepted
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:64710 [200]: GET /dashboard
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:64710 Closing
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:61796 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:61796 Closing
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:50803 Accepted
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:58334 Accepted
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:65498 Accepted
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:54997 Accepted
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:50803 [200]: GET /assets/app.css
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:58334 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:65498 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:54997 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:50803 Closing
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:58334 Closing
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:54997 Closing
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:65498 Closing
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:56310 Accepted
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:56310 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:34:51 2026] 127.0.0.1:56310 Closing
+[Sat Feb 28 20:35:07 2026] 127.0.0.1:54393 Accepted
+[Sat Feb 28 20:35:07 2026] 127.0.0.1:49986 Accepted
+[Sat Feb 28 20:35:07 2026] 127.0.0.1:54393 [200]: GET /dashboard
+[Sat Feb 28 20:35:07 2026] 127.0.0.1:54393 Closing
+[Sat Feb 28 20:35:08 2026] 127.0.0.1:61504 Accepted
+[Sat Feb 28 20:35:08 2026] 127.0.0.1:49986 [200]: GET /assets/app.css
+[Sat Feb 28 20:35:08 2026] 127.0.0.1:62449 Accepted
+[Sat Feb 28 20:35:08 2026] 127.0.0.1:61504 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:65269 Accepted
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:62449 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:65269 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:49986 Closing
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:61504 Closing
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:62449 Closing
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:65269 Closing
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:59340 Accepted
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:59340 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:35:09 2026] 127.0.0.1:59340 Closing
+[Sat Feb 28 20:35:12 2026] 127.0.0.1:52676 Accepted
+[Sat Feb 28 20:35:12 2026] 127.0.0.1:52128 Accepted
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:52676 [200]: GET /families
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:52676 Closing
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:52128 [200]: GET /assets/app.css
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:58051 Accepted
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:61726 Accepted
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:58051 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:55878 Accepted
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:61726 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:52128 Closing
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:55878 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:58051 Closing
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:61726 Closing
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:55878 Closing
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:65006 Accepted
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:65006 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:35:13 2026] 127.0.0.1:65006 Closing
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:63332 Accepted
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:55938 Accepted
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:63332 [200]: GET /children
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:63332 Closing
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:55938 [200]: GET /assets/app.css
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:58448 Accepted
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:55938 Closing
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:54049 Accepted
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:58448 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:54049 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:49368 Accepted
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:49368 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:58448 Closing
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:54049 Closing
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:49368 Closing
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:59305 Accepted
+[Sat Feb 28 20:35:14 2026] 127.0.0.1:59305 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:59305 Closing
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:63004 Accepted
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:59710 Accepted
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:63004 [200]: GET /people
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:63004 Closing
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:59710 [200]: GET /assets/app.css
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:53437 Accepted
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:53437 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:55287 Accepted
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:59710 Closing
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:60929 Accepted
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:55287 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:60929 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:53437 Closing
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:55287 Closing
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:60929 Closing
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:62679 Accepted
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:62679 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:35:15 2026] 127.0.0.1:62679 Closing
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:53997 Accepted
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:64649 Accepted
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:53997 [200]: GET /dashboard
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:53997 Closing
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:64649 [200]: GET /assets/app.css
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:49786 Accepted
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:63548 Accepted
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:49786 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:62128 Accepted
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:63548 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:64649 Closing
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:62128 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:49786 Closing
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:63548 Closing
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:62128 Closing
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:64741 Accepted
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:64741 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:35:16 2026] 127.0.0.1:64741 Closing
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:60334 Accepted
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:54521 Accepted
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:60334 [200]: GET /delivery-events
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:60334 Closing
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:54521 [200]: GET /assets/app.css
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:60536 Accepted
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:61225 Accepted
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:60536 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:61359 Accepted
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:61225 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:54521 Closing
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:61359 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:60536 Closing
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:61225 Closing
+[Sat Feb 28 20:35:17 2026] 127.0.0.1:61359 Closing
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:49670 Accepted
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:49670 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:49670 Closing
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:49988 Accepted
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:61849 Accepted
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:49988 [200]: GET /people
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:49988 Closing
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:61849 [200]: GET /assets/app.css
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:52972 Accepted
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:52125 Accepted
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:52972 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:50411 Accepted
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:52125 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:61849 Closing
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:50411 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:52972 Closing
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:52125 Closing
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:50411 Closing
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:50278 Accepted
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:50278 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:35:18 2026] 127.0.0.1:50278 Closing
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:51857 Accepted
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:61664 Accepted
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:51857 [200]: GET /users
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:51857 Closing
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:61664 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:61664 Closing
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:64514 Accepted
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:64514 [200]: GET /assets/app.css
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:53749 Accepted
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:53749 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:64514 Closing
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:53749 Closing
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:58629 Accepted
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:61488 Accepted
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:58629 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:61488 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:61488 Closing
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:58629 Closing
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:50272 Accepted
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:50272 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:35:20 2026] 127.0.0.1:50272 Closing
+[Sat Feb 28 20:35:21 2026] 127.0.0.1:61070 Accepted
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:51561 Accepted
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:61070 [200]: GET /dashboard
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:61070 Closing
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:51561 [200]: GET /assets/app.css
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:54650 Accepted
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:54650 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:51784 Accepted
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:51561 Closing
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:55755 Accepted
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:51784 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:55755 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:54650 Closing
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:51784 Closing
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:55755 Closing
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:56324 Accepted
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:56324 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:35:22 2026] 127.0.0.1:56324 Closing
+[Sat Feb 28 20:46:21 2026] 127.0.0.1:50060 Accepted
+[Sat Feb 28 20:46:21 2026] 127.0.0.1:51640 Accepted
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:50060 [200]: GET /dashboard
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:50060 Closing
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:51640 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:51640 Closing
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:63449 Accepted
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:53146 Accepted
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:51012 Accepted
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:64845 Accepted
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:63449 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:53146 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:51012 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:64845 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:63449 Closing
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:53146 Closing
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:64845 Closing
+[Sat Feb 28 20:46:22 2026] 127.0.0.1:51012 Closing
+[Sat Feb 28 20:46:23 2026] 127.0.0.1:63048 Accepted
+[Sat Feb 28 20:46:23 2026] 127.0.0.1:63048 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:23 2026] 127.0.0.1:63048 Closing
+[Sat Feb 28 20:46:26 2026] 127.0.0.1:58100 Accepted
+[Sat Feb 28 20:46:26 2026] 127.0.0.1:62449 Accepted
+[Sat Feb 28 20:46:27 2026] 127.0.0.1:58100 [200]: GET /families
+[Sat Feb 28 20:46:27 2026] 127.0.0.1:58100 Closing
+[Sat Feb 28 20:46:27 2026] 127.0.0.1:49670 Accepted
+[Sat Feb 28 20:46:27 2026] 127.0.0.1:62449 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 20:46:28 2026] 127.0.0.1:62449 Closing
+[Sat Feb 28 20:46:28 2026] 127.0.0.1:53013 Accepted
+[Sat Feb 28 20:46:28 2026] 127.0.0.1:49670 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:62451 Accepted
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:53013 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:62932 Accepted
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:62451 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:62932 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:49670 Closing
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:53013 Closing
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:62451 Closing
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:62932 Closing
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:60345 Accepted
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:60345 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:29 2026] 127.0.0.1:60345 Closing
+[Sat Feb 28 20:46:30 2026] 127.0.0.1:64133 Accepted
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:55425 Accepted
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:64133 [200]: GET /children
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:64133 Closing
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:55425 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:56599 Accepted
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:57282 Accepted
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:56599 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:52670 Accepted
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:57282 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:55425 Closing
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:52670 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:56599 Closing
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:57282 Closing
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:52670 Closing
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:61895 Accepted
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:61895 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:31 2026] 127.0.0.1:61895 Closing
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:58048 Accepted
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:56102 Accepted
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:58048 [200]: GET /people
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:58048 Closing
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:56102 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:56102 Closing
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:56379 Accepted
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:56379 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:61488 Accepted
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:56379 Closing
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:65529 Accepted
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:61488 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:32 2026] 127.0.0.1:65529 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:33 2026] 127.0.0.1:65529 Closing
+[Sat Feb 28 20:46:33 2026] 127.0.0.1:61488 Closing
+[Sat Feb 28 20:46:33 2026] 127.0.0.1:51944 Accepted
+[Sat Feb 28 20:46:33 2026] 127.0.0.1:51944 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:33 2026] 127.0.0.1:51944 Closing
+[Sat Feb 28 20:46:33 2026] 127.0.0.1:52906 Accepted
+[Sat Feb 28 20:46:33 2026] 127.0.0.1:63200 Accepted
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:52906 [200]: GET /dashboard
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:52906 Closing
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:63200 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:59183 Accepted
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:61234 Accepted
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:59183 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:53570 Accepted
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:61234 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:63200 Closing
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:53570 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:59183 Closing
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:61234 Closing
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:53570 Closing
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:52347 Accepted
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:52347 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:34 2026] 127.0.0.1:52347 Closing
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:55232 Accepted
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:50632 Accepted
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:55232 [200]: GET /delivery-events
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:55232 Closing
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:50632 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:55854 Accepted
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:55854 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:64751 Accepted
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:50632 Closing
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:61653 Accepted
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:64751 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:61653 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:55854 Closing
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:64751 Closing
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:61653 Closing
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:57233 Accepted
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:57233 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:35 2026] 127.0.0.1:57233 Closing
+[Sat Feb 28 20:46:36 2026] 127.0.0.1:50118 Accepted
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:56802 Accepted
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:50118 [200]: GET /equipment
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:50118 Closing
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:56802 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:55756 Accepted
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:56802 Closing
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:55756 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:55756 Closing
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:51484 Accepted
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:53014 Accepted
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:51484 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:53014 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:51484 Closing
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:53014 Closing
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:63629 Accepted
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:63629 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:37 2026] 127.0.0.1:63629 Closing
+[Sat Feb 28 20:46:38 2026] 127.0.0.1:60257 Accepted
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:60632 Accepted
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:60257 [200]: GET /visits
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:60257 Closing
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:60632 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:55116 Accepted
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:60632 Closing
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:55116 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:63191 Accepted
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:55116 Closing
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:63191 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:63191 Closing
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:64092 Accepted
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:64092 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:64092 Closing
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:55267 Accepted
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:55267 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:39 2026] 127.0.0.1:55267 Closing
+[Sat Feb 28 20:46:40 2026] 127.0.0.1:49986 Accepted
+[Sat Feb 28 20:46:40 2026] 127.0.0.1:63597 Accepted
+[Sat Feb 28 20:46:40 2026] 127.0.0.1:49986 [200]: GET /reports
+[Sat Feb 28 20:46:40 2026] 127.0.0.1:49986 Closing
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:63597 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:63597 Closing
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:55909 Accepted
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:55909 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:55909 Closing
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:64966 Accepted
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:55115 Accepted
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:64966 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:55115 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:64966 Closing
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:55115 Closing
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:50421 Accepted
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:50421 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:41 2026] 127.0.0.1:50421 Closing
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:53404 Accepted
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:49676 Accepted
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:53404 [200]: GET /dashboard
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:53404 Closing
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:49676 [200]: GET /assets/app.css
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:52961 Accepted
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:54982 Accepted
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:52961 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:51395 Accepted
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:54982 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:49676 Closing
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:51395 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:52961 Closing
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:54982 Closing
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:51395 Closing
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:49677 Accepted
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:49677 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 20:46:48 2026] 127.0.0.1:49677 Closing
+[Sat Feb 28 21:02:31 2026] 127.0.0.1:54151 Accepted
+[Sat Feb 28 21:02:32 2026] 127.0.0.1:60786 Accepted
+[Sat Feb 28 21:02:35 2026] 127.0.0.1:54151 [200]: GET /dashboard
+[Sat Feb 28 21:02:35 2026] 127.0.0.1:54151 Closing
+[Sat Feb 28 21:02:35 2026] 127.0.0.1:53645 Accepted
+[Sat Feb 28 21:02:35 2026] 127.0.0.1:60786 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 21:02:35 2026] 127.0.0.1:60786 Closing
+[Sat Feb 28 21:02:35 2026] 127.0.0.1:63602 Accepted
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:53645 [200]: GET /people
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:53645 Closing
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:61028 Accepted
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:63602 [200]: GET /children
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:63602 Closing
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:61028 [200]: GET /assets/app.css
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:62067 Accepted
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:52900 Accepted
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:62067 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:49670 Accepted
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:52900 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:61028 Closing
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:49670 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:62067 Closing
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:49670 Closing
+[Sat Feb 28 21:02:36 2026] 127.0.0.1:52900 Closing
+[Sat Feb 28 21:02:37 2026] 127.0.0.1:53972 Accepted
+[Sat Feb 28 21:02:37 2026] 127.0.0.1:53972 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:02:37 2026] 127.0.0.1:53972 Closing
+[Sat Feb 28 21:02:38 2026] 127.0.0.1:52507 Accepted
+[Sat Feb 28 21:02:38 2026] 127.0.0.1:65371 Accepted
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:52507 [200]: GET /people
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:52507 Closing
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:55137 Accepted
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:65371 [200]: GET /assets/app.css
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:59401 Accepted
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:55137 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:59401 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:65371 Closing
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:55137 Closing
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:56253 Accepted
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:59401 Closing
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:50800 Accepted
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:56253 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:50800 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:56253 Closing
+[Sat Feb 28 21:02:39 2026] 127.0.0.1:50800 Closing
+[Sat Feb 28 21:02:41 2026] 127.0.0.1:52156 Accepted
+[Sat Feb 28 21:02:41 2026] 127.0.0.1:62294 Accepted
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:52156 [200]: GET /dashboard
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:52156 Closing
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:50470 Accepted
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:62294 [200]: GET /assets/app.css
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:57167 Accepted
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:50470 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:50060 Accepted
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:57167 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:50060 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:62294 Closing
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:50470 Closing
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:57167 Closing
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:50060 Closing
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:51185 Accepted
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:51185 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:02:42 2026] 127.0.0.1:51185 Closing
+[Sat Feb 28 21:02:50 2026] 127.0.0.1:50633 Accepted
+[Sat Feb 28 21:02:50 2026] 127.0.0.1:51645 Accepted
+[Sat Feb 28 21:02:50 2026] 127.0.0.1:50633 [200]: GET /dashboard
+[Sat Feb 28 21:02:50 2026] 127.0.0.1:50633 Closing
+[Sat Feb 28 21:02:50 2026] 127.0.0.1:51645 [200]: GET /assets/app.css
+[Sat Feb 28 21:02:50 2026] 127.0.0.1:65479 Accepted
+[Sat Feb 28 21:02:51 2026] 127.0.0.1:57839 Accepted
+[Sat Feb 28 21:02:51 2026] 127.0.0.1:65479 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:02:51 2026] 127.0.0.1:57590 Accepted
+[Sat Feb 28 21:02:52 2026] 127.0.0.1:57839 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:02:52 2026] 127.0.0.1:51645 Closing
+[Sat Feb 28 21:02:52 2026] 127.0.0.1:55756 Accepted
+[Sat Feb 28 21:02:52 2026] 127.0.0.1:57590 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:02:52 2026] 127.0.0.1:55756 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:02:52 2026] 127.0.0.1:65479 Closing
+[Sat Feb 28 21:02:52 2026] 127.0.0.1:57839 Closing
+[Sat Feb 28 21:02:52 2026] 127.0.0.1:57590 Closing
+[Sat Feb 28 21:02:52 2026] 127.0.0.1:55756 Closing
+[Sat Feb 28 21:08:40 2026] 127.0.0.1:56228 Accepted
+[Sat Feb 28 21:08:40 2026] 127.0.0.1:50914 Accepted
+[Sat Feb 28 21:08:41 2026] 127.0.0.1:56228 [200]: GET /families
+[Sat Feb 28 21:08:41 2026] 127.0.0.1:56228 Closing
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:50914 [200]: GET /assets/app.css
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:50914 Closing
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:59189 Accepted
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:55391 Accepted
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:52035 Accepted
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:59189 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:55391 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:52035 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:59189 Closing
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:52035 Closing
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:55391 Closing
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:58983 Accepted
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:58983 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:08:42 2026] 127.0.0.1:58983 Closing
+[Sat Feb 28 21:14:45 2026] 127.0.0.1:53606 Accepted
+[Sat Feb 28 21:14:45 2026] 127.0.0.1:63313 Accepted
+[Sat Feb 28 21:14:46 2026] 127.0.0.1:53606 [200]: GET /families
+[Sat Feb 28 21:14:46 2026] 127.0.0.1:53606 Closing
+[Sat Feb 28 21:14:46 2026] 127.0.0.1:63313 [200]: GET /assets/app.css
+[Sat Feb 28 21:14:46 2026] 127.0.0.1:58930 Accepted
+[Sat Feb 28 21:14:46 2026] 127.0.0.1:51669 Accepted
+[Sat Feb 28 21:14:46 2026] 127.0.0.1:56062 Accepted
+[Sat Feb 28 21:14:46 2026] 127.0.0.1:58930 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:14:46 2026] 127.0.0.1:51669 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:14:47 2026] 127.0.0.1:63313 Closing
+[Sat Feb 28 21:14:47 2026] 127.0.0.1:56062 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:14:47 2026] 127.0.0.1:58930 Closing
+[Sat Feb 28 21:14:47 2026] 127.0.0.1:51669 Closing
+[Sat Feb 28 21:14:47 2026] 127.0.0.1:56062 Closing
+[Sat Feb 28 21:14:47 2026] 127.0.0.1:62912 Accepted
+[Sat Feb 28 21:14:47 2026] 127.0.0.1:62912 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:14:47 2026] 127.0.0.1:62912 Closing
+[Sat Feb 28 21:14:50 2026] 127.0.0.1:61077 Accepted
+[Sat Feb 28 21:14:50 2026] 127.0.0.1:51105 Accepted
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:61077 [200]: GET /children
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:61077 Closing
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:51105 [200]: GET /assets/app.css
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:64283 Accepted
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:51907 Accepted
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:64283 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:54063 Accepted
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:51907 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:51105 Closing
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:54063 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:64283 Closing
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:51907 Closing
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:54063 Closing
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:49827 Accepted
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:49827 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:14:51 2026] 127.0.0.1:49827 Closing
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:60087 Accepted
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:51168 Accepted
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:60087 [200]: GET /people
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:60087 Closing
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:51168 [200]: GET /assets/app.css
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:62198 Accepted
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:51168 Closing
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:57442 Accepted
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:62198 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:65424 Accepted
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:57442 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:65424 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:62198 Closing
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:57442 Closing
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:65424 Closing
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:64975 Accepted
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:64975 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:14:53 2026] 127.0.0.1:64975 Closing
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:53742 Accepted
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:54142 Accepted
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:53742 [200]: GET /social-records
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:53742 Closing
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:54142 [200]: GET /assets/app.css
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:56727 Accepted
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:56727 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:54225 Accepted
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:54142 Closing
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:61011 Accepted
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:54225 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:61011 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:56727 Closing
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:54225 Closing
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:61011 Closing
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:52231 Accepted
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:52231 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:14:56 2026] 127.0.0.1:52231 Closing
+[Sat Feb 28 21:15:03 2026] 127.0.0.1:64758 Accepted
+[Sat Feb 28 21:15:03 2026] 127.0.0.1:57240 Accepted
+[Sat Feb 28 21:15:04 2026] 127.0.0.1:64758 [200]: GET /delivery-events
+[Sat Feb 28 21:15:04 2026] 127.0.0.1:64758 Closing
+[Sat Feb 28 21:15:04 2026] 127.0.0.1:56461 Accepted
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:57240 [200]: GET /assets/app.css
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:60923 Accepted
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:56461 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:58497 Accepted
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:60923 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:58497 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:57240 Closing
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:52866 Accepted
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:56461 Closing
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:52866 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:60923 Closing
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:58497 Closing
+[Sat Feb 28 21:15:05 2026] 127.0.0.1:52866 Closing
+[Sat Feb 28 21:15:06 2026] 127.0.0.1:65174 Accepted
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:63431 Accepted
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:65174 [200]: GET /equipment
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:65174 Closing
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:63431 [200]: GET /assets/app.css
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:64409 Accepted
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:64409 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:63431 Closing
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:63084 Accepted
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:56602 Accepted
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:63084 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:56602 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:64409 Closing
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:63084 Closing
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:56602 Closing
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:53724 Accepted
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:53724 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:15:07 2026] 127.0.0.1:53724 Closing
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:61730 Accepted
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:49861 Accepted
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:61730 [200]: GET /people
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:61730 Closing
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:49861 [200]: GET /assets/app.css
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:60719 Accepted
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:63591 Accepted
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:60719 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:57578 Accepted
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:63591 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:49861 Closing
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:57578 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:60719 Closing
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:63591 Closing
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:57578 Closing
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:52926 Accepted
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:52926 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:15:08 2026] 127.0.0.1:52926 Closing
+[Sat Feb 28 21:15:10 2026] 127.0.0.1:57197 Accepted
+[Sat Feb 28 21:15:10 2026] 127.0.0.1:55395 Accepted
+[Sat Feb 28 21:15:10 2026] 127.0.0.1:57197 [200]: GET /dashboard
+[Sat Feb 28 21:15:10 2026] 127.0.0.1:57197 Closing
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:55395 [200]: GET /assets/app.css
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:55675 Accepted
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:61071 Accepted
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:55675 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:55224 Accepted
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:61071 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:55395 Closing
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:55224 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:55675 Closing
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:61071 Closing
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:55224 Closing
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:64377 Accepted
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:64377 [200]: GET /assets/logo_acao.jpg
+[Sat Feb 28 21:15:11 2026] 127.0.0.1:64377 Closing
+[Sat Feb 28 21:26:30 2026] 127.0.0.1:52929 Accepted
+[Sat Feb 28 21:26:30 2026] 127.0.0.1:54621 Accepted
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:52929 [200]: GET /families
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:52929 Closing
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:54621 [200]: GET /assets/app.css
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:54923 Accepted
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:54621 Closing
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:59090 Accepted
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:54923 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:59090 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:54923 Closing
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:59097 Accepted
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:59097 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:59090 Closing
+[Sat Feb 28 21:26:31 2026] 127.0.0.1:59097 Closing
+[Sat Feb 28 21:26:58 2026] 127.0.0.1:61881 Accepted
+[Sat Feb 28 21:26:58 2026] 127.0.0.1:56183 Accepted
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:61881 [200]: GET /dashboard
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:61881 Closing
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:56183 [200]: GET /assets/app.css
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:55846 Accepted
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:59630 Accepted
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:55846 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:59630 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:56183 Closing
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:56727 Accepted
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:56727 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:55846 Closing
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:59630 Closing
+[Sat Feb 28 21:26:59 2026] 127.0.0.1:56727 Closing
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:57402 Accepted
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:54898 Accepted
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:57402 [200]: GET /users
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:57402 Closing
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:54898 [200]: GET /assets/app.css
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:54898 Closing
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:51819 Accepted
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:51819 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:51819 Closing
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:55883 Accepted
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:63879 Accepted
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:55883 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:63879 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:55883 Closing
+[Sat Feb 28 21:28:51 2026] 127.0.0.1:63879 Closing
+[Sat Feb 28 21:28:52 2026] 127.0.0.1:60546 Accepted
+[Sat Feb 28 21:28:52 2026] 127.0.0.1:65503 Accepted
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:60546 [200]: GET /dashboard
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:60546 Closing
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:65503 [200]: GET /assets/app.css
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:56924 Accepted
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:64173 Accepted
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:56924 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:64173 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:65503 Closing
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:57591 Accepted
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:57591 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:56924 Closing
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:64173 Closing
+[Sat Feb 28 21:28:53 2026] 127.0.0.1:57591 Closing
+[Sat Feb 28 21:35:42 2026] 127.0.0.1:62774 Accepted
+[Sat Feb 28 21:35:42 2026] 127.0.0.1:62449 Accepted
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:62774 [200]: GET /dashboard
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:62774 Closing
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:62449 [200]: GET /assets/app.css
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:61517 Accepted
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:49670 Accepted
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:61517 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:51784 Accepted
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:49670 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:62449 Closing
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:51784 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:61517 Closing
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:49670 Closing
+[Sat Feb 28 21:35:43 2026] 127.0.0.1:51784 Closing
+[Sat Feb 28 21:35:56 2026] 127.0.0.1:62982 Accepted
+[Sat Feb 28 21:35:56 2026] 127.0.0.1:59082 Accepted
+[Sat Feb 28 21:35:56 2026] 127.0.0.1:62982 [200]: GET /families
+[Sat Feb 28 21:35:56 2026] 127.0.0.1:62982 Closing
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:59082 [200]: GET /assets/app.css
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:50543 Accepted
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:63752 Accepted
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:50543 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:59082 Closing
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:50516 Accepted
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:63752 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:50516 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:50543 Closing
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:63752 Closing
+[Sat Feb 28 21:35:57 2026] 127.0.0.1:50516 Closing
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:57519 Accepted
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:61488 Accepted
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:57519 [200]: GET /children
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:57519 Closing
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:61488 [200]: GET /assets/app.css
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:50697 Accepted
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:58290 Accepted
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:50697 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:49670 Accepted
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:58290 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:61488 Closing
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:49670 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:50697 Closing
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:58290 Closing
+[Sat Feb 28 21:35:58 2026] 127.0.0.1:49670 Closing
+[Sat Feb 28 21:35:59 2026] 127.0.0.1:55652 Accepted
+[Sat Feb 28 21:35:59 2026] 127.0.0.1:58922 Accepted
+[Sat Feb 28 21:35:59 2026] 127.0.0.1:55652 [200]: GET /families
+[Sat Feb 28 21:35:59 2026] 127.0.0.1:55652 Closing
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:58922 [200]: GET /assets/app.css
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:61905 Accepted
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:61905 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:58220 Accepted
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:58922 Closing
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:61321 Accepted
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:58220 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:61321 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:61905 Closing
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:58220 Closing
+[Sat Feb 28 21:36:00 2026] 127.0.0.1:61321 Closing
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:55934 Accepted
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:56065 Accepted
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:55934 [200]: GET /families/create
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:55934 Closing
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:56065 [200]: GET /assets/app.css
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:63181 Accepted
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:51688 Accepted
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:63181 [200]: GET /assets/logo_cliente.jpeg
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:54928 Accepted
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:51688 [200]: GET /assets/plano_fundo.jpg
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:56065 Closing
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:54928 [200]: GET /assets/cep-autofill.js
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:63181 Closing
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:51688 Closing
+[Sat Feb 28 21:36:01 2026] 127.0.0.1:54928 Closing

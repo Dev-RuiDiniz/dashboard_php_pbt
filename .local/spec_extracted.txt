@@ -1,0 +1,684 @@
+ESPECIFICAÇÃO CONSOLIDADASistema Web de Ação Social (Igreja Social)
+Foco de implantação: PHP + MySQL/MariaDB (Hostinger)
+Versão: 1.0Data: 25/02/2026
+Sumário (referência)
+1. Visão geral e objetivos
+2. Perfis de acesso e permissões
+3. Módulos, telas e funções
+4. Modelo de dados (MySQL)
+5. Regras de negócio essenciais
+6. Relatórios e exportações
+7. Segurança, LGPD e auditoria
+8. Deploy na Hostinger (PHP)
+9. Estrutura do projeto (pastas)
+10. Apêndice A - DDL SQL (base)
+1. Visão geral e objetivos
+O Sistema Igreja Social centraliza e automatiza a gestão dos atendimentos sociais realizados pela instituição, abrangendo famílias em vulnerabilidade e pessoas em situação de rua. O sistema substitui fichas em papel, padroniza processos (cestas, encaminhamentos, visitas e empréstimos de equipamentos) e produz indicadores para prestação de contas e tomada de decisão.
+Escopo funcional consolidado:
+Cadastro completo de famílias (responsável, endereço, socioeconômico, membros e pendências).
+Cadastro e acompanhamento individual (ficha social) para pessoas acompanhadas, inclusive em situação de rua.
+Cadastro de crianças vinculadas e geração de lista de crianças por evento.
+Gestão de eventos de entrega de cestas: convidados, senhas, presença/retirada, assinatura simples e bloqueio mensal.
+Gestão de equipamentos de mobilidade: cadastro, status, empréstimos/devoluções e alertas por atraso.
+Registro de visitas sociais e alertas (pendências de documentação/visita/atualização).
+Dashboard operacional e relatórios mensais com exportação (PDF/CSV/Excel).
+Stack alvo (Hostinger):
+Back-end: PHP 8.1+ (recomendado 8.2), arquitetura MVC simples (sem framework ou com micro-framework opcional).
+Banco de dados: MySQL/MariaDB (Hostinger), acesso via PDO + prepared statements.
+Front-end: HTML + Bootstrap (server-side rendering). JavaScript mínimo (máscaras/validações).
+Exportações: CSV/XLSX (biblioteca PHPSpreadsheet) e PDF (Dompdf ou mPDF).
+2. Perfis de acesso e permissões
+Perfis (RBAC):
+Administrador: acesso total, configurações, usuários, auditoria.
+Voluntário/Operador: cadastros e registros operacionais (famílias, fichas, entregas, equipamentos).
+Pastoral: acesso a acompanhamento espiritual e leitura/registro conforme política.
+Visualizador (opcional): leitura de relatórios e dashboard, sem alteração.
+As permissões devem ser aplicadas por módulo (ex.: Entregas, Equipamentos, Fichas, Relatórios) e por ação (ver/criar/editar/excluir).
+3. Módulos, telas e funções
+3.1 Autenticação
+Tela: Login (usuário/e-mail + senha).
+Tela: Recuperar senha (envio de link/código).
+Funções: bloquear por tentativas (configurável), redefinição com token e expiração.
+3.2 Dashboard operacional
+Cards: total de famílias, pessoas acompanhadas, crianças, entregas do mês, encaminhamentos, equipamentos por status.
+Alertas: documentação pendente, visita pendente, família sem atualização há X meses, devoluções atrasadas.
+Ações rápidas: nova família, novo atendimento (ficha), criar evento de entrega, registrar empréstimo.
+3.3 Famílias
+Tela: Lista de famílias (filtros por CPF, nome, bairro/cidade, status, pendências).
+Tela: Nova/Editar família (wizard ou formulário com seções).
+Tela: Detalhe da família com abas: Resumo, Membros, Crianças, Entregas, Empréstimos, Visitas/Anotações, Pendências.
+Funções: validação de CPF e bloqueio de duplicidade; cálculo de renda total e indicadores; marcação de documentação pendente e necessidade de visita.
+3.4 Pessoas acompanhadas (Ficha social)
+Tela: Lista de pessoas (filtros por nome, CPF/RG, situação de rua, necessidade imediata, último atendimento).
+Tela: Novo atendimento (formulário longo por seções: identificação, condição, necessidades, espiritual, encaminhamentos, consentimento).
+Tela: Detalhe da pessoa (linha do tempo de atendimentos, encaminhamentos e acompanhamento espiritual).
+Funções: múltiplos encaminhamentos por atendimento; consentimento digital (nome + data/hora) obrigatório.
+3.5 Crianças
+Tela: Lista de crianças (nome, idade, responsável, telefone, parentesco, família).
+Tela: Cadastro/Editar criança (vinculada a uma família).
+Função: geração automática de lista de crianças por evento de entrega.
+3.6 Entregas de cestas
+Tela: Eventos de entrega (lista/calendário).
+Tela: Criar evento (nome, data, regras: bloquear múltiplas entregas no mês, limite de cestas opcional).
+Tela: Seleção de convidados (manual ou por critérios: aptos no mês, prioridade, por bairro, sem pendências).
+Tela: Lista operacional do evento (senha, nome, CPF/RG, observações, status: não veio/presente/retirou; assinatura simples).
+Exportação: PDF, CSV, Excel e impressão no formato padronizado.
+3.7 Equipamentos de mobilidade
+Tela: Lista de equipamentos (filtros por tipo, status, código).
+Tela: Cadastro de equipamento (tipo, código automático, estado de conservação, observações).
+Fluxo: empréstimo (selecionar família/pessoa, prazo, termo) e devolução (data, estado na devolução, observações).
+Alertas: devolução vencida e equipamentos em manutenção.
+3.8 Visitas e pendências
+Tela: Lista de visitas pendentes e concluídas.
+Funções: solicitar visita, registrar conclusão (data/usuário), vincular a família/pessoa, registrar observações.
+Alertas automáticos por tempo sem atendimento/atualização (parâmetro configurável).
+3.9 Usuários e configurações (Admin)
+Usuários: criar/editar, perfil, ativar/desativar, redefinir senha.
+Configurações: tipos de encaminhamento, textos padrão (termo), parâmetros de elegibilidade, limites mensais, status de backup.
+4. Modelo de dados (MySQL)
+A modelagem abaixo foi desenhada para MySQL/MariaDB com chaves estrangeiras, auditoria básica e foco em rastreabilidade. IDs podem ser INT auto_increment para simplicidade na Hostinger.
+4.1 Tabelas principais
+users
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+name
+VARCHAR(120)
+NOT NULL
+Nome do usuário
+email
+VARCHAR(160)
+NOT NULL, UNIQUE
+Login
+password_hash
+VARCHAR(255)
+NOT NULL
+bcrypt/argon2
+role
+ENUM
+NOT NULL
+admin, voluntario, pastoral, viewer
+is_active
+TINYINT(1)
+DEFAULT 1
+created_at
+DATETIME
+DEFAULT CURRENT_TIMESTAMP
+updated_at
+DATETIME
+ON UPDATE CURRENT_TIMESTAMP
+families
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+responsible_name
+VARCHAR(160)
+NOT NULL
+cpf_responsible
+VARCHAR(14)
+UNIQUE
+Armazenar com máscara ou normalizado
+rg_responsible
+VARCHAR(20)
+birth_date
+DATE
+Idade calculada na tela
+phone
+VARCHAR(20)
+marital_status
+VARCHAR(30)
+lista controlada
+education_level
+VARCHAR(40)
+lista controlada
+professional_status
+VARCHAR(40)
+Empregado/Desempregado/Autônomo
+profession_detail
+VARCHAR(120)
+quando autônomo
+cep
+VARCHAR(10)
+consulta via API de CEP
+address
+VARCHAR(200)
+logradouro
+address_number
+VARCHAR(20)
+address_complement
+VARCHAR(120)
+neighborhood
+VARCHAR(80)
+city
+VARCHAR(80)
+state
+CHAR(2)
+location_reference
+VARCHAR(200)
+ponto de referência
+housing_type
+VARCHAR(60)
+própria, alugada, etc.
+adults_count
+INT
+DEFAULT 0
+workers_count
+INT
+DEFAULT 0
+family_income_total
+DECIMAL(10,2)
+DEFAULT 0
+soma calculada
+children_count
+INT
+DEFAULT 0
+pode ser calculado também
+documentation_status
+VARCHAR(30)
+DEFAULT 'ok'
+ok, pendente, parcial
+documentation_notes
+TEXT
+quais docs faltam
+needs_visit
+TINYINT(1)
+DEFAULT 0
+alerta
+general_notes
+TEXT
+is_active
+TINYINT(1)
+DEFAULT 1
+created_at
+DATETIME
+DEFAULT CURRENT_TIMESTAMP
+updated_at
+DATETIME
+ON UPDATE CURRENT_TIMESTAMP
+family_members
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+family_id
+INT FK
+NOT NULL
+families.id
+name
+VARCHAR(160)
+NOT NULL
+relationship
+VARCHAR(40)
+parentesco
+birth_date
+DATE
+works
+TINYINT(1)
+DEFAULT 0
+income
+DECIMAL(10,2)
+DEFAULT 0
+renda individual
+children
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+family_id
+INT FK
+NOT NULL
+families.id
+name
+VARCHAR(160)
+NOT NULL
+birth_date
+DATE
+ou idade aproximada
+age_years
+INT
+opcional se não tiver data
+relationship
+VARCHAR(40)
+parentesco
+notes
+TEXT
+people
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+full_name
+VARCHAR(160)
+pode ser desconhecido
+social_name
+VARCHAR(160)
+cpf
+VARCHAR(14)
+UNIQUE
+permitir NULL
+rg
+VARCHAR(20)
+permitir NULL
+birth_date
+DATE
+permitir NULL
+approx_age
+INT
+quando não houver data
+gender
+VARCHAR(20)
+is_homeless
+TINYINT(1)
+DEFAULT 0
+homeless_time
+VARCHAR(20)
+menos 3m, 3-12m, 1-5a, +5a
+stay_location
+VARCHAR(200)
+local onde permanece
+has_family_in_region
+TINYINT(1)
+DEFAULT 0
+family_contact
+VARCHAR(200)
+education_level
+VARCHAR(40)
+profession_skills
+VARCHAR(200)
+formal_work_history
+TINYINT(1)
+DEFAULT 0
+já trabalhou registrado
+work_interest
+TINYINT(1)
+DEFAULT 0
+work_interest_detail
+VARCHAR(200)
+created_at
+DATETIME
+DEFAULT CURRENT_TIMESTAMP
+updated_at
+DATETIME
+ON UPDATE CURRENT_TIMESTAMP
+4.2 Fichas/atendimentos, encaminhamentos e espiritual
+social_records
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+person_id
+INT FK
+NOT NULL
+people.id
+family_id
+INT FK
+opcional (vínculo com família)
+chronic_diseases
+TEXT
+lista/descrição
+continuous_medication
+TEXT
+sim + quais
+substance_use
+TEXT
+sim + observações
+disability
+VARCHAR(80)
+física/visual/auditiva/etc.
+immediate_needs
+TEXT
+checkbox múltiplo (armazenar CSV/JSON)
+spiritual_wants_prayer
+TINYINT(1)
+DEFAULT 0
+spiritual_accepts_visit
+TINYINT(1)
+DEFAULT 0
+church_name
+VARCHAR(160)
+spiritual_decision
+VARCHAR(80)
+reconciliação, conversão, etc.
+notes
+TEXT
+consent_text_version
+VARCHAR(40)
+NOT NULL
+versão do termo
+consent_name
+VARCHAR(160)
+NOT NULL
+nome digitado
+consent_at
+DATETIME
+NOT NULL
+data/hora
+created_by
+INT FK
+NOT NULL
+users.id
+created_at
+DATETIME
+DEFAULT CURRENT_TIMESTAMP
+referrals
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+social_record_id
+INT FK
+NOT NULL
+social_records.id
+referral_type
+VARCHAR(60)
+NOT NULL
+CRAS, CAPS, UBS, etc.
+referral_date
+DATE
+NOT NULL
+responsible_user_id
+INT FK
+NOT NULL
+users.id
+status
+VARCHAR(20)
+DEFAULT 'encaminhado'
+encaminhado, acompanhamento, concluido, interrompido
+notes
+TEXT
+spiritual_followups
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+person_id
+INT FK
+NOT NULL
+people.id
+followup_date
+DATE
+NOT NULL
+action
+VARCHAR(80)
+visita, oração, aconselhamento
+notes
+TEXT
+created_by
+INT FK
+NOT NULL
+users.id
+4.3 Entregas (eventos e convidados)
+delivery_events
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+name
+VARCHAR(160)
+NOT NULL
+ex: Entrega Cesta - Fev/2026
+event_date
+DATE
+NOT NULL
+block_multiple_same_month
+TINYINT(1)
+DEFAULT 1
+max_baskets
+INT
+opcional
+status
+VARCHAR(20)
+DEFAULT 'aberto'
+rascunho, aberto, concluido
+created_by
+INT FK
+NOT NULL
+users.id
+created_at
+DATETIME
+DEFAULT CURRENT_TIMESTAMP
+deliveries
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+event_id
+INT FK
+NOT NULL
+delivery_events.id
+family_id
+INT FK
+opcional
+person_id
+INT FK
+opcional (atendimento individual)
+ticket_number
+INT
+NOT NULL
+senha gerada sequencial
+document_id
+VARCHAR(20)
+CPF/RG exibido
+observations
+VARCHAR(200)
+status
+VARCHAR(20)
+DEFAULT 'nao_veio'
+nao_veio, presente, retirou
+quantity
+INT
+DEFAULT 1
+qtd cestas
+delivered_at
+DATETIME
+quando retirou
+delivered_by
+INT FK
+users.id
+signature_name
+VARCHAR(160)
+assinatura simples
+4.4 Equipamentos e empréstimos
+equipment
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+code
+VARCHAR(20)
+UNIQUE, NOT NULL
+ex: CAD-001, MUL-002
+type
+VARCHAR(60)
+NOT NULL
+cadeira, muleta, etc.
+condition_state
+VARCHAR(20)
+DEFAULT 'bom'
+novo, bom, reparo
+status
+VARCHAR(20)
+DEFAULT 'disponivel'
+disponivel, emprestado, manutencao
+notes
+TEXT
+created_at
+DATETIME
+DEFAULT CURRENT_TIMESTAMP
+equipment_loans
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+equipment_id
+INT FK
+NOT NULL
+equipment.id
+family_id
+INT FK
+opcional
+person_id
+INT FK
+opcional
+loan_date
+DATE
+NOT NULL
+due_date
+DATE
+NOT NULL
+prazo devolução
+return_date
+DATE
+return_condition
+VARCHAR(20)
+bom, manutencao
+notes
+TEXT
+created_by
+INT FK
+NOT NULL
+users.id
+4.5 Visitas e auditoria
+visits
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+family_id
+INT FK
+opcional
+person_id
+INT FK
+opcional
+requested_by
+INT FK
+NOT NULL
+users.id
+requested_at
+DATETIME
+DEFAULT CURRENT_TIMESTAMP
+scheduled_date
+DATE
+opcional
+completed_by
+INT FK
+users.id
+completed_at
+DATETIME
+notes
+TEXT
+status
+VARCHAR(20)
+DEFAULT 'pendente'
+pendente, concluida
+audit_logs
+Campo
+Tipo
+Regras/Validação
+Observações
+id
+INT PK
+AUTO_INCREMENT
+user_id
+INT FK
+NOT NULL
+users.id
+action
+VARCHAR(80)
+NOT NULL
+create/update/delete/login/export
+entity
+VARCHAR(80)
+NOT NULL
+families, people, deliveries...
+entity_id
+INT
+ip_address
+VARCHAR(45)
+IPv4/IPv6
+user_agent
+VARCHAR(255)
+created_at
+DATETIME
+DEFAULT CURRENT_TIMESTAMP
+details_json
+JSON
+diferenças/metadata (opcional)
+5. Regras de negócio essenciais
+CPF único (família e pessoa): Bloquear duplicidade quando informado; permitir cadastro parcial para situação de rua (CPF/RG nulo).
+Cesta básica: bloqueio mensal: Quando ativo no evento, impedir que a mesma família receba mais de uma vez no mesmo mês/ano.
+Senha (ticket) por evento: Gerar sequencial por evento; manter imutável após a lista ser publicada.
+Status de entrega: Fluxo: nao_veio -> presente -> retirou. Ao marcar 'retirou', registrar data/hora, usuário e assinatura simples.
+Equipamentos: consistência de status: Ao emprestar: status do equipamento vira 'emprestado'. Ao devolver: volta para 'disponivel' ou 'manutencao'.
+Alertas: Exibir: documentação pendente; visitas pendentes; devoluções atrasadas (due_date < hoje e return_date nulo); família sem atualização há X meses.
+Renda familiar: Somar rendas dos membros (family_members.income) e armazenar total em families.family_income_total (cache) para dashboard/relatórios.
+LGPD e consentimento: Toda ficha social deve registrar consentimento (texto versão + nome + data/hora).
+6. Relatórios e exportações
+Relatórios mensais (filtros por mês/ano e por bairro/status):
+Famílias atendidas no período (com quantidade de entregas).
+Cestas entregues por evento e por período.
+Crianças atendidas (com vínculo com família e evento).
+Encaminhamentos por tipo e status (CRAS/CAPS/UBS etc.).
+Equipamentos: emprestados, devolvidos, atrasados e em manutenção.
+Pendências: documentação e visitas.
+Exportação: CSV e Excel via PHPSpreadsheet; PDF via Dompdf/mPDF.
+7. Segurança, LGPD e auditoria
+Senhas sempre com hash forte (bcrypt/argon2) e nunca armazenar senha em texto.
+Sessão segura: regenerar session_id após login; cookies HttpOnly e SameSite.
+RBAC: checar permissão em cada rota/ação.
+SQL Injection: apenas PDO com prepared statements.
+Auditoria: registrar ações relevantes (login, exportações, criação/edição/exclusão).
+LGPD: consentimento digital nas fichas; perfis limitam acesso; exportações restritas; backups protegidos.
+8. Deploy na Hostinger (PHP)
+Criar banco MySQL no painel da Hostinger e usuário com permissões apenas no banco do sistema.
+Configurar arquivo .env (não versionar): DB_HOST, DB_NAME, DB_USER, DB_PASS, APP_URL, APP_ENV, APP_KEY.
+Apontar o document root para /public.
+Ativar HTTPS (SSL) e forçar redirecionamento.
+Criar job de backup (quando disponível) e exportação semanal do banco (mysqldump).
+9. Estrutura do projeto (pastas)
+Estrutura sugerida (MVC simples):
+public/  index.php  assets/app/  Controllers/  Models/  Services/  Views/  Middlewares/config/  database.php  routes.phpstorage/  logs/  exports/  uploads/database/  schema.sql  seeds.sqlvendor/ (composer).env (fora do versionamento)
+10. Apêndice A - DDL SQL (base)
+A seguir um script base (mínimo) para iniciar o banco. Ajustes finos (índices adicionais, enumerações e JSON) podem ser feitos conforme a implementação.
+-- Observação: ajustar engine/charset conforme Hostinger (InnoDB + utf8mb4 recomendado)CREATE TABLE users (  id INT AUTO_INCREMENT PRIMARY KEY,  name VARCHAR(120) NOT NULL,  email VARCHAR(160) NOT NULL UNIQUE,  password_hash VARCHAR(255) NOT NULL,  role ENUM('admin','voluntario','pastoral','viewer') NOT NULL,  is_active TINYINT(1) NOT NULL DEFAULT 1,  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  updated_at DATETIME NULL ON UPDATE CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE families (  id INT AUTO_INCREMENT PRIMARY KEY,  responsible_name VARCHAR(160) NOT NULL,  cpf_responsible VARCHAR(14) UNIQUE,  rg_responsible VARCHAR(20),  birth_date DATE,  phone VARCHAR(20),  marital_status VARCHAR(30),  education_level VARCHAR(40),  professional_status VARCHAR(40),  profession_detail VARCHAR(120),  cep VARCHAR(10),  address VARCHAR(200),  address_number VARCHAR(20),  address_complement VARCHAR(120),  neighborhood VARCHAR(80),  city VARCHAR(80),  state CHAR(2),  location_reference VARCHAR(200),  housing_type VARCHAR(60),  adults_count INT NOT NULL DEFAULT 0,  workers_count INT NOT NULL DEFAULT 0,  family_income_total DECIMAL(10,2) NOT NULL DEFAULT 0,  children_count INT NOT NULL DEFAULT 0,  documentation_status VARCHAR(30) NOT NULL DEFAULT 'ok',  documentation_notes TEXT,  needs_visit TINYINT(1) NOT NULL DEFAULT 0,  general_notes TEXT,  is_active TINYINT(1) NOT NULL DEFAULT 1,  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  updated_at DATETIME NULL ON UPDATE CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE family_members (  id INT AUTO_INCREMENT PRIMARY KEY,  family_id INT NOT NULL,  name VARCHAR(160) NOT NULL,  relationship VARCHAR(40),  birth_date DATE,  works TINYINT(1) NOT NULL DEFAULT 0,  income DECIMAL(10,2) NOT NULL DEFAULT 0,  CONSTRAINT fk_family_members_family FOREIGN KEY (family_id) REFERENCES families(id)    ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE children (  id INT AUTO_INCREMENT PRIMARY KEY,  family_id INT NOT NULL,  name VARCHAR(160) NOT NULL,  birth_date DATE,  age_years INT,  relationship VARCHAR(40),  notes TEXT,  CONSTRAINT fk_children_family FOREIGN KEY (family_id) REFERENCES families(id)    ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE people (  id INT AUTO_INCREMENT PRIMARY KEY,  full_name VARCHAR(160),  social_name VARCHAR(160),  cpf VARCHAR(14) UNIQUE,  rg VARCHAR(20),  birth_date DATE,  approx_age INT,  gender VARCHAR(20),  is_homeless TINYINT(1) NOT NULL DEFAULT 0,  homeless_time VARCHAR(20),  stay_location VARCHAR(200),  has_family_in_region TINYINT(1) NOT NULL DEFAULT 0,  family_contact VARCHAR(200),  education_level VARCHAR(40),  profession_skills VARCHAR(200),  formal_work_history TINYINT(1) NOT NULL DEFAULT 0,  work_interest TINYINT(1) NOT NULL DEFAULT 0,  work_interest_detail VARCHAR(200),  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  updated_at DATETIME NULL ON UPDATE CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE social_records (  id INT AUTO_INCREMENT PRIMARY KEY,  person_id INT NOT NULL,  family_id INT NULL,  chronic_diseases TEXT,  continuous_medication TEXT,  substance_use TEXT,  disability VARCHAR(80),  immediate_needs TEXT,  spiritual_wants_prayer TINYINT(1) NOT NULL DEFAULT 0,  spiritual_accepts_visit TINYINT(1) NOT NULL DEFAULT 0,  church_name VARCHAR(160),  spiritual_decision VARCHAR(80),  notes TEXT,  consent_text_version VARCHAR(40) NOT NULL,  consent_name VARCHAR(160) NOT NULL,  consent_at DATETIME NOT NULL,  created_by INT NOT NULL,  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  CONSTRAINT fk_social_records_person FOREIGN KEY (person_id) REFERENCES people(id),  CONSTRAINT fk_social_records_family FOREIGN KEY (family_id) REFERENCES families(id),  CONSTRAINT fk_social_records_user FOREIGN KEY (created_by) REFERENCES users(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE referrals (  id INT AUTO_INCREMENT PRIMARY KEY,  social_record_id INT NOT NULL,  referral_type VARCHAR(60) NOT NULL,  referral_date DATE NOT NULL,  responsible_user_id INT NOT NULL,  status VARCHAR(20) NOT NULL DEFAULT 'encaminhado',  notes TEXT,  CONSTRAINT fk_referrals_record FOREIGN KEY (social_record_id) REFERENCES social_records(id)    ON DELETE CASCADE,  CONSTRAINT fk_referrals_user FOREIGN KEY (responsible_user_id) REFERENCES users(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE spiritual_followups (  id INT AUTO_INCREMENT PRIMARY KEY,  person_id INT NOT NULL,  followup_date DATE NOT NULL,  action VARCHAR(80),  notes TEXT,  created_by INT NOT NULL,  CONSTRAINT fk_spiritual_person FOREIGN KEY (person_id) REFERENCES people(id)    ON DELETE CASCADE,  CONSTRAINT fk_spiritual_user FOREIGN KEY (created_by) REFERENCES users(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE delivery_events (  id INT AUTO_INCREMENT PRIMARY KEY,  name VARCHAR(160) NOT NULL,  event_date DATE NOT NULL,  block_multiple_same_month TINYINT(1) NOT NULL DEFAULT 1,  max_baskets INT NULL,  status VARCHAR(20) NOT NULL DEFAULT 'aberto',  created_by INT NOT NULL,  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  CONSTRAINT fk_delivery_events_user FOREIGN KEY (created_by) REFERENCES users(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE deliveries (  id INT AUTO_INCREMENT PRIMARY KEY,  event_id INT NOT NULL,  family_id INT NULL,  person_id INT NULL,  ticket_number INT NOT NULL,  document_id VARCHAR(20),  observations VARCHAR(200),  status VARCHAR(20) NOT NULL DEFAULT 'nao_veio',  quantity INT NOT NULL DEFAULT 1,  delivered_at DATETIME NULL,  delivered_by INT NULL,  signature_name VARCHAR(160),  CONSTRAINT fk_deliveries_event FOREIGN KEY (event_id) REFERENCES delivery_events(id)    ON DELETE CASCADE,  CONSTRAINT fk_deliveries_family FOREIGN KEY (family_id) REFERENCES families(id),  CONSTRAINT fk_deliveries_person FOREIGN KEY (person_id) REFERENCES people(id),  CONSTRAINT fk_deliveries_user FOREIGN KEY (delivered_by) REFERENCES users(id),  UNIQUE KEY uq_event_ticket (event_id, ticket_number)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE equipment (  id INT AUTO_INCREMENT PRIMARY KEY,  code VARCHAR(20) NOT NULL UNIQUE,  type VARCHAR(60) NOT NULL,  condition_state VARCHAR(20) NOT NULL DEFAULT 'bom',  status VARCHAR(20) NOT NULL DEFAULT 'disponivel',  notes TEXT,  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE equipment_loans (  id INT AUTO_INCREMENT PRIMARY KEY,  equipment_id INT NOT NULL,  family_id INT NULL,  person_id INT NULL,  loan_date DATE NOT NULL,  due_date DATE NOT NULL,  return_date DATE NULL,  return_condition VARCHAR(20),  notes TEXT,  created_by INT NOT NULL,  CONSTRAINT fk_eq_loans_eq FOREIGN KEY (equipment_id) REFERENCES equipment(id),  CONSTRAINT fk_eq_loans_family FOREIGN KEY (family_id) REFERENCES families(id),  CONSTRAINT fk_eq_loans_person FOREIGN KEY (person_id) REFERENCES people(id),  CONSTRAINT fk_eq_loans_user FOREIGN KEY (created_by) REFERENCES users(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE visits (  id INT AUTO_INCREMENT PRIMARY KEY,  family_id INT NULL,  person_id INT NULL,  requested_by INT NOT NULL,  requested_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  scheduled_date DATE NULL,  completed_by INT NULL,  completed_at DATETIME NULL,  notes TEXT,  status VARCHAR(20) NOT NULL DEFAULT 'pendente',  CONSTRAINT fk_visits_family FOREIGN KEY (family_id) REFERENCES families(id),  CONSTRAINT fk_visits_person FOREIGN KEY (person_id) REFERENCES people(id),  CONSTRAINT fk_visits_req_user FOREIGN KEY (requested_by) REFERENCES users(id),  CONSTRAINT fk_visits_comp_user FOREIGN KEY (completed_by) REFERENCES users(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;CREATE TABLE audit_logs (  id INT AUTO_INCREMENT PRIMARY KEY,  user_id INT NOT NULL,  action VARCHAR(80) NOT NULL,  entity VARCHAR(80) NOT NULL,  entity_id INT NULL,  ip_address VARCHAR(45),  user_agent VARCHAR(255),  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  details_json JSON NULL,  CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
