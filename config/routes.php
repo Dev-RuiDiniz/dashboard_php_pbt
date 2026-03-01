@@ -12,6 +12,7 @@ use App\Controllers\EquipmentLoanController;
 use App\Controllers\FamilyController;
 use App\Controllers\PersonController;
 use App\Controllers\ReportController;
+use App\Controllers\SocialRecordController;
 use App\Controllers\UserController;
 use App\Controllers\VisitController;
 use App\Core\Container;
@@ -262,6 +263,12 @@ return static function (Router $router, Container $container): void {
     $router->get('/people', static function () use ($container, $personView): void {
         $personView(static function () use ($container): void {
             (new PersonController($container))->index();
+        });
+    });
+
+    $router->get('/social-records', static function () use ($container, $personView): void {
+        $personView(static function () use ($container): void {
+            (new SocialRecordController($container))->index();
         });
     });
 

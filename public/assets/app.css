@@ -52,6 +52,65 @@ body.login-page {
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
+.dashboard-beige {
+  --beige-1: #f7efe2;
+  --beige-2: #efe2cf;
+  --beige-3: #d6b991;
+  --beige-4: #8c6f4d;
+  background: linear-gradient(180deg, rgba(247, 239, 226, 0.72) 0%, rgba(239, 226, 207, 0.45) 100%);
+  border: 1px solid rgba(214, 185, 145, 0.45);
+  border-radius: 1rem;
+  padding: 0.75rem;
+}
+
+.dashboard-beige .card {
+  background: linear-gradient(180deg, #fffaf4 0%, #f6ecdf 100%);
+  border: 1px solid #eadcc8;
+  box-shadow: 0 12px 24px rgba(140, 111, 77, 0.12) !important;
+}
+
+.dashboard-beige .metric-card {
+  background: linear-gradient(160deg, var(--beige-1) 0%, var(--beige-2) 100%);
+}
+
+.dashboard-beige .metric-value,
+.dashboard-beige .h3,
+.dashboard-beige .h4 {
+  color: #6f5539;
+}
+
+.dashboard-beige .text-secondary {
+  color: #7a6753 !important;
+}
+
+.dashboard-beige .list-group-item {
+  background: transparent;
+  border-color: #e4d4bf;
+}
+
+.dashboard-beige .btn-outline-secondary {
+  border-color: #c5a983;
+  color: #6f5539;
+}
+
+.dashboard-beige .btn-outline-secondary:hover,
+.dashboard-beige .btn-outline-secondary:focus {
+  background: #b79063;
+  border-color: #b79063;
+  color: #fff;
+}
+
+.dashboard-beige .btn-teal {
+  background: #9a7650;
+  border-color: #9a7650;
+}
+
+.dashboard-beige .btn-teal:hover,
+.dashboard-beige .btn-teal:focus {
+  background: #7f5f3f;
+  border-color: #7f5f3f;
+}
+
 .btn-teal {
   background: #0f766e;
   border-color: #0f766e;

@@ -19,6 +19,7 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
     <div class="alert alert-success shadow-sm border-0"><?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?></div>
 <?php endif; ?>
 
+<div class="dashboard-beige">
 <div class="row g-3 mb-3">
     <div class="col-12 col-md-6 col-xl-3">
         <div class="card metric-card h-100">
@@ -207,6 +208,7 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
         <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-outline-secondary" href="/families/create">Nova familia</a>
             <a class="btn btn-outline-secondary" href="/people/create">Novo atendimento</a>
+            <a class="btn btn-outline-secondary" href="/social-records">Fichas sociais</a>
             <a class="btn btn-outline-secondary" href="/delivery-events/create">Criar evento de entrega</a>
             <a class="btn btn-outline-secondary" href="/equipment-loans">Registrar emprestimo</a>
             <a class="btn btn-outline-secondary" href="/visits/create">Solicitar visita</a>
@@ -216,4 +218,5 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
             <?php endif; ?>
         </div>
     </div>
+</div>
 </div>
