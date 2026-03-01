@@ -8,9 +8,33 @@ declare(strict_types=1);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($appName ?? 'Dashboard PHP PBT', ENT_QUOTES, 'UTF-8') ?></title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 2rem; background: #f7f7f7; color: #222; }
-        .card { background: #fff; border-radius: 10px; padding: 1.5rem; max-width: 720px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-        code { background: #eee; padding: .1rem .3rem; border-radius: 4px; }
+        @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap");
+        body {
+            font-family: "Source Sans 3", "Segoe UI", Tahoma, sans-serif;
+            margin: 2rem;
+            background: linear-gradient(160deg, #fffefb 0%, #f3ecde 100%);
+            color: #2b2318;
+        }
+        .card {
+            background: linear-gradient(180deg, #fffefb 0%, #f9f2e5 100%);
+            border-radius: 16px;
+            border: 1px solid #e5dbc8;
+            padding: 1.5rem;
+            max-width: 720px;
+            box-shadow: 0 16px 30px rgba(94, 73, 40, 0.12);
+        }
+        h1 {
+            font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+            font-size: 2.2rem;
+            margin-top: 0;
+        }
+        code {
+            background: #f2e9d8;
+            color: #674a22;
+            padding: .1rem .35rem;
+            border-radius: 6px;
+            border: 1px solid #e2d2b3;
+        }
     </style>
 </head>
 <body>

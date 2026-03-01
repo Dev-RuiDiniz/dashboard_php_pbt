@@ -14,17 +14,18 @@ $generatedAt = (string) ($generatedAt ?? date('Y-m-d H:i:s'));
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Impressao - Lista Operacional</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; color: #111; }
-        h1 { margin: 0 0 6px 0; font-size: 22px; }
+        body { font-family: "Source Sans 3", Arial, sans-serif; margin: 20px; color: #2d2418; }
+        h1 { margin: 0 0 6px 0; font-size: 22px; font-family: Georgia, "Times New Roman", serif; }
         .meta { font-size: 13px; margin-bottom: 14px; }
         .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
-        .summary-item { border: 1px solid #d9d9d9; padding: 8px; border-radius: 6px; }
-        .summary-label { font-size: 11px; text-transform: uppercase; color: #555; }
+        .summary-item { border: 1px solid #dccfb8; padding: 8px; border-radius: 8px; background: #fffdf8; }
+        .summary-label { font-size: 11px; text-transform: uppercase; color: #7a6545; }
         .summary-value { font-size: 18px; font-weight: 700; margin-top: 3px; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { border: 1px solid #d9d9d9; padding: 6px; text-align: left; vertical-align: top; }
-        th { background: #f2f2f2; }
-        .muted { color: #666; font-size: 12px; margin-top: 8px; }
+        th, td { border: 1px solid #dccfb8; padding: 6px; text-align: left; vertical-align: top; }
+        th { background: #f6eedf; color: #6b512d; }
+        .muted { color: #7a6545; font-size: 12px; margin-top: 8px; }
+        button { background: #bb8d4a; color: #fff; border: 1px solid #bb8d4a; border-radius: 6px; padding: 8px 10px; }
         @media print {
             body { margin: 10px; }
             .no-print { display: none; }
