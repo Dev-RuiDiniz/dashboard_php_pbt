@@ -24,8 +24,17 @@ final class FamilyModel
 
         $q = trim((string) ($filters['q'] ?? ''));
         if ($q !== '') {
-            $sql .= ' AND (responsible_name LIKE :q OR cpf_responsible LIKE :q OR neighborhood LIKE :q OR city LIKE :q)';
-            $params['q'] = '%' . $q . '%';
+            $sql .= ' AND (
+                responsible_name LIKE :q_responsible
+                OR cpf_responsible LIKE :q_cpf
+                OR neighborhood LIKE :q_neighborhood
+                OR city LIKE :q_city
+            )';
+            $like = '%' . $q . '%';
+            $params['q_responsible'] = $like;
+            $params['q_cpf'] = $like;
+            $params['q_neighborhood'] = $like;
+            $params['q_city'] = $like;
         }
 
         $city = trim((string) ($filters['city'] ?? ''));
@@ -141,6 +150,12 @@ final class FamilyModel
         );
 
         $stmt->execute($data);
+    }
+
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM families WHERE id = :id');
+        $stmt->execute(['id' => $id]);
     }
 
     public function getMembersByFamilyId(int $familyId): array

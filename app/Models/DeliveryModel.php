@@ -41,13 +41,18 @@ final class DeliveryModel
         $q = trim((string) ($filters['q'] ?? ''));
         if ($q !== '') {
             $sql .= ' AND (
-                f.responsible_name LIKE :q
-                OR p.full_name LIKE :q
-                OR p.social_name LIKE :q
-                OR d.document_id LIKE :q
-                OR CAST(d.ticket_number AS CHAR) LIKE :q
+                f.responsible_name LIKE :q_family
+                OR p.full_name LIKE :q_full_name
+                OR p.social_name LIKE :q_social_name
+                OR d.document_id LIKE :q_document
+                OR CAST(d.ticket_number AS CHAR) LIKE :q_ticket
             )';
-            $params['q'] = '%' . $q . '%';
+            $like = '%' . $q . '%';
+            $params['q_family'] = $like;
+            $params['q_full_name'] = $like;
+            $params['q_social_name'] = $like;
+            $params['q_document'] = $like;
+            $params['q_ticket'] = $like;
         }
 
         $sql .= ' ORDER BY d.ticket_number ASC, d.id ASC';
@@ -226,19 +231,26 @@ final class DeliveryModel
         $stmt->execute($data);
     }
 
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM deliveries WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+
     public function existsFamilyDeliveryInMonth(int $familyId, string $eventDate, ?int $excludeEventId = null): bool
     {
         $sql = 'SELECT 1
                 FROM deliveries d
                 INNER JOIN delivery_events de ON de.id = d.event_id
                 WHERE d.family_id = :family_id
-                  AND YEAR(de.event_date) = YEAR(:event_date)
-                  AND MONTH(de.event_date) = MONTH(:event_date)
+                  AND YEAR(de.event_date) = YEAR(:event_date_year)
+                  AND MONTH(de.event_date) = MONTH(:event_date_month)
                   AND d.status = :status
                 LIMIT 1';
         $params = [
             'family_id' => $familyId,
-            'event_date' => $eventDate,
+            'event_date_year' => $eventDate,
+            'event_date_month' => $eventDate,
             'status' => 'retirou',
         ];
 
@@ -258,13 +270,14 @@ final class DeliveryModel
                 FROM deliveries d
                 INNER JOIN delivery_events de ON de.id = d.event_id
                 WHERE d.person_id = :person_id
-                  AND YEAR(de.event_date) = YEAR(:event_date)
-                  AND MONTH(de.event_date) = MONTH(:event_date)
+                  AND YEAR(de.event_date) = YEAR(:event_date_year)
+                  AND MONTH(de.event_date) = MONTH(:event_date_month)
                   AND d.status = :status
                 LIMIT 1';
         $params = [
             'person_id' => $personId,
-            'event_date' => $eventDate,
+            'event_date_year' => $eventDate,
+            'event_date_month' => $eventDate,
             'status' => 'retirou',
         ];
 

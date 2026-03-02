@@ -144,6 +144,21 @@ final class UserModel
         ]);
     }
 
+    public function countActiveAdmins(): int
+    {
+        $stmt = $this->pdo->query(
+            "SELECT COUNT(*) AS total FROM users WHERE role = 'admin' AND is_active = 1"
+        );
+        $row = $stmt->fetch();
+        return (int) ($row['total'] ?? 0);
+    }
+
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+
     public function markFailedLogin(int $id, int $maxAttempts, int $lockMinutes): array
     {
         $stmt = $this->pdo->prepare(

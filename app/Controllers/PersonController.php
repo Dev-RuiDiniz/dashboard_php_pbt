@@ -144,6 +144,38 @@ final class PersonController
         Response::redirect('/people');
     }
 
+    public function delete(): void
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            Session::flash('error', 'Pessoa invalida.');
+            Response::redirect('/people');
+        }
+
+        try {
+            if ($this->personModel()->findById($id) === null) {
+                Session::flash('error', 'Pessoa nao encontrada.');
+                Response::redirect('/people');
+            }
+
+            $records = $this->socialRecordModel()->findByPersonId($id);
+            foreach ($records as $record) {
+                $recordId = (int) ($record['id'] ?? 0);
+                if ($recordId > 0) {
+                    $this->socialRecordModel()->delete($recordId, $id);
+                }
+            }
+
+            $this->personModel()->delete($id);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao remover pessoa acompanhada.');
+            Response::redirect('/people');
+        }
+
+        Session::flash('success', 'Pessoa acompanhada removida com sucesso.');
+        Response::redirect('/people');
+    }
+
     public function show(): void
     {
         $id = (int) ($_GET['id'] ?? 0);
@@ -179,6 +211,20 @@ final class PersonController
         $recordForm = $this->defaultSocialRecordFormData();
         if (is_array($recordOld)) {
             $recordForm = array_merge($recordForm, $recordOld);
+        }
+
+        $recordEditId = (int) ($_GET['record_edit'] ?? 0);
+        $recordEdit = null;
+        if ($recordEditId > 0) {
+            foreach ($timeline as $record) {
+                if ((int) ($record['id'] ?? 0) === $recordEditId) {
+                    $recordEdit = $record;
+                    break;
+                }
+            }
+        }
+        if ($recordEdit !== null && !is_array($recordOld)) {
+            $recordForm = array_merge($recordForm, $recordEdit);
         }
 
         $referralOld = Session::consumeFlash('referral_form_old');
@@ -235,6 +281,7 @@ final class PersonController
             'referralFilters' => $referralFilters,
             'spiritualFilters' => $spiritualFilters,
             'recordForm' => $recordForm,
+            'recordEditMode' => $recordEdit !== null,
             'referralForm' => $referralForm,
             'spiritualForm' => $spiritualForm,
             'referralEditMode' => $referralEdit !== null,
@@ -280,6 +327,77 @@ final class PersonController
         }
 
         Session::flash('success', 'Atendimento social registrado com sucesso.');
+        Response::redirect('/people/show?id=' . $personId);
+    }
+
+    public function updateSocialRecord(): void
+    {
+        $personId = (int) ($_GET['person_id'] ?? 0);
+        $recordId = (int) ($_GET['id'] ?? 0);
+        if ($personId <= 0 || $recordId <= 0) {
+            Session::flash('error', 'Atendimento invalido.');
+            Response::redirect('/people');
+        }
+
+        $input = $this->sanitizeSocialRecordInput($_POST, $personId);
+        $error = $this->validateSocialRecordInput($input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            $input['id'] = $recordId;
+            Session::flash('record_form_old', $input);
+            Response::redirect('/people/show?id=' . $personId . '&record_edit=' . $recordId);
+        }
+
+        try {
+            $existing = $this->socialRecordModel()->findById($recordId);
+            if ($existing === null || (int) ($existing['person_id'] ?? 0) !== $personId) {
+                Session::flash('error', 'Atendimento nao encontrado.');
+                Response::redirect('/people/show?id=' . $personId);
+            }
+
+            if (!empty($input['family_id']) && $this->familyModel()->findById((int) $input['family_id']) === null) {
+                Session::flash('error', 'Familia vinculada nao encontrada.');
+                $input['id'] = $recordId;
+                Session::flash('record_form_old', $input);
+                Response::redirect('/people/show?id=' . $personId . '&record_edit=' . $recordId);
+            }
+
+            $this->socialRecordModel()->update(
+                $recordId,
+                $personId,
+                $this->toSocialRecordUpdatePersistenceData($input)
+            );
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao atualizar atendimento social.');
+            Response::redirect('/people/show?id=' . $personId . '&record_edit=' . $recordId);
+        }
+
+        Session::flash('success', 'Atendimento social atualizado com sucesso.');
+        Response::redirect('/people/show?id=' . $personId);
+    }
+
+    public function deleteSocialRecord(): void
+    {
+        $personId = (int) ($_GET['person_id'] ?? 0);
+        $recordId = (int) ($_GET['id'] ?? 0);
+        if ($personId <= 0 || $recordId <= 0) {
+            Session::flash('error', 'Atendimento invalido.');
+            Response::redirect('/people');
+        }
+
+        try {
+            $existing = $this->socialRecordModel()->findById($recordId);
+            if ($existing === null || (int) ($existing['person_id'] ?? 0) !== $personId) {
+                Session::flash('error', 'Atendimento nao encontrado.');
+                Response::redirect('/people/show?id=' . $personId);
+            }
+            $this->socialRecordModel()->delete($recordId, $personId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao remover atendimento social.');
+            Response::redirect('/people/show?id=' . $personId);
+        }
+
+        Session::flash('success', 'Atendimento social removido com sucesso.');
         Response::redirect('/people/show?id=' . $personId);
     }
 
@@ -568,6 +686,7 @@ final class PersonController
     private function defaultSocialRecordFormData(): array
     {
         return [
+            'id' => 0,
             'family_id' => 0,
             'chronic_diseases' => '',
             'continuous_medication' => '',
@@ -663,6 +782,26 @@ final class PersonController
             'consent_name' => $input['consent_name'],
             'consent_at' => date('Y-m-d H:i:s'),
             'created_by' => $createdBy,
+        ];
+    }
+
+    private function toSocialRecordUpdatePersistenceData(array $input): array
+    {
+        return [
+            'family_id' => ((int) ($input['family_id'] ?? 0)) > 0 ? (int) $input['family_id'] : null,
+            'chronic_diseases' => $input['chronic_diseases'] !== '' ? $input['chronic_diseases'] : null,
+            'continuous_medication' => $input['continuous_medication'] !== '' ? $input['continuous_medication'] : null,
+            'substance_use' => $input['substance_use'] !== '' ? $input['substance_use'] : null,
+            'disability' => $input['disability'] !== '' ? $input['disability'] : null,
+            'immediate_needs' => $input['immediate_needs'] !== '' ? $input['immediate_needs'] : null,
+            'spiritual_wants_prayer' => (int) $input['spiritual_wants_prayer'],
+            'spiritual_accepts_visit' => (int) $input['spiritual_accepts_visit'],
+            'church_name' => $input['church_name'] !== '' ? $input['church_name'] : null,
+            'spiritual_decision' => $input['spiritual_decision'] !== '' ? $input['spiritual_decision'] : null,
+            'notes' => $input['notes'] !== '' ? $input['notes'] : null,
+            'consent_text_version' => $input['consent_text_version'],
+            'consent_name' => $input['consent_name'],
+            'consent_at' => date('Y-m-d H:i:s'),
         ];
     }
 

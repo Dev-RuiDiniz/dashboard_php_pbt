@@ -158,6 +158,29 @@ final class FamilyController
         Response::redirect('/families');
     }
 
+    public function delete(): void
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            Session::flash('error', 'Familia invalida.');
+            Response::redirect('/families');
+        }
+
+        try {
+            if ($this->familyModel()->findById($id) === null) {
+                Session::flash('error', 'Familia nao encontrada.');
+                Response::redirect('/families');
+            }
+            $this->familyModel()->delete($id);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao remover familia.');
+            Response::redirect('/families');
+        }
+
+        Session::flash('success', 'Familia removida com sucesso.');
+        Response::redirect('/families');
+    }
+
     public function show(): void
     {
         $familyId = (int) ($_GET['id'] ?? 0);

@@ -188,8 +188,16 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
                                         <button type="submit" class="btn btn-sm btn-outline-success">Registrar devolucao</button>
                                     </div>
                                 </form>
+                                <form method="post" action="/equipment-loans/delete?id=<?= $loanId ?>" class="mt-2" onsubmit="return confirm('Remover emprestimo aberto? O equipamento voltara para disponivel.');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">Remover</button>
+                                </form>
                             <?php else : ?>
-                                <span class="text-secondary small">Concluido</span>
+                                <div class="d-grid gap-2">
+                                    <span class="text-secondary small">Concluido</span>
+                                    <form method="post" action="/equipment-loans/delete?id=<?= $loanId ?>" onsubmit="return confirm('Remover registro de emprestimo concluido?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                                    </form>
+                                </div>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -199,4 +207,3 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
         </table>
     </div>
 </div>
-

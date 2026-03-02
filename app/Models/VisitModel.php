@@ -32,12 +32,16 @@ final class VisitModel
         $q = trim((string) ($filters['q'] ?? ''));
         if ($q !== '') {
             $sql .= ' AND (
-                f.responsible_name LIKE :q
-                OR p.full_name LIKE :q
-                OR p.social_name LIKE :q
-                OR v.notes LIKE :q
+                f.responsible_name LIKE :q_family
+                OR p.full_name LIKE :q_full_name
+                OR p.social_name LIKE :q_social_name
+                OR v.notes LIKE :q_notes
             )';
-            $params['q'] = '%' . $q . '%';
+            $like = '%' . $q . '%';
+            $params['q_family'] = $like;
+            $params['q_full_name'] = $like;
+            $params['q_social_name'] = $like;
+            $params['q_notes'] = $like;
         }
 
         $status = trim((string) ($filters['status'] ?? ''));
@@ -234,4 +238,3 @@ final class VisitModel
         return is_array($rows) ? $rows : [];
     }
 }
-

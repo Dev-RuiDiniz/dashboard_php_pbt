@@ -102,6 +102,12 @@ final class EquipmentLoanModel
         $stmt->execute($data);
     }
 
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM equipment_loans WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+
     public function countOverdue(): int
     {
         $stmt = $this->pdo->query(
@@ -137,4 +143,3 @@ final class EquipmentLoanModel
         return is_array($rows) ? $rows : [];
     }
 }
-

@@ -154,6 +154,30 @@ final class DeliveryEventController
         Response::redirect('/delivery-events');
     }
 
+    public function delete(): void
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            Session::flash('error', 'Evento invalido.');
+            Response::redirect('/delivery-events');
+        }
+
+        try {
+            $event = $this->model()->findById($id);
+            if ($event === null) {
+                Session::flash('error', 'Evento nao encontrado.');
+                Response::redirect('/delivery-events');
+            }
+            $this->model()->delete($id);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao remover evento de entrega.');
+            Response::redirect('/delivery-events');
+        }
+
+        Session::flash('success', 'Evento de entrega removido com sucesso.');
+        Response::redirect('/delivery-events');
+    }
+
     public function show(): void
     {
         $id = (int) ($_GET['id'] ?? 0);
@@ -295,6 +319,53 @@ final class DeliveryEventController
         }
 
         Session::flash('success', 'Convidado adicionado na lista operacional com senha sequencial.');
+        Response::redirect('/delivery-events/show?id=' . $eventId);
+    }
+
+    public function deleteDelivery(): void
+    {
+        $eventId = (int) ($_GET['event_id'] ?? 0);
+        $deliveryId = (int) ($_GET['id'] ?? 0);
+        if ($eventId <= 0 || $deliveryId <= 0) {
+            Session::flash('error', 'Entrega invalida.');
+            Response::redirect('/delivery-events');
+        }
+
+        try {
+            $event = $this->model()->findById($eventId);
+            if ($event === null) {
+                Session::flash('error', 'Evento nao encontrado.');
+                Response::redirect('/delivery-events');
+            }
+            if ((string) ($event['status'] ?? '') === 'concluido') {
+                Session::flash('error', 'Evento concluido nao permite remover convidados.');
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            $delivery = $this->deliveryModel()->findById($deliveryId);
+            if ($delivery === null || (int) ($delivery['event_id'] ?? 0) !== $eventId) {
+                Session::flash('error', 'Registro de entrega nao encontrado.');
+                Response::redirect('/delivery-events/show?id=' . $eventId);
+            }
+
+            $this->deliveryModel()->delete($deliveryId);
+            $this->logDeliveryOperation(
+                'delivery.delete',
+                $deliveryId,
+                [
+                    'event_id' => $eventId,
+                    'ticket_number' => $delivery['ticket_number'] ?? null,
+                    'family_id' => $delivery['family_id'] ?? null,
+                    'person_id' => $delivery['person_id'] ?? null,
+                    'status' => $delivery['status'] ?? null,
+                ]
+            );
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao remover registro de entrega.');
+            Response::redirect('/delivery-events/show?id=' . $eventId);
+        }
+
+        Session::flash('success', 'Registro de entrega removido com sucesso.');
         Response::redirect('/delivery-events/show?id=' . $eventId);
     }
 

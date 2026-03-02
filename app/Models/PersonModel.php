@@ -24,13 +24,18 @@ final class PersonModel
         $q = trim((string) ($filters['q'] ?? ''));
         if ($q !== '') {
             $sql .= ' AND (
-                full_name LIKE :q
-                OR social_name LIKE :q
-                OR cpf LIKE :q
-                OR rg LIKE :q
-                OR stay_location LIKE :q
+                full_name LIKE :q_full_name
+                OR social_name LIKE :q_social_name
+                OR cpf LIKE :q_cpf
+                OR rg LIKE :q_rg
+                OR stay_location LIKE :q_stay
             )';
-            $params['q'] = '%' . $q . '%';
+            $like = '%' . $q . '%';
+            $params['q_full_name'] = $like;
+            $params['q_social_name'] = $like;
+            $params['q_cpf'] = $like;
+            $params['q_rg'] = $like;
+            $params['q_stay'] = $like;
         }
 
         $isHomeless = trim((string) ($filters['is_homeless'] ?? ''));
@@ -121,5 +126,10 @@ final class PersonModel
         );
         $stmt->execute($data);
     }
-}
 
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM people WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+}

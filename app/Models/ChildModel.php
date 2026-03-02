@@ -24,8 +24,10 @@ final class ChildModel
 
         $q = trim((string) ($filters['q'] ?? ''));
         if ($q !== '') {
-            $sql .= ' AND (c.name LIKE :q OR f.responsible_name LIKE :q)';
-            $params['q'] = '%' . $q . '%';
+            $sql .= ' AND (c.name LIKE :q_child OR f.responsible_name LIKE :q_family)';
+            $like = '%' . $q . '%';
+            $params['q_child'] = $like;
+            $params['q_family'] = $like;
         }
 
         $familyId = (int) ($filters['family_id'] ?? 0);

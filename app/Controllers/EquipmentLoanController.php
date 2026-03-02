@@ -212,6 +212,43 @@ final class EquipmentLoanController
         Response::redirect('/equipment-loans');
     }
 
+    public function delete(): void
+    {
+        $loanId = (int) ($_GET['id'] ?? 0);
+        if ($loanId <= 0) {
+            Session::flash('error', 'Emprestimo invalido.');
+            Response::redirect('/equipment-loans');
+        }
+
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        try {
+            $loan = $this->loanModel()->findById($loanId);
+            if ($loan === null) {
+                Session::flash('error', 'Emprestimo nao encontrado.');
+                Response::redirect('/equipment-loans');
+            }
+
+            $pdo->beginTransaction();
+            $this->loanModel()->delete($loanId);
+
+            if (($loan['return_date'] ?? null) === null) {
+                $this->equipmentModel()->updateStatus((int) $loan['equipment_id'], 'disponivel');
+            }
+
+            $pdo->commit();
+        } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            Session::flash('error', 'Falha ao remover emprestimo.');
+            Response::redirect('/equipment-loans');
+        }
+
+        Session::flash('success', 'Emprestimo removido com sucesso.');
+        Response::redirect('/equipment-loans');
+    }
+
     private function sanitizeLoanInput(array $post): array
     {
         return [
@@ -279,4 +316,3 @@ final class EquipmentLoanController
         return new PersonModel($pdo);
     }
 }
-

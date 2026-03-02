@@ -11,6 +11,7 @@ $referralFilters = is_array($referralFilters ?? null) ? $referralFilters : [];
 $spiritualFilters = is_array($spiritualFilters ?? null) ? $spiritualFilters : [];
 $referralForm = is_array($referralForm ?? null) ? $referralForm : [];
 $spiritualForm = is_array($spiritualForm ?? null) ? $spiritualForm : [];
+$recordEditMode = (bool) ($recordEditMode ?? false);
 $referralEditMode = (bool) ($referralEditMode ?? false);
 $spiritualEditMode = (bool) ($spiritualEditMode ?? false);
 $personId = (int) ($person['id'] ?? 0);
@@ -27,6 +28,9 @@ $displayName = (string) (($person['full_name'] ?? '') ?: ($person['social_name']
 <div class="d-flex flex-wrap gap-2 mb-3">
     <a class="btn btn-outline-secondary" href="/people">Voltar para lista</a>
     <a class="btn btn-outline-primary" href="/people/edit?id=<?= $personId ?>">Editar cadastro</a>
+    <form method="post" action="/people/delete?id=<?= $personId ?>" class="m-0" onsubmit="return confirm('Remover pessoa acompanhada e historico vinculado?');">
+        <button type="submit" class="btn btn-outline-danger">Remover pessoa</button>
+    </form>
 </div>
 
 <div class="row g-3 mb-3">
@@ -75,11 +79,13 @@ $displayName = (string) (($person['full_name'] ?? '') ?: ($person['social_name']
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="h5 mb-0">Novo atendimento (ficha social)</h2>
+                    <h2 class="h5 mb-0"><?= $recordEditMode ? 'Editar atendimento (ficha social)' : 'Novo atendimento (ficha social)' ?></h2>
                     <span class="badge text-bg-light border">Consentimento obrigatorio</span>
                 </div>
 
-                <form method="post" action="/people/social-records?person_id=<?= $personId ?>">
+                <form method="post" action="<?= $recordEditMode
+                    ? '/people/social-records/update?id=' . (int) ($recordForm['id'] ?? 0) . '&person_id=' . $personId
+                    : '/people/social-records?person_id=' . $personId ?>">
                     <input type="hidden" name="consent_text_version" value="<?= htmlspecialchars((string) ($recordForm['consent_text_version'] ?? 'v1.0'), ENT_QUOTES, 'UTF-8') ?>">
 
                     <div class="row g-3">
@@ -155,7 +161,10 @@ $displayName = (string) (($person['full_name'] ?? '') ?: ($person['social_name']
                     </div>
 
                     <div class="mt-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-teal text-white">Registrar atendimento</button>
+                        <button type="submit" class="btn btn-teal text-white"><?= $recordEditMode ? 'Salvar atendimento' : 'Registrar atendimento' ?></button>
+                        <?php if ($recordEditMode) : ?>
+                            <a class="btn btn-outline-secondary" href="/people/show?id=<?= $personId ?>">Cancelar edicao</a>
+                        <?php endif; ?>
                     </div>
                 </form>
             </div>
@@ -208,6 +217,12 @@ $displayName = (string) (($person['full_name'] ?? '') ?: ($person['social_name']
                         <?php if (!empty($record['notes'])) : ?>
                             <div class="small"><strong>Observacoes:</strong> <?= nl2br(htmlspecialchars((string) $record['notes'], ENT_QUOTES, 'UTF-8')) ?></div>
                         <?php endif; ?>
+                        <div class="d-flex gap-2 mt-2">
+                            <a class="btn btn-sm btn-outline-secondary" href="/people/show?id=<?= $personId ?>&record_edit=<?= (int) ($record['id'] ?? 0) ?>">Editar</a>
+                            <form method="post" action="/people/social-records/delete?id=<?= (int) ($record['id'] ?? 0) ?>&person_id=<?= $personId ?>" class="m-0" onsubmit="return confirm('Remover atendimento social e encaminhamentos vinculados?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                            </form>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>

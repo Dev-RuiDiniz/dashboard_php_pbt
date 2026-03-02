@@ -25,6 +25,9 @@ $addressLine = implode(' / ', array_filter([
 <div class="d-flex flex-wrap gap-2 mb-3">
     <a class="btn btn-outline-secondary" href="/families">Voltar para lista</a>
     <a class="btn btn-outline-primary" href="/families/edit?id=<?= $familyId ?>">Editar familia</a>
+    <form method="post" action="/families/delete?id=<?= $familyId ?>" class="m-0" onsubmit="return confirm('Remover familia? Esta acao exclui membros e criancas vinculados.');">
+        <button type="submit" class="btn btn-outline-danger">Remover familia</button>
+    </form>
 </div>
 
 <div class="row g-3 mb-3">

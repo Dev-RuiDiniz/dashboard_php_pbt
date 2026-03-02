@@ -286,6 +286,9 @@ $filterSuffix = $filterQuery !== '' ? '&' . $filterQuery : '';
                                         <?php if ($isConcluded) : ?>
                                             <span class="text-secondary small">Evento concluido</span>
                                         <?php else : ?>
+                                            <form method="post" action="/delivery-events/deliveries/delete?id=<?= $deliveryId ?>&event_id=<?= $eventId ?>" class="mb-2" onsubmit="return confirm('Remover este convidado da lista operacional?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                                            </form>
                                             <form method="post" action="/delivery-events/deliveries/status?id=<?= $deliveryId ?>&event_id=<?= $eventId ?>" class="vstack gap-2">
                                                 <input type="hidden" name="target_status" value="presente">
                                                 <?php if ($status === 'nao_veio') : ?>

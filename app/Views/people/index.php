@@ -95,6 +95,9 @@ $filters = is_array($filters ?? null) ? $filters : [];
                             <div class="d-flex flex-wrap gap-2">
                                 <a class="btn btn-sm btn-outline-primary" href="/people/show?id=<?= $id ?>">Detalhe</a>
                                 <a class="btn btn-sm btn-outline-secondary" href="/people/edit?id=<?= $id ?>">Editar</a>
+                                <form method="post" action="/people/delete?id=<?= $id ?>" class="m-0" onsubmit="return confirm('Remover pessoa acompanhada e historico vinculado?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                                </form>
                             </div>
                         </td>
                     </tr>

@@ -66,6 +66,9 @@ $auth = is_array($authUser ?? null) ? $authUser : [];
                                                 <?= $isActive ? 'Desativar' : 'Ativar' ?>
                                             </button>
                                         </form>
+                                        <form method="post" action="/users/delete?id=<?= $id ?>" class="m-0" onsubmit="return confirm('Excluir usuario permanentemente?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                                        </form>
                                     <?php else : ?>
                                         <span class="small text-secondary align-self-center">(voce)</span>
                                     <?php endif; ?>

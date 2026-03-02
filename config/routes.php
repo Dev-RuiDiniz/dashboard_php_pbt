@@ -206,6 +206,12 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->post('/families/delete', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->delete();
+        });
+    });
+
     $router->post('/families/members', static function () use ($container, $familyManage): void {
         $familyManage(static function () use ($container): void {
             (new FamilyController($container))->storeMember();
@@ -302,9 +308,27 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->post('/people/delete', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->delete();
+        });
+    });
+
     $router->post('/people/social-records', static function () use ($container, $personManage): void {
         $personManage(static function () use ($container): void {
             (new PersonController($container))->storeSocialRecord();
+        });
+    });
+
+    $router->post('/people/social-records/update', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->updateSocialRecord();
+        });
+    });
+
+    $router->post('/people/social-records/delete', static function () use ($container, $personManage): void {
+        $personManage(static function () use ($container): void {
+            (new PersonController($container))->deleteSocialRecord();
         });
     });
 
@@ -380,9 +404,21 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->post('/delivery-events/delete', static function () use ($container, $deliveryManage): void {
+        $deliveryManage(static function () use ($container): void {
+            (new DeliveryEventController($container))->delete();
+        });
+    });
+
     $router->post('/delivery-events/deliveries', static function () use ($container, $deliveryManage): void {
         $deliveryManage(static function () use ($container): void {
             (new DeliveryEventController($container))->storeDelivery();
+        });
+    });
+
+    $router->post('/delivery-events/deliveries/delete', static function () use ($container, $deliveryManage): void {
+        $deliveryManage(static function () use ($container): void {
+            (new DeliveryEventController($container))->deleteDelivery();
         });
     });
 
@@ -473,6 +509,12 @@ return static function (Router $router, Container $container): void {
     $router->post('/equipment-loans/return', static function () use ($container, $equipmentManage): void {
         $equipmentManage(static function () use ($container): void {
             (new EquipmentLoanController($container))->returnLoan();
+        });
+    });
+
+    $router->post('/equipment-loans/delete', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentLoanController($container))->delete();
         });
     });
 
@@ -581,6 +623,12 @@ return static function (Router $router, Container $container): void {
     $router->post('/users/toggle', static function () use ($container, $adminOnly): void {
         $adminOnly(static function () use ($container): void {
             (new UserController($container))->toggleActive();
+        });
+    });
+
+    $router->post('/users/delete', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
+            (new UserController($container))->delete();
         });
     });
 };

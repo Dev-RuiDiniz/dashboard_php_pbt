@@ -261,6 +261,52 @@ final class UserController
         Response::redirect('/users');
     }
 
+    public function delete(): void
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            Session::flash('error', 'Usuario invalido.');
+            Response::redirect('/users');
+        }
+
+        try {
+            $userModel = $this->userModel();
+            $user = $userModel->findById($id);
+            if ($user === null) {
+                Session::flash('error', 'Usuario nao encontrado.');
+                Response::redirect('/users');
+            }
+
+            $authUser = Session::get('auth_user', []);
+            $authUserId = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : 0;
+            if ($authUserId === $id) {
+                Session::flash('error', 'Nao e permitido excluir o proprio usuario.');
+                Response::redirect('/users');
+            }
+
+            if (
+                (string) ($user['role'] ?? '') === 'admin'
+                && (int) ($user['is_active'] ?? 0) === 1
+                && $userModel->countActiveAdmins() <= 1
+            ) {
+                Session::flash('error', 'Nao e permitido excluir o ultimo admin ativo.');
+                Response::redirect('/users');
+            }
+
+            $userModel->delete($id);
+            $this->audit()->log('user.delete', 'users', $id, $authUserId > 0 ? $authUserId : null, [
+                'email' => $user['email'] ?? null,
+                'role' => $user['role'] ?? null,
+            ]);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao excluir usuario. Verifique se existem registros vinculados a este usuario.');
+            Response::redirect('/users');
+        }
+
+        Session::flash('success', 'Usuario removido com sucesso.');
+        Response::redirect('/users');
+    }
+
     private function renderForm(array $payload): void
     {
         View::render('users.form', [

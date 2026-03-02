@@ -93,5 +93,11 @@ final class DeliveryEventModel
             'status' => $status,
         ]);
     }
+
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM delivery_events WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
 }
 

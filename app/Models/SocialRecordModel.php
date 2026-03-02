@@ -107,6 +107,41 @@ final class SocialRecordModel
         return is_array($row) ? $row : null;
     }
 
+    public function update(int $id, int $personId, array $data): void
+    {
+        $data['id'] = $id;
+        $data['person_id'] = $personId;
+
+        $stmt = $this->pdo->prepare(
+            'UPDATE social_records
+             SET family_id = :family_id,
+                 chronic_diseases = :chronic_diseases,
+                 continuous_medication = :continuous_medication,
+                 substance_use = :substance_use,
+                 disability = :disability,
+                 immediate_needs = :immediate_needs,
+                 spiritual_wants_prayer = :spiritual_wants_prayer,
+                 spiritual_accepts_visit = :spiritual_accepts_visit,
+                 church_name = :church_name,
+                 spiritual_decision = :spiritual_decision,
+                 notes = :notes,
+                 consent_text_version = :consent_text_version,
+                 consent_name = :consent_name,
+                 consent_at = :consent_at
+             WHERE id = :id AND person_id = :person_id'
+        );
+        $stmt->execute($data);
+    }
+
+    public function delete(int $id, int $personId): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM social_records WHERE id = :id AND person_id = :person_id');
+        $stmt->execute([
+            'id' => $id,
+            'person_id' => $personId,
+        ]);
+    }
+
     private function buildFilterWhere(array $filters): array
     {
         $where = ' WHERE 1=1';
@@ -115,12 +150,16 @@ final class SocialRecordModel
         $q = trim((string) ($filters['q'] ?? ''));
         if ($q !== '') {
             $where .= ' AND (
-                p.full_name LIKE :q
-                OR p.social_name LIKE :q
-                OR sr.consent_name LIKE :q
-                OR sr.immediate_needs LIKE :q
+                p.full_name LIKE :q_full_name
+                OR p.social_name LIKE :q_social_name
+                OR sr.consent_name LIKE :q_consent
+                OR sr.immediate_needs LIKE :q_needs
             )';
-            $params['q'] = '%' . $q . '%';
+            $like = '%' . $q . '%';
+            $params['q_full_name'] = $like;
+            $params['q_social_name'] = $like;
+            $params['q_consent'] = $like;
+            $params['q_needs'] = $like;
         }
 
         $dateFrom = trim((string) ($filters['date_from'] ?? ''));

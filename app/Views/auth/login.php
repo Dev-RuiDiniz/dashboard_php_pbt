@@ -52,10 +52,7 @@ declare(strict_types=1);
                             <a href="/forgot-password" class="small">Esqueci minha senha</a>
                         </div>
 
-                        <div class="mt-4 small text-secondary">
-                            Seed admin inicial: <code>admin@igrejasocial.local</code> / <code>admin123</code>
-                        </div>
-                        <?php if (!empty($resetHint)) : ?>
+                        <?php if (!empty($showResetHint) && !empty($resetHint)) : ?>
                             <div class="mt-2 small">
                                 <strong>Dev token:</strong> <code><?= htmlspecialchars((string) $resetHint, ENT_QUOTES, 'UTF-8') ?></code>
                             </div>

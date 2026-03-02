@@ -30,6 +30,7 @@ final class AuthController
             'success' => Session::consumeFlash('success'),
             'oldEmail' => (string) Session::consumeFlash('old_email', ''),
             'resetHint' => (string) Session::consumeFlash('reset_hint', ''),
+            'showResetHint' => $this->isDebugEnvironment(),
         ]);
     }
 
@@ -103,7 +104,7 @@ final class AuthController
 
         try {
             $token = $this->authService()->requestPasswordReset($email);
-            if ($token !== null) {
+            if ($token !== null && $this->isDebugEnvironment()) {
                 Session::flash('reset_hint', 'Token de recuperacao (ambiente local): ' . $token);
             }
         } catch (Throwable $exception) {
@@ -186,5 +187,14 @@ final class AuthController
             (int) ($authConfig['lock_minutes'] ?? 15),
             (int) ($authConfig['reset_token_ttl_minutes'] ?? 60)
         );
+    }
+
+    private function isDebugEnvironment(): bool
+    {
+        $app = $this->container->get('config')['app'] ?? [];
+        $env = strtolower((string) ($app['env'] ?? 'production'));
+        $debug = (bool) ($app['debug'] ?? false);
+
+        return $debug || $env === 'local' || $env === 'development';
     }
 }
