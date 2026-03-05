@@ -52,3 +52,10 @@
 - [ ] Registrar data/hora da publicacao.
 - [ ] Compartilhar credenciais operacionais com equipe responsavel.
 - [ ] Definir rotina de backup diario do banco.
+
+## 10) Parametros atuais Hostinger (referencia operacional)
+- Servidor MySQL: `127.0.0.1`
+- Porta MySQL: `3306`
+- Banco de dados: `u843233410_pbitaubate`
+- Usuario MySQL: `u843233410_pbitauabate`
+- Senha: manter apenas no `.env` de producao (nao versionar em git).

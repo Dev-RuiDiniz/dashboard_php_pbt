@@ -54,8 +54,8 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 
 ## Perfis de acesso (RBAC)
 - `admin`: acesso total
-- `voluntario`: operacao social + gestao operacional
-- `pastoral`: leitura geral + gestao de pessoas e visitas
+- `voluntario`: operacao social + gestao operacional (sem modulo de pessoas/fichas sociais)
+- `pastoral`: leitura geral + gestao de visitas (sem modulo de pessoas/fichas sociais)
 - `viewer`: somente leitura
 
 ## Rotas principais
@@ -63,8 +63,8 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 - `/dashboard`
 - `/families`
 - `/children`
-- `/people`
-- `/social-records`
+- `/people` (admin)
+- `/social-records` (admin)
 - `/delivery-events`
 - `/equipment`
 - `/equipment-loans`

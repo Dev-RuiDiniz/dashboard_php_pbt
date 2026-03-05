@@ -55,18 +55,6 @@ return static function (Router $router, Container $container): void {
         });
     };
 
-    $personView = static function (callable $action): void {
-        (new AuthMiddleware())->handle(static function () use ($action): void {
-            (new PermissionMiddleware())->handle('people.view', $action);
-        });
-    };
-
-    $personManage = static function (callable $action): void {
-        (new AuthMiddleware())->handle(static function () use ($action): void {
-            (new PermissionMiddleware())->handle('people.manage', $action);
-        });
-    };
-
     $deliveryView = static function (callable $action): void {
         (new AuthMiddleware())->handle(static function () use ($action): void {
             (new PermissionMiddleware())->handle('deliveries.view', $action);
@@ -266,104 +254,104 @@ return static function (Router $router, Container $container): void {
         });
     });
 
-    $router->get('/people', static function () use ($container, $personView): void {
-        $personView(static function () use ($container): void {
+    $router->get('/people', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->index();
         });
     });
 
-    $router->get('/social-records', static function () use ($container, $personView): void {
-        $personView(static function () use ($container): void {
+    $router->get('/social-records', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new SocialRecordController($container))->index();
         });
     });
 
-    $router->get('/people/show', static function () use ($container, $personView): void {
-        $personView(static function () use ($container): void {
+    $router->get('/people/show', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->show();
         });
     });
 
-    $router->get('/people/create', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->get('/people/create', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->create();
         });
     });
 
-    $router->post('/people', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->store();
         });
     });
 
-    $router->get('/people/edit', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->get('/people/edit', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->edit();
         });
     });
 
-    $router->post('/people/update', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/update', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->update();
         });
     });
 
-    $router->post('/people/delete', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/delete', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->delete();
         });
     });
 
-    $router->post('/people/social-records', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/social-records', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->storeSocialRecord();
         });
     });
 
-    $router->post('/people/social-records/update', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/social-records/update', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->updateSocialRecord();
         });
     });
 
-    $router->post('/people/social-records/delete', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/social-records/delete', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->deleteSocialRecord();
         });
     });
 
-    $router->post('/people/referrals', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/referrals', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->storeReferral();
         });
     });
 
-    $router->post('/people/referrals/update', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/referrals/update', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->updateReferral();
         });
     });
 
-    $router->post('/people/referrals/delete', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/referrals/delete', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->deleteReferral();
         });
     });
 
-    $router->post('/people/spiritual-followups', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/spiritual-followups', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->storeSpiritualFollowup();
         });
     });
 
-    $router->post('/people/spiritual-followups/update', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/spiritual-followups/update', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->updateSpiritualFollowup();
         });
     });
 
-    $router->post('/people/spiritual-followups/delete', static function () use ($container, $personManage): void {
-        $personManage(static function () use ($container): void {
+    $router->post('/people/spiritual-followups/delete', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new PersonController($container))->deleteSpiritualFollowup();
         });
     });

@@ -35,7 +35,11 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
             <div class="card-body">
                 <div class="text-secondary small text-uppercase">Pessoas acompanhadas</div>
                 <div class="metric-value"><?= (int) ($peopleSummary['total_people'] ?? 0) ?></div>
-                <div class="small text-secondary">Rua: <?= (int) ($peopleSummary['homeless_people'] ?? 0) ?></div>
+                <?php if ($userRole === 'admin') : ?>
+                    <div class="small text-secondary">Rua: <?= (int) ($peopleSummary['homeless_people'] ?? 0) ?></div>
+                <?php else : ?>
+                    <div class="small text-secondary">Detalhes restritos ao admin</div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -207,8 +211,10 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
         <h2 class="h6 text-uppercase text-secondary mb-3">Acoes rapidas</h2>
         <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-outline-secondary" href="/families/create">Nova familia</a>
-            <a class="btn btn-outline-secondary" href="/people/create">Novo atendimento</a>
-            <a class="btn btn-outline-secondary" href="/social-records">Fichas sociais</a>
+            <?php if ($userRole === 'admin') : ?>
+                <a class="btn btn-outline-secondary" href="/people/create">Novo atendimento</a>
+                <a class="btn btn-outline-secondary" href="/social-records">Fichas sociais</a>
+            <?php endif; ?>
             <a class="btn btn-outline-secondary" href="/delivery-events/create">Criar evento de entrega</a>
             <a class="btn btn-outline-secondary" href="/equipment-loans">Registrar emprestimo</a>
             <a class="btn btn-outline-secondary" href="/visits/create">Solicitar visita</a>

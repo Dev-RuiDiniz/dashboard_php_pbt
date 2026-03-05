@@ -32,6 +32,7 @@ Este diretorio contem o historico separado de cada sprint concluida no projeto.
 - [Sprint 28](sprints/sprint-28.md)
 - [Sprint 29](sprints/sprint-29.md)
 - [Sprint 30](sprints/sprint-30.md)
+- [Sprint 31](sprints/sprint-31.md)
 
 ## Operacao e Deploy
 - [Deploy Hostinger - Checklist](DEPLOY_HOSTINGER_CHECKLIST.md)

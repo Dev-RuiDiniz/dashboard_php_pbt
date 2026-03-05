@@ -19,9 +19,9 @@ Regras obrigatorias:
 - Manter apenas usuarios reais e desativar seeds apos onboarding.
 
 ## 3) Perfis e permissoes
-- `admin`: acesso total (inclusive gestao de usuarios).
-- `voluntario`: gestao de familias, criancas, pessoas, entregas, equipamentos, visitas e leitura de relatorios.
-- `pastoral`: leitura geral + gestao de pessoas e visitas.
+- `admin`: acesso total (inclusive gestao de usuarios e modulo de pessoas/fichas sociais com dados de moradores de rua).
+- `voluntario`: gestao de familias, criancas, entregas, equipamentos, visitas e leitura de relatorios.
+- `pastoral`: leitura geral dos modulos permitidos + gestao de visitas.
 - `viewer`: somente consulta (sem cadastros/edicoes).
 
 ## 4) Como o sistema funciona (fluxo diario)
@@ -51,7 +51,7 @@ Regras obrigatorias:
 - Editar crianca.
 - Excluir crianca.
 
-### 5.4 Pessoas acompanhadas e ficha social
+### 5.4 Pessoas acompanhadas e ficha social (somente admin)
 - Listar pessoas.
 - Cadastrar pessoa acompanhada.
 - Editar cadastro.
@@ -132,7 +132,8 @@ Regras obrigatorias:
 - Dashboard: `/dashboard`
 - Familias: `/families`
 - Criancas: `/children`
-- Pessoas: `/people`
+- Pessoas (somente admin): `/people`
+- Fichas sociais (somente admin): `/social-records`
 - Entregas: `/delivery-events`
 - Equipamentos: `/equipment`
 - Emprestimos: `/equipment-loans`

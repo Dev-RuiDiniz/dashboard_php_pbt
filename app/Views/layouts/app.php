@@ -12,8 +12,6 @@ $menu = [
     ['key' => 'dashboard', 'label' => 'Dashboard', 'href' => '/dashboard', 'icon' => 'grid'],
     ['key' => 'familias', 'label' => 'Familias', 'href' => '/families', 'icon' => 'people'],
     ['key' => 'criancas', 'label' => 'Criancas', 'href' => '/children', 'icon' => 'balloon-heart'],
-    ['key' => 'pessoas', 'label' => 'Pessoas', 'href' => '/people', 'icon' => 'person-lines-fill'],
-    ['key' => 'fichas', 'label' => 'Fichas Sociais', 'href' => '/social-records', 'icon' => 'clipboard2-heart'],
     ['key' => 'entregas', 'label' => 'Entregas', 'href' => '/delivery-events', 'icon' => 'box-seam'],
     ['key' => 'equipamentos', 'label' => 'Equipamentos', 'href' => '/equipment', 'icon' => 'wheelchair'],
     ['key' => 'visitas', 'label' => 'Visitas', 'href' => '/visits', 'icon' => 'house-heart'],
@@ -21,6 +19,8 @@ $menu = [
 ];
 
 if ($layoutUserRole === 'admin') {
+    $menu[] = ['key' => 'pessoas', 'label' => 'Pessoas', 'href' => '/people', 'icon' => 'person-lines-fill'];
+    $menu[] = ['key' => 'fichas', 'label' => 'Fichas Sociais', 'href' => '/social-records', 'icon' => 'clipboard2-heart'];
     $menu[] = ['key' => 'users', 'label' => 'Usuarios', 'href' => '/users', 'icon' => 'person-gear'];
 }
 ?>
