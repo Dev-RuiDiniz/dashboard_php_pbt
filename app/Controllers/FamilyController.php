@@ -52,6 +52,7 @@ final class FamilyController
         'afastado' => 'Afastado(a)',
         'do_lar' => 'Do lar',
     ];
+    private const PERSON_TYPES = ['member', 'dependent', 'child'];
 
     public function __construct(private readonly Container $container)
     {
@@ -267,6 +268,7 @@ final class FamilyController
             Response::redirect('/families');
         }
 
+        $requestedPersonType = $this->sanitizePersonType((string) ($_GET['person_type'] ?? ''));
         $memberEditId = (int) ($_GET['member_edit'] ?? 0);
         $memberEdit = null;
         if ($memberEditId > 0) {
@@ -279,7 +281,8 @@ final class FamilyController
         }
 
         $memberOld = Session::consumeFlash('member_form_old');
-        if (is_array($memberOld)) {
+        $hasMemberOld = is_array($memberOld);
+        if ($hasMemberOld) {
             $memberEdit = array_merge($this->defaultMemberFormData($familyId), $memberOld);
         }
 
@@ -295,9 +298,26 @@ final class FamilyController
         }
 
         $childOld = Session::consumeFlash('child_form_old');
-        if (is_array($childOld)) {
+        $hasChildOld = is_array($childOld);
+        if ($hasChildOld) {
             $childEdit = array_merge($this->defaultChildFormData($familyId), $childOld);
         }
+
+        $memberForm = $memberEdit ?? $this->defaultMemberFormData($familyId);
+        $childForm = $childEdit ?? $this->defaultChildFormData($familyId);
+        $memberEditMode = $memberEdit !== null && isset($memberEdit['id']);
+        $childEditMode = $childEdit !== null && isset($childEdit['id']);
+
+        $personType = 'member';
+        if ($childEditMode || $hasChildOld) {
+            $personType = 'child';
+        } elseif ($memberEditMode || $hasMemberOld) {
+            $personType = $this->resolveMemberPersonType($memberForm);
+        } elseif ($requestedPersonType !== '') {
+            $personType = $requestedPersonType;
+        }
+
+        $openPersonForm = $memberEditMode || $childEditMode || $hasMemberOld || $hasChildOld || $requestedPersonType !== '';
 
         View::render('families.show', [
             '_layout' => 'layouts.app',
@@ -308,10 +328,12 @@ final class FamilyController
             'family' => $family,
             'members' => $members,
             'children' => $children,
-            'memberForm' => $memberEdit ?? $this->defaultMemberFormData($familyId),
-            'memberEditMode' => $memberEdit !== null && isset($memberEdit['id']),
-            'childForm' => $childEdit ?? $this->defaultChildFormData($familyId),
-            'childEditMode' => $childEdit !== null && isset($childEdit['id']),
+            'memberForm' => $memberForm,
+            'memberEditMode' => $memberEditMode,
+            'childForm' => $childForm,
+            'childEditMode' => $childEditMode,
+            'personType' => $personType,
+            'openPersonForm' => $openPersonForm,
             'success' => Session::consumeFlash('success'),
             'error' => Session::consumeFlash('error'),
         ]);
@@ -326,11 +348,13 @@ final class FamilyController
         }
 
         $input = $this->sanitizeMemberInput($_POST, $familyId);
+        $this->applyMemberPersonTypeRules($input);
+        $personType = (string) ($input['person_type'] ?? 'member');
         $error = $this->validateMemberInput($input);
         if ($error !== null) {
             Session::flash('error', $error);
             Session::flash('member_form_old', $input);
-            Response::redirect('/families/show?id=' . $familyId);
+            Response::redirect($this->familyShowUrl($familyId, $personType));
         }
 
         try {
@@ -344,11 +368,11 @@ final class FamilyController
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao adicionar membro.');
             Session::flash('member_form_old', $input);
-            Response::redirect('/families/show?id=' . $familyId);
+            Response::redirect($this->familyShowUrl($familyId, $personType));
         }
 
-        Session::flash('success', 'Membro adicionado com sucesso.');
-        Response::redirect('/families/show?id=' . $familyId);
+        Session::flash('success', $personType === 'dependent' ? 'Dependente adicionado com sucesso.' : 'Membro adicionado com sucesso.');
+        Response::redirect($this->familyShowUrl($familyId, $personType));
     }
 
     public function updateMember(): void
@@ -361,19 +385,21 @@ final class FamilyController
         }
 
         $input = $this->sanitizeMemberInput($_POST, $familyId);
+        $this->applyMemberPersonTypeRules($input);
+        $personType = (string) ($input['person_type'] ?? 'member');
         $error = $this->validateMemberInput($input);
         if ($error !== null) {
             Session::flash('error', $error);
             $input['id'] = $memberId;
             Session::flash('member_form_old', $input);
-            Response::redirect('/families/show?id=' . $familyId . '&member_edit=' . $memberId);
+            Response::redirect($this->familyShowUrl($familyId, $personType, ['member_edit' => $memberId]));
         }
 
         try {
             $member = $this->familyModel()->findMemberById($memberId);
             if ($member === null || (int) ($member['family_id'] ?? 0) !== $familyId) {
                 Session::flash('error', 'Membro nao encontrado.');
-                Response::redirect('/families/show?id=' . $familyId);
+                Response::redirect($this->familyShowUrl($familyId, $personType));
             }
 
             $this->familyModel()->updateMember($memberId, $this->toMemberPersistenceData($input));
@@ -382,32 +408,44 @@ final class FamilyController
             Session::flash('error', 'Falha ao atualizar membro.');
             $input['id'] = $memberId;
             Session::flash('member_form_old', $input);
-            Response::redirect('/families/show?id=' . $familyId . '&member_edit=' . $memberId);
+            Response::redirect($this->familyShowUrl($familyId, $personType, ['member_edit' => $memberId]));
         }
 
-        Session::flash('success', 'Membro atualizado com sucesso.');
-        Response::redirect('/families/show?id=' . $familyId);
+        Session::flash('success', $personType === 'dependent' ? 'Dependente atualizado com sucesso.' : 'Membro atualizado com sucesso.');
+        Response::redirect($this->familyShowUrl($familyId, $personType));
     }
 
     public function deleteMember(): void
     {
         $familyId = (int) ($_GET['family_id'] ?? 0);
         $memberId = (int) ($_GET['id'] ?? 0);
+        $personType = $this->sanitizePersonType((string) ($_GET['person_type'] ?? ''));
         if ($familyId <= 0 || $memberId <= 0) {
             Session::flash('error', 'Membro invalido.');
             Response::redirect('/families');
         }
 
         try {
+            if ($personType === '') {
+                $member = $this->familyModel()->findMemberById($memberId);
+                if ($member !== null) {
+                    $personType = $this->resolveMemberPersonType($member);
+                }
+            }
+
             $this->familyModel()->deleteMember($memberId, $familyId);
             $this->familyModel()->recalculateFamilyIndicators($familyId);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao remover membro.');
-            Response::redirect('/families/show?id=' . $familyId);
+            Response::redirect($this->familyShowUrl($familyId, $personType === '' ? 'member' : $personType));
         }
 
-        Session::flash('success', 'Membro removido com sucesso.');
-        Response::redirect('/families/show?id=' . $familyId);
+        if ($personType === '') {
+            $personType = 'member';
+        }
+
+        Session::flash('success', $personType === 'dependent' ? 'Dependente removido com sucesso.' : 'Membro removido com sucesso.');
+        Response::redirect($this->familyShowUrl($familyId, $personType));
     }
 
     public function storeChild(): void
@@ -423,7 +461,7 @@ final class FamilyController
         if ($error !== null) {
             Session::flash('error', $error);
             Session::flash('child_form_old', $input);
-            Response::redirect('/families/show?id=' . $familyId);
+            Response::redirect($this->familyShowUrl($familyId, 'child'));
         }
 
         try {
@@ -437,11 +475,11 @@ final class FamilyController
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao adicionar crianca.');
             Session::flash('child_form_old', $input);
-            Response::redirect('/families/show?id=' . $familyId);
+            Response::redirect($this->familyShowUrl($familyId, 'child'));
         }
 
         Session::flash('success', 'Crianca adicionada com sucesso.');
-        Response::redirect('/families/show?id=' . $familyId);
+        Response::redirect($this->familyShowUrl($familyId, 'child'));
     }
 
     public function updateChild(): void
@@ -459,14 +497,14 @@ final class FamilyController
             Session::flash('error', $error);
             $input['id'] = $childId;
             Session::flash('child_form_old', $input);
-            Response::redirect('/families/show?id=' . $familyId . '&child_edit=' . $childId);
+            Response::redirect($this->familyShowUrl($familyId, 'child', ['child_edit' => $childId]));
         }
 
         try {
             $child = $this->childModel()->findById($childId);
             if ($child === null || (int) ($child['family_id'] ?? 0) !== $familyId) {
                 Session::flash('error', 'Crianca nao encontrada.');
-                Response::redirect('/families/show?id=' . $familyId);
+                Response::redirect($this->familyShowUrl($familyId, 'child'));
             }
 
             $this->childModel()->update($childId, $this->toChildPersistenceData($input));
@@ -475,11 +513,11 @@ final class FamilyController
             Session::flash('error', 'Falha ao atualizar crianca.');
             $input['id'] = $childId;
             Session::flash('child_form_old', $input);
-            Response::redirect('/families/show?id=' . $familyId . '&child_edit=' . $childId);
+            Response::redirect($this->familyShowUrl($familyId, 'child', ['child_edit' => $childId]));
         }
 
         Session::flash('success', 'Crianca atualizada com sucesso.');
-        Response::redirect('/families/show?id=' . $familyId);
+        Response::redirect($this->familyShowUrl($familyId, 'child'));
     }
 
     public function deleteChild(): void
@@ -495,18 +533,18 @@ final class FamilyController
             $child = $this->childModel()->findById($childId);
             if ($child === null || (int) ($child['family_id'] ?? 0) !== $familyId) {
                 Session::flash('error', 'Crianca nao encontrada.');
-                Response::redirect('/families/show?id=' . $familyId);
+                Response::redirect($this->familyShowUrl($familyId, 'child'));
             }
 
             $this->childModel()->delete($childId);
             $this->familyModel()->recalculateFamilyIndicators($familyId);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao remover crianca.');
-            Response::redirect('/families/show?id=' . $familyId);
+            Response::redirect($this->familyShowUrl($familyId, 'child'));
         }
 
         Session::flash('success', 'Crianca removida com sucesso.');
-        Response::redirect('/families/show?id=' . $familyId);
+        Response::redirect($this->familyShowUrl($familyId, 'child'));
     }
 
     private function renderForm(string $mode, array $family): void
@@ -746,6 +784,7 @@ final class FamilyController
             'birth_date' => '',
             'works' => 0,
             'income' => '0.00',
+            'person_type' => 'member',
         ];
     }
 
@@ -758,6 +797,7 @@ final class FamilyController
             'age_years' => '',
             'relationship' => '',
             'notes' => '',
+            'person_type' => 'child',
         ];
     }
 
@@ -770,6 +810,7 @@ final class FamilyController
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
             'works' => isset($post['works']) ? 1 : 0,
             'income' => $this->sanitizeMoney((string) ($post['income'] ?? '0')),
+            'person_type' => $this->sanitizePersonType((string) ($post['person_type'] ?? ''), 'member'),
         ];
     }
 
@@ -783,6 +824,7 @@ final class FamilyController
             'age_years' => $age === '' ? null : max(0, (int) $age),
             'relationship' => trim((string) ($post['relationship'] ?? '')),
             'notes' => trim((string) ($post['notes'] ?? '')),
+            'person_type' => 'child',
         ];
     }
 
@@ -881,5 +923,66 @@ final class FamilyController
 
         $baseOptions[$selectedValue] = 'Legado: ' . $selectedValue;
         return $baseOptions;
+    }
+
+    private function sanitizePersonType(string $value, string $default = ''): string
+    {
+        $value = strtolower(trim($value));
+        if (in_array($value, self::PERSON_TYPES, true)) {
+            return $value;
+        }
+
+        return $default;
+    }
+
+    private function resolveMemberPersonType(array $input): string
+    {
+        $personType = $this->sanitizePersonType((string) ($input['person_type'] ?? ''));
+        if ($personType === 'dependent') {
+            return 'dependent';
+        }
+
+        if ($this->isDependentRelationship((string) ($input['relationship'] ?? ''))) {
+            return 'dependent';
+        }
+
+        return 'member';
+    }
+
+    private function applyMemberPersonTypeRules(array &$input): void
+    {
+        $personType = $this->sanitizePersonType((string) ($input['person_type'] ?? ''), 'member');
+        if ($personType !== 'dependent') {
+            $personType = 'member';
+        }
+
+        $input['person_type'] = $personType;
+        if ($personType === 'dependent') {
+            $input['relationship'] = 'Dependente';
+        }
+    }
+
+    private function isDependentRelationship(string $relationship): bool
+    {
+        return strtolower(trim($relationship)) === 'dependente';
+    }
+
+    private function familyShowUrl(int $familyId, string $personType = '', array $extra = []): string
+    {
+        $query = ['id' => $familyId];
+        $sanitizedPersonType = $this->sanitizePersonType($personType);
+        if ($sanitizedPersonType !== '') {
+            $query['person_type'] = $sanitizedPersonType;
+        }
+
+        foreach ($extra as $key => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $query[$key] = $value;
+        }
+
+        return '/families/show?' . http_build_query($query);
     }
 }
