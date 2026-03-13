@@ -112,6 +112,13 @@ final class FamilyController
             Response::redirect('/families/create');
         }
 
+        $controlledError = $this->validateControlledFields($input, null);
+        if ($controlledError !== null) {
+            Session::flash('error', $controlledError);
+            Session::flash('form_old', $input);
+            Response::redirect('/families/create');
+        }
+
         $cpfError = $this->validateCpfAndDuplicate($input, null);
         if ($cpfError !== null) {
             Session::flash('error', $cpfError);
@@ -175,6 +182,25 @@ final class FamilyController
             Response::redirect('/families/edit?id=' . $id);
         }
 
+        try {
+            $existingFamily = $this->familyModel()->findById($id);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao carregar familia.');
+            Response::redirect('/families');
+        }
+
+        if ($existingFamily === null) {
+            Session::flash('error', 'Familia nao encontrada.');
+            Response::redirect('/families');
+        }
+
+        $controlledError = $this->validateControlledFields($input, $existingFamily);
+        if ($controlledError !== null) {
+            Session::flash('error', $controlledError);
+            Session::flash('form_old', $input);
+            Response::redirect('/families/edit?id=' . $id);
+        }
+
         $cpfError = $this->validateCpfAndDuplicate($input, $id);
         if ($cpfError !== null) {
             Session::flash('error', $cpfError);
@@ -183,11 +209,6 @@ final class FamilyController
         }
 
         try {
-            if ($this->familyModel()->findById($id) === null) {
-                Session::flash('error', 'Familia nao encontrada.');
-                Response::redirect('/families');
-            }
-
             $this->familyModel()->update($id, $this->toPersistenceData($input));
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao atualizar familia.');
@@ -440,9 +461,9 @@ final class FamilyController
         return [
             'responsible_name' => trim((string) ($post['responsible_name'] ?? '')),
             'cpf_responsible' => trim((string) ($post['cpf_responsible'] ?? '')),
-            'rg_responsible' => trim((string) ($post['rg_responsible'] ?? '')),
+            'rg_responsible' => $this->sanitizeRg((string) ($post['rg_responsible'] ?? '')),
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
-            'phone' => trim((string) ($post['phone'] ?? '')),
+            'phone' => $this->sanitizePhone((string) ($post['phone'] ?? '')),
             'marital_status' => trim((string) ($post['marital_status'] ?? '')),
             'education_level' => trim((string) ($post['education_level'] ?? '')),
             'professional_status' => trim((string) ($post['professional_status'] ?? '')),
@@ -498,6 +519,37 @@ final class FamilyController
         return trim((string) ($input['responsible_name'] ?? '')) !== '';
     }
 
+    private function validateControlledFields(array $input, ?array $existing): ?string
+    {
+        $fieldConfig = [
+            'housing_type' => ['options' => array_keys(self::HOUSING_TYPES), 'label' => 'Tipo de moradia'],
+            'marital_status' => ['options' => array_keys(self::MARITAL_STATUSES), 'label' => 'Estado civil'],
+            'education_level' => ['options' => array_keys(self::EDUCATION_LEVELS), 'label' => 'Escolaridade'],
+            'professional_status' => ['options' => array_keys(self::PROFESSIONAL_STATUSES), 'label' => 'Situacao profissional'],
+        ];
+
+        foreach ($fieldConfig as $field => $config) {
+            $value = trim((string) ($input[$field] ?? ''));
+            if ($value === '') {
+                continue;
+            }
+
+            $options = is_array($config['options'] ?? null) ? $config['options'] : [];
+            if (in_array($value, $options, true)) {
+                continue;
+            }
+
+            $legacyValue = trim((string) ($existing[$field] ?? ''));
+            if ($legacyValue !== '' && $legacyValue === $value) {
+                continue;
+            }
+
+            return (string) ($config['label'] ?? 'Campo') . ' invalido.';
+        }
+
+        return null;
+    }
+
     private function validateCpfAndDuplicate(array &$input, ?int $excludeId): ?string
     {
         $cpfRaw = (string) ($input['cpf_responsible'] ?? '');
@@ -520,6 +572,50 @@ final class FamilyController
         }
 
         return $duplicate !== null ? 'Ja existe familia cadastrada com este CPF.' : null;
+    }
+
+    private function sanitizeRg(string $value): string
+    {
+        $raw = preg_replace('/[^0-9A-Z]/', '', strtoupper(trim($value)));
+        if (!is_string($raw) || $raw === '') {
+            return '';
+        }
+
+        $raw = substr($raw, 0, 9);
+        if (strlen($raw) <= 2) {
+            return $raw;
+        }
+        if (strlen($raw) <= 5) {
+            return substr($raw, 0, 2) . '.' . substr($raw, 2);
+        }
+        if (strlen($raw) <= 8) {
+            return substr($raw, 0, 2) . '.' . substr($raw, 2, 3) . '.' . substr($raw, 5);
+        }
+
+        return substr($raw, 0, 2) . '.' . substr($raw, 2, 3) . '.' . substr($raw, 5, 3) . '-' . substr($raw, 8, 1);
+    }
+
+    private function sanitizePhone(string $value): string
+    {
+        $digits = preg_replace('/\D+/', '', trim($value));
+        if (!is_string($digits) || $digits === '') {
+            return '';
+        }
+
+        $digits = substr($digits, 0, 11);
+        if (strlen($digits) <= 2) {
+            return $digits;
+        }
+
+        if (strlen($digits) <= 10) {
+            if (strlen($digits) <= 6) {
+                return '(' . substr($digits, 0, 2) . ') ' . substr($digits, 2);
+            }
+
+            return '(' . substr($digits, 0, 2) . ') ' . substr($digits, 2, 4) . '-' . substr($digits, 6);
+        }
+
+        return '(' . substr($digits, 0, 2) . ') ' . substr($digits, 2, 5) . '-' . substr($digits, 7);
     }
 
     private function defaultMemberFormData(int $familyId): array
