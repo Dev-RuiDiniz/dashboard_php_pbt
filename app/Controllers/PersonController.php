@@ -612,17 +612,39 @@ final class PersonController
             $input['cpf'] = (string) CpfService::format((string) $input['cpf']);
 
             try {
-                $duplicate = $this->personModel()->findByCpfExcludingId((string) $input['cpf'], $excludeId);
+                $conflict = $this->familyModel()->findCpfConflict((string) $input['cpf'], [
+                    'person_id' => $excludeId ?? 0,
+                ]);
             } catch (Throwable $exception) {
                 return 'Falha ao validar duplicidade de CPF.';
             }
 
-            if ($duplicate !== null) {
-                return 'Ja existe pessoa acompanhada com este CPF.';
+            if ($conflict !== null) {
+                return $this->buildCpfConflictMessage($conflict);
             }
         }
 
         return null;
+    }
+
+    private function buildCpfConflictMessage(array $conflict): string
+    {
+        $source = (string) ($conflict['source_table'] ?? '');
+        $name = trim((string) ($conflict['source_name'] ?? ''));
+
+        $target = match ($source) {
+            'families' => 'familia',
+            'family_members' => 'membro/dependente',
+            'children' => 'crianca',
+            'people' => 'pessoa',
+            default => 'cadastro existente',
+        };
+
+        if ($name !== '') {
+            return 'CPF ja cadastrado em ' . $target . ': ' . $name . '.';
+        }
+
+        return 'CPF ja cadastrado no sistema.';
     }
 
     private function toPersistenceData(array $input): array
