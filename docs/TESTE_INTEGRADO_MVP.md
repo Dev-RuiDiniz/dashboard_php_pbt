@@ -16,6 +16,10 @@ Validar ponta a ponta os fluxos criticos antes/depois do deploy.
 
 2. Cadastros sociais
 - [ ] Criar familia.
+- [ ] Confirmar mascara em CPF, RG e Telefone durante digitacao na familia.
+- [ ] Confirmar listas suspensas de moradia, estado civil, escolaridade e situacao profissional.
+- [ ] Confirmar idade calculada da responsavel ao informar nascimento.
+- [ ] Confirmar exibicao do numero da familia na listagem, formulario (edicao) e detalhe.
 - [ ] Incluir membro e validar recalculo de renda.
 - [ ] Cadastrar crianca vinculada.
 - [ ] Cadastrar pessoa acompanhada + ficha social.

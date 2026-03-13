@@ -44,6 +44,12 @@ Regras obrigatorias:
 - Excluir familia.
 - Abrir detalhes da familia.
 - Gerenciar membros da familia (adicionar/editar/remover).
+- Cadastro rapido no formulario de familia:
+  - Numero da familia exibido automaticamente pelo sistema (baseado no ID).
+  - Mascaras automaticas em CPF, RG e Telefone.
+  - Idade da responsavel calculada em tela a partir da data de nascimento.
+  - Listas suspensas em tipo de moradia, estado civil, escolaridade e situacao profissional.
+  - Compatibilidade com valores antigos (legados) em cadastros ja existentes.
 
 ### 5.3 Criancas
 - Listar criancas.
