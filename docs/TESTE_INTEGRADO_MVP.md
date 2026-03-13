@@ -28,7 +28,14 @@ Validar ponta a ponta os fluxos criticos antes/depois do deploy.
 - [ ] Editar/remover membro, dependente e crianca na mesma pagina da familia.
 - [ ] Confirmar `children_count` automatico apos criar/editar/remover crianca.
 - [ ] Confirmar redirecionamento informativo das rotas `/children*` para `Familias`.
-- [ ] Incluir membro e validar recalculo de renda.
+- [ ] Confirmar que `Adultos`, `Trabalhadores`, `Criancas` e `Renda familiar total` nao aceitam edicao manual no formulario de familia.
+- [ ] Incluir membro/dependente e validar recalculo automatico de `family_income_total`, `adults_count` e `workers_count`.
+- [ ] Alterar/remover membro/dependente e validar novo recalculo automatico.
+- [ ] Validar CPF/RG obrigatorios para principal, membro e dependente.
+- [ ] Validar crianca com CPF/RG opcionais e validacao de formato quando preenchidos.
+- [ ] Validar bloqueio de CPF duplicado entre `families`, `family_members`, `children` e `people`.
+- [ ] Confirmar idade automatica em tela para principal, membro/dependente e crianca ao alterar nascimento.
+- [ ] Confirmar persistencia automatica de `children.age_years` via `birth_date` (sem campo manual de idade).
 - [ ] Cadastrar pessoa acompanhada + ficha social.
 
 3. Encaminhamentos

@@ -48,14 +48,21 @@ Regras obrigatorias:
   - Numero da familia exibido automaticamente pelo sistema (baseado no ID).
   - Mascaras automaticas em CPF, RG e Telefone.
   - Idade da responsavel calculada em tela a partir da data de nascimento.
+  - CPF e RG da responsavel principal sao obrigatorios.
   - Listas suspensas em tipo de moradia, estado civil, escolaridade e situacao profissional.
   - Compatibilidade com valores antigos (legados) em cadastros ja existentes.
+  - Indicadores de `Adultos`, `Trabalhadores`, `Criancas` e `Renda familiar total` sao informativos (nao editaveis nesta tela).
 - Cadastro unificado de pessoa na aba da familia:
   - Escolher o tipo no fluxo inline: `Principal`, `Membro`, `Dependente` ou `Crianca`.
   - `Principal` atualiza os campos da responsavel na propria familia sem abrir outra tela.
+  - `Membro` e `Dependente` exigem CPF e RG.
   - `Dependente` e salvo no cadastro de membros usando parentesco `Dependente`.
+  - `Crianca` aceita CPF e RG opcionais.
+  - Idade de principal, membro, dependente e crianca e exibida automaticamente na tela ao informar nascimento.
+  - Para crianca, `age_years` e calculado e salvo automaticamente a partir de `birth_date` (sem digitacao manual de idade).
   - Cadastro, edicao e exclusao de membros/dependentes/criancas sem sair da pagina de detalhe.
   - `children_count` atualizado automaticamente com base nos registros de criancas.
+  - CPF e unico no sistema (bloqueia duplicidade entre familia, membro/dependente, crianca e pessoa acompanhada).
   - O principal da familia continua nos campos da propria familia (responsavel), sem duplicacao em membros.
 
 ### 5.3 Criancas
