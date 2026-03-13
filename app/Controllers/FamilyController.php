@@ -52,7 +52,7 @@ final class FamilyController
         'afastado' => 'Afastado(a)',
         'do_lar' => 'Do lar',
     ];
-    private const PERSON_TYPES = ['principal', 'member', 'dependent', 'child'];
+    private const PERSON_TYPES = ['principal', 'member', 'child', 'dependent'];
 
     public function __construct(private readonly Container $container)
     {
@@ -321,7 +321,7 @@ final class FamilyController
         if ($childEditMode || $hasChildOld) {
             $personType = 'child';
         } elseif ($memberEditMode || $hasMemberOld) {
-            $personType = $this->resolveMemberPersonType($memberForm);
+            $personType = 'member';
         } elseif ($hasPrincipalOld) {
             $personType = 'principal';
         } elseif ($requestedPersonType !== '') {
@@ -423,7 +423,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, $personType));
         }
 
-        Session::flash('success', $personType === 'dependent' ? 'Dependente adicionado com sucesso.' : 'Membro adicionado com sucesso.');
+        Session::flash('success', 'Membro adicionado com sucesso.');
         Response::redirect($this->familyShowUrl($familyId, $personType));
     }
 
@@ -463,7 +463,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, $personType, ['member_edit' => $memberId]));
         }
 
-        Session::flash('success', $personType === 'dependent' ? 'Dependente atualizado com sucesso.' : 'Membro atualizado com sucesso.');
+        Session::flash('success', 'Membro atualizado com sucesso.');
         Response::redirect($this->familyShowUrl($familyId, $personType));
     }
 
@@ -478,13 +478,6 @@ final class FamilyController
         }
 
         try {
-            if ($personType === '') {
-                $member = $this->familyModel()->findMemberById($memberId);
-                if ($member !== null) {
-                    $personType = $this->resolveMemberPersonType($member);
-                }
-            }
-
             $this->familyModel()->deleteMember($memberId, $familyId);
             $this->familyModel()->recalculateFamilyIndicators($familyId);
         } catch (Throwable $exception) {
@@ -492,11 +485,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, $personType === '' ? 'member' : $personType));
         }
 
-        if ($personType === '') {
-            $personType = 'member';
-        }
-
-        Session::flash('success', $personType === 'dependent' ? 'Dependente removido com sucesso.' : 'Membro removido com sucesso.');
+        Session::flash('success', 'Membro removido com sucesso.');
         Response::redirect($this->familyShowUrl($familyId, $personType));
     }
 
@@ -936,11 +925,11 @@ final class FamilyController
         }
 
         if (trim((string) ($input['cpf'] ?? '')) === '') {
-            return 'CPF do membro/dependente e obrigatorio.';
+            return 'CPF do membro familiar e obrigatorio.';
         }
 
         if (trim((string) ($input['rg'] ?? '')) === '') {
-            return 'RG do membro/dependente e obrigatorio.';
+            return 'RG do membro familiar e obrigatorio.';
         }
 
         if (!$this->isRgValid((string) ($input['rg'] ?? ''))) {
@@ -1117,7 +1106,7 @@ final class FamilyController
 
         $target = match ($source) {
             'families' => 'familia',
-            'family_members' => 'membro/dependente',
+            'family_members' => 'membro familiar',
             'children' => 'crianca',
             'people' => 'pessoa',
             default => 'cadastro existente',
@@ -1187,6 +1176,10 @@ final class FamilyController
     private function sanitizePersonType(string $value, string $default = ''): string
     {
         $value = strtolower(trim($value));
+        if ($value === 'dependent') {
+            return 'member';
+        }
+
         if (in_array($value, self::PERSON_TYPES, true)) {
             return $value;
         }
@@ -1194,36 +1187,9 @@ final class FamilyController
         return $default;
     }
 
-    private function resolveMemberPersonType(array $input): string
-    {
-        $personType = $this->sanitizePersonType((string) ($input['person_type'] ?? ''));
-        if ($personType === 'dependent') {
-            return 'dependent';
-        }
-
-        if ($this->isDependentRelationship((string) ($input['relationship'] ?? ''))) {
-            return 'dependent';
-        }
-
-        return 'member';
-    }
-
     private function applyMemberPersonTypeRules(array &$input): void
     {
-        $personType = $this->sanitizePersonType((string) ($input['person_type'] ?? ''), 'member');
-        if ($personType !== 'dependent') {
-            $personType = 'member';
-        }
-
-        $input['person_type'] = $personType;
-        if ($personType === 'dependent') {
-            $input['relationship'] = 'Dependente';
-        }
-    }
-
-    private function isDependentRelationship(string $relationship): bool
-    {
-        return strtolower(trim($relationship)) === 'dependente';
+        $input['person_type'] = 'member';
     }
 
     private function familyShowUrl(int $familyId, string $personType = '', array $extra = []): string

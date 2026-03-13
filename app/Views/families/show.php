@@ -12,15 +12,14 @@ $principalForm = is_array($principalForm ?? null) ? $principalForm : [];
 $familyId = (int) ($family['id'] ?? 0);
 
 $personType = (string) ($personType ?? 'member');
-$allowedPersonTypes = ['principal', 'member', 'dependent', 'child'];
+$allowedPersonTypes = ['principal', 'member', 'child'];
 if (!in_array($personType, $allowedPersonTypes, true)) {
     $personType = 'member';
 }
 
 $openPersonForm = (bool) ($openPersonForm ?? false);
-$dependentMode = $personType === 'dependent';
 $principalSectionVisible = $personType === 'principal';
-$memberSectionVisible = in_array($personType, ['member', 'dependent'], true);
+$memberSectionVisible = $personType === 'member';
 $childSectionVisible = $personType === 'child';
 
 $addressLine = implode(' / ', array_filter([
@@ -39,11 +38,29 @@ $childFormAction = $childEditMode
     ? '/families/children/update?id=' . (int) ($childForm['id'] ?? 0) . '&family_id=' . $familyId
     : '/families/children?family_id=' . $familyId;
 
-$memberFormTitle = 'Adicionar membro';
-if ($dependentMode) {
-    $memberFormTitle = $memberEditMode ? 'Editar dependente' : 'Adicionar dependente';
-} elseif ($memberEditMode) {
-    $memberFormTitle = 'Editar membro';
+$memberFormTitle = $memberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar';
+
+$relationshipOptions = [
+    'Filho(a)',
+    'Marido',
+    'Esposa',
+    'Companheiro(a)',
+    'Pai',
+    'Mae',
+    'Irmao(a)',
+    'Avo(a)',
+    'Neto(a)',
+    'Sobrinho(a)',
+    'Tio(a)',
+    'Genro',
+    'Nora',
+    'Cunhado(a)',
+    'Dependente',
+    'Outro',
+];
+$memberRelationshipCurrent = trim((string) ($memberForm['relationship'] ?? ''));
+if ($memberRelationshipCurrent !== '' && !in_array($memberRelationshipCurrent, $relationshipOptions, true)) {
+    $relationshipOptions[] = $memberRelationshipCurrent;
 }
 
 $renderAge = static function ($birthDate): string {
@@ -87,7 +104,7 @@ $renderAge = static function ($birthDate): string {
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
             <div>
                 <h2 class="h5 mb-1">Responsavel principal</h2>
-                <p class="text-secondary mb-0">O principal da familia continua aqui. Membro, dependente e crianca sao cadastrados abaixo na mesma aba.</p>
+                <p class="text-secondary mb-0">O principal da familia continua aqui. Os demais familiares e criancas sao cadastrados abaixo na mesma aba.</p>
             </div>
             <div class="text-secondary small">Numero da familia: <span class="fw-semibold text-dark">#<?= (int) ($family['id'] ?? 0) ?></span></div>
         </div>
@@ -193,7 +210,7 @@ $renderAge = static function ($birthDate): string {
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
                     <div>
                         <h2 class="h5 mb-1">Cadastro de pessoas da familia</h2>
-                        <p class="text-secondary mb-0">Use um unico botao para incluir principal, membro, dependente ou crianca.</p>
+                        <p class="text-secondary mb-0">Use um unico botao para incluir principal, membro familiar ou crianca.</p>
                     </div>
                     <button type="button" class="btn btn-teal text-white" data-person-toggle>
                         <?= $openPersonForm ? 'Fechar cadastro' : 'Adicionar pessoa' ?>
@@ -204,7 +221,6 @@ $renderAge = static function ($birthDate): string {
                     <div class="btn-group mb-3 w-100" role="group" aria-label="Tipo de cadastro">
                         <button type="button" class="btn <?= $personType === 'principal' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="principal">Principal</button>
                         <button type="button" class="btn <?= $personType === 'member' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="member">Membro</button>
-                        <button type="button" class="btn <?= $personType === 'dependent' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="dependent">Dependente</button>
                         <button type="button" class="btn <?= $personType === 'child' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="child">Crianca</button>
                     </div>
 
@@ -252,12 +268,12 @@ $renderAge = static function ($birthDate): string {
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h3 class="h5 mb-0" data-member-form-title><?= htmlspecialchars($memberFormTitle, ENT_QUOTES, 'UTF-8') ?></h3>
                             <?php if ($memberEditMode) : ?>
-                                <a class="btn btn-sm btn-outline-secondary" href="/families/show?id=<?= $familyId ?>&person_type=<?= $dependentMode ? 'dependent' : 'member' ?>">Cancelar edicao</a>
+                                <a class="btn btn-sm btn-outline-secondary" href="/families/show?id=<?= $familyId ?>&person_type=member">Cancelar edicao</a>
                             <?php endif; ?>
                         </div>
 
                         <form method="post" action="<?= $memberFormAction ?>">
-                            <input type="hidden" name="person_type" value="<?= $dependentMode ? 'dependent' : 'member' ?>" data-member-person-type>
+                            <input type="hidden" name="person_type" value="member" data-member-person-type>
 
                             <div class="row g-3">
                                 <div class="col-12 col-md-5">
@@ -274,11 +290,14 @@ $renderAge = static function ($birthDate): string {
                                 </div>
                                 <div class="col-12 col-md-2" data-member-relationship-group>
                                     <label class="form-label">Parentesco</label>
-                                    <input class="form-control" name="relationship" value="<?= htmlspecialchars((string) ($memberForm['relationship'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                                </div>
-                                <div class="col-12 col-md-6 <?= $dependentMode ? '' : 'd-none' ?>" data-member-dependent-hint>
-                                    <label class="form-label">Classificacao</label>
-                                    <input class="form-control" value="Dependente" readonly tabindex="-1">
+                                    <select class="form-select" name="relationship">
+                                        <option value="">Selecione</option>
+                                        <?php foreach ($relationshipOptions as $relationshipOption) : ?>
+                                            <option value="<?= htmlspecialchars($relationshipOption, ENT_QUOTES, 'UTF-8') ?>" <?= $memberRelationshipCurrent === $relationshipOption ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($relationshipOption, ENT_QUOTES, 'UTF-8') ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
                                 <div class="col-12 col-md-3">
                                     <label class="form-label">Nascimento</label>
@@ -301,15 +320,9 @@ $renderAge = static function ($birthDate): string {
                             </div>
 
                             <div class="mt-3 d-flex gap-2">
-                                <button type="submit" class="btn btn-teal text-white" data-member-submit-label>
-                                    <?php if ($dependentMode) : ?>
-                                        <?= $memberEditMode ? 'Salvar dependente' : 'Adicionar dependente' ?>
-                                    <?php else : ?>
-                                        <?= $memberEditMode ? 'Salvar membro' : 'Adicionar membro' ?>
-                                    <?php endif; ?>
-                                </button>
+                                <button type="submit" class="btn btn-teal text-white" data-member-submit-label><?= $memberEditMode ? 'Salvar membro' : 'Adicionar membro' ?></button>
                                 <?php if ($memberEditMode) : ?>
-                                    <a class="btn btn-outline-secondary" href="/families/show?id=<?= $familyId ?>&person_type=<?= $dependentMode ? 'dependent' : 'member' ?>">Cancelar</a>
+                                    <a class="btn btn-outline-secondary" href="/families/show?id=<?= $familyId ?>&person_type=member">Cancelar</a>
                                 <?php endif; ?>
                             </div>
                         </form>
@@ -374,13 +387,12 @@ $renderAge = static function ($birthDate): string {
     <div class="col-12 col-xl-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <h3 class="h6 text-uppercase text-secondary mb-3">Membros e dependentes cadastrados</h3>
+                <h3 class="h6 text-uppercase text-secondary mb-3">Membros familiares cadastrados</h3>
                 <div class="table-responsive">
                     <table class="table align-middle mb-0">
                         <thead>
                             <tr>
                                 <th>Nome</th>
-                                <th>Tipo</th>
                                 <th>Parentesco</th>
                                 <th>Documentos</th>
                                 <th>Trabalha</th>
@@ -391,25 +403,19 @@ $renderAge = static function ($birthDate): string {
                         <tbody>
                         <?php if (empty($members)) : ?>
                             <tr>
-                                <td colspan="7" class="text-secondary">Nenhum membro cadastrado.</td>
+                                <td colspan="6" class="text-secondary">Nenhum membro cadastrado.</td>
                             </tr>
                         <?php else : ?>
                             <?php foreach ($members as $member) : ?>
                                 <?php
                                     $memberId = (int) ($member['id'] ?? 0);
                                     $relationship = (string) ($member['relationship'] ?? '');
-                                    $rowType = strtolower(trim($relationship)) === 'dependente' ? 'dependent' : 'member';
                                 ?>
                                 <tr>
                                     <td>
                                         <div class="fw-semibold"><?= htmlspecialchars((string) ($member['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                                         <div class="small text-secondary"><?= htmlspecialchars((string) ($member['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                                         <div class="small text-secondary">idade: <?= htmlspecialchars($renderAge($member['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
-                                    </td>
-                                    <td>
-                                        <?= $rowType === 'dependent'
-                                            ? '<span class="badge text-bg-info">Dependente</span>'
-                                            : '<span class="badge text-bg-light border">Membro</span>' ?>
                                     </td>
                                     <td><?= htmlspecialchars($relationship !== '' ? $relationship : '-', ENT_QUOTES, 'UTF-8') ?></td>
                                     <td class="small">
@@ -424,8 +430,8 @@ $renderAge = static function ($birthDate): string {
                                     <td>R$ <?= number_format((float) ($member['income'] ?? 0), 2, ',', '.') ?></td>
                                     <td>
                                         <div class="d-flex flex-wrap gap-2">
-                                            <a class="btn btn-sm btn-outline-secondary" href="/families/show?id=<?= $familyId ?>&person_type=<?= $rowType ?>&member_edit=<?= $memberId ?>">Editar</a>
-                                            <form method="post" action="/families/members/delete?id=<?= $memberId ?>&family_id=<?= $familyId ?>&person_type=<?= $rowType ?>" class="m-0" onsubmit="return confirm('Remover registro?');">
+                                            <a class="btn btn-sm btn-outline-secondary" href="/families/show?id=<?= $familyId ?>&person_type=member&member_edit=<?= $memberId ?>">Editar</a>
+                                            <form method="post" action="/families/members/delete?id=<?= $memberId ?>&family_id=<?= $familyId ?>&person_type=member" class="m-0" onsubmit="return confirm('Remover registro?');">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
                                             </form>
                                         </div>

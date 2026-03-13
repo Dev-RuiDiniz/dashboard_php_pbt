@@ -147,13 +147,10 @@
         var panel = hub.querySelector('[data-person-panel]');
         var typeButtons = Array.prototype.slice.call(hub.querySelectorAll('[data-person-type-btn]'));
         var sections = Array.prototype.slice.call(hub.querySelectorAll('[data-person-section]'));
-        var memberSection = hub.querySelector('[data-person-section="member"]');
         var memberTypeInput = hub.querySelector('[data-member-person-type]');
-        var relationshipGroup = hub.querySelector('[data-member-relationship-group]');
-        var relationshipInput = relationshipGroup ? relationshipGroup.querySelector('input[name="relationship"]') : null;
-        var dependentHint = hub.querySelector('[data-member-dependent-hint]');
         var memberTitle = hub.querySelector('[data-member-form-title]');
         var memberSubmitLabel = hub.querySelector('[data-member-submit-label]');
+        var memberSection = hub.querySelector('[data-person-section="member"]');
         var isMemberEditMode = memberSection && memberSection.getAttribute('data-member-edit-mode') === '1';
 
         if (!toggleButton || !panel || typeButtons.length === 0 || sections.length === 0) {
@@ -175,19 +172,12 @@
                 return;
             }
 
-            var isDependent = personType === 'dependent';
-            if (isDependent) {
-                memberTitle.textContent = isMemberEditMode ? 'Editar dependente' : 'Adicionar dependente';
-                memberSubmitLabel.textContent = isMemberEditMode ? 'Salvar dependente' : 'Adicionar dependente';
-                return;
-            }
-
-            memberTitle.textContent = isMemberEditMode ? 'Editar membro' : 'Adicionar membro';
+            memberTitle.textContent = isMemberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar';
             memberSubmitLabel.textContent = isMemberEditMode ? 'Salvar membro' : 'Adicionar membro';
         }
 
         function setPersonType(type) {
-            var personType = type === 'principal' || type === 'dependent' || type === 'child' ? type : 'member';
+            var personType = type === 'principal' || type === 'child' ? type : 'member';
 
             typeButtons.forEach(function (button) {
                 var active = button.getAttribute('data-person-type-btn') === personType;
@@ -210,21 +200,7 @@
             });
 
             if (memberTypeInput) {
-                memberTypeInput.value = personType === 'dependent' ? 'dependent' : 'member';
-            }
-
-            var dependentMode = personType === 'dependent';
-            if (relationshipGroup) {
-                relationshipGroup.classList.toggle('d-none', dependentMode);
-            }
-            if (relationshipInput) {
-                relationshipInput.disabled = dependentMode;
-                if (dependentMode) {
-                    relationshipInput.value = 'Dependente';
-                }
-            }
-            if (dependentHint) {
-                dependentHint.classList.toggle('d-none', !dependentMode);
+                memberTypeInput.value = 'member';
             }
 
             updateMemberLabels(personType);
