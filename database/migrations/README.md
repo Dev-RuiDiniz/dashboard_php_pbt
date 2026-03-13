@@ -7,6 +7,7 @@ Ordem atual:
 1. `001_schema_mvp.sql`
 2. `002_seeds_initial.sql`
 3. `003_security_hardening.sql`
+4. `004_children_count_backfill.sql`
 
 ## Como aplicar (manual)
 
