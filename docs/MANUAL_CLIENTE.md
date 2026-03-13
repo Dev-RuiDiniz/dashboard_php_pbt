@@ -51,7 +51,8 @@ Regras obrigatorias:
   - Listas suspensas em tipo de moradia, estado civil, escolaridade e situacao profissional.
   - Compatibilidade com valores antigos (legados) em cadastros ja existentes.
 - Cadastro unificado de pessoa na aba da familia:
-  - Escolher o tipo no fluxo inline: `Membro`, `Dependente` ou `Crianca`.
+  - Escolher o tipo no fluxo inline: `Principal`, `Membro`, `Dependente` ou `Crianca`.
+  - `Principal` atualiza os campos da responsavel na propria familia sem abrir outra tela.
   - `Dependente` e salvo no cadastro de membros usando parentesco `Dependente`.
   - Cadastro, edicao e exclusao de membros/dependentes/criancas sem sair da pagina de detalhe.
   - `children_count` atualizado automaticamente com base nos registros de criancas.
