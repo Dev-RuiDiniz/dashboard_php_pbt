@@ -164,7 +164,8 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         </div>
                         <div class="col-6 col-md-2">
                             <label class="form-label">Criancas</label>
-                            <input type="number" min="0" class="form-control" name="children_count" value="<?= htmlspecialchars((string) ($familyData['children_count'] ?? 0), ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="number" class="form-control" value="<?= htmlspecialchars((string) ($familyData['children_count'] ?? 0), ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
+                            <div class="form-text">Automatico pela aba Familia.</div>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Renda familiar total</label>

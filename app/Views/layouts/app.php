@@ -11,7 +11,6 @@ $layoutUserRole = (string) ($layoutUser['role'] ?? '-');
 $menu = [
     ['key' => 'dashboard', 'label' => 'Dashboard', 'href' => '/dashboard', 'icon' => 'grid'],
     ['key' => 'familias', 'label' => 'Familias', 'href' => '/families', 'icon' => 'people'],
-    ['key' => 'criancas', 'label' => 'Criancas', 'href' => '/children', 'icon' => 'balloon-heart'],
     ['key' => 'entregas', 'label' => 'Entregas', 'href' => '/delivery-events', 'icon' => 'box-seam'],
     ['key' => 'equipamentos', 'label' => 'Equipamentos', 'href' => '/equipment', 'icon' => 'wheelchair'],
     ['key' => 'visitas', 'label' => 'Visitas', 'href' => '/visits', 'icon' => 'house-heart'],

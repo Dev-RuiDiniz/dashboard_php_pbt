@@ -19,6 +19,52 @@ final class ChildController
     {
     }
 
+    public function legacyIndexRedirect(): void
+    {
+        Session::flash('success', 'Cadastro de criancas agora esta centralizado na aba da familia.');
+        Response::redirect('/families');
+    }
+
+    public function legacyCreateRedirect(): void
+    {
+        $familyId = (int) ($_GET['family_id'] ?? 0);
+        Session::flash('success', 'Use a aba da familia para cadastrar criancas.');
+        if ($familyId > 0) {
+            Response::redirect('/families/show?id=' . $familyId);
+        }
+
+        Response::redirect('/families');
+    }
+
+    public function legacyStoreRedirect(): void
+    {
+        $familyId = (int) ($_POST['family_id'] ?? 0);
+        Session::flash('success', 'Use a aba da familia para cadastrar criancas.');
+        if ($familyId > 0) {
+            Response::redirect('/families/show?id=' . $familyId);
+        }
+
+        Response::redirect('/families');
+    }
+
+    public function legacyEditRedirect(): void
+    {
+        $childId = (int) ($_GET['id'] ?? 0);
+        $this->redirectToFamilyFromChildId($childId, true);
+    }
+
+    public function legacyUpdateRedirect(): void
+    {
+        $childId = (int) ($_GET['id'] ?? 0);
+        $this->redirectToFamilyFromChildId($childId, true);
+    }
+
+    public function legacyDeleteRedirect(): void
+    {
+        $childId = (int) ($_GET['id'] ?? 0);
+        $this->redirectToFamilyFromChildId($childId, false);
+    }
+
     public function index(): void
     {
         $filters = [
@@ -251,6 +297,31 @@ final class ChildController
         /** @var PDO $pdo */
         $pdo = $this->container->get('db');
         return new FamilyModel($pdo);
+    }
+
+    private function redirectToFamilyFromChildId(int $childId, bool $includeEditMode): void
+    {
+        Session::flash('success', 'Use a aba da familia para gerenciar criancas.');
+        if ($childId <= 0) {
+            Response::redirect('/families');
+        }
+
+        try {
+            $child = $this->childModel()->findById($childId);
+        } catch (Throwable $exception) {
+            Response::redirect('/families');
+        }
+
+        $familyId = (int) ($child['family_id'] ?? 0);
+        if ($familyId <= 0) {
+            Response::redirect('/families');
+        }
+
+        if ($includeEditMode) {
+            Response::redirect('/families/show?id=' . $familyId . '&child_edit=' . $childId);
+        }
+
+        Response::redirect('/families/show?id=' . $familyId);
     }
 }
 

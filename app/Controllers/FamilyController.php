@@ -127,7 +127,8 @@ final class FamilyController
         }
 
         try {
-            $this->familyModel()->create($this->toPersistenceData($input));
+            $familyId = $this->familyModel()->create($this->toPersistenceData($input));
+            $this->familyModel()->recalculateFamilyIndicators($familyId);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao salvar familia.');
             Session::flash('form_old', $input);
@@ -210,6 +211,7 @@ final class FamilyController
 
         try {
             $this->familyModel()->update($id, $this->toPersistenceData($input));
+            $this->familyModel()->recalculateFamilyIndicators($id);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao atualizar familia.');
             Session::flash('form_old', $input);
@@ -281,6 +283,22 @@ final class FamilyController
             $memberEdit = array_merge($this->defaultMemberFormData($familyId), $memberOld);
         }
 
+        $childEditId = (int) ($_GET['child_edit'] ?? 0);
+        $childEdit = null;
+        if ($childEditId > 0) {
+            foreach ($children as $child) {
+                if ((int) ($child['id'] ?? 0) === $childEditId) {
+                    $childEdit = $child;
+                    break;
+                }
+            }
+        }
+
+        $childOld = Session::consumeFlash('child_form_old');
+        if (is_array($childOld)) {
+            $childEdit = array_merge($this->defaultChildFormData($familyId), $childOld);
+        }
+
         View::render('families.show', [
             '_layout' => 'layouts.app',
             'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
@@ -292,6 +310,8 @@ final class FamilyController
             'children' => $children,
             'memberForm' => $memberEdit ?? $this->defaultMemberFormData($familyId),
             'memberEditMode' => $memberEdit !== null && isset($memberEdit['id']),
+            'childForm' => $childEdit ?? $this->defaultChildFormData($familyId),
+            'childEditMode' => $childEdit !== null && isset($childEdit['id']),
             'success' => Session::consumeFlash('success'),
             'error' => Session::consumeFlash('error'),
         ]);
@@ -387,6 +407,105 @@ final class FamilyController
         }
 
         Session::flash('success', 'Membro removido com sucesso.');
+        Response::redirect('/families/show?id=' . $familyId);
+    }
+
+    public function storeChild(): void
+    {
+        $familyId = (int) ($_GET['family_id'] ?? 0);
+        if ($familyId <= 0) {
+            Session::flash('error', 'Familia invalida.');
+            Response::redirect('/families');
+        }
+
+        $input = $this->sanitizeChildInput($_POST, $familyId);
+        $error = $this->validateChildInput($input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            Session::flash('child_form_old', $input);
+            Response::redirect('/families/show?id=' . $familyId);
+        }
+
+        try {
+            if ($this->familyModel()->findById($familyId) === null) {
+                Session::flash('error', 'Familia nao encontrada.');
+                Response::redirect('/families');
+            }
+
+            $this->childModel()->create($this->toChildPersistenceData($input));
+            $this->familyModel()->recalculateFamilyIndicators($familyId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao adicionar crianca.');
+            Session::flash('child_form_old', $input);
+            Response::redirect('/families/show?id=' . $familyId);
+        }
+
+        Session::flash('success', 'Crianca adicionada com sucesso.');
+        Response::redirect('/families/show?id=' . $familyId);
+    }
+
+    public function updateChild(): void
+    {
+        $familyId = (int) ($_GET['family_id'] ?? 0);
+        $childId = (int) ($_GET['id'] ?? 0);
+        if ($familyId <= 0 || $childId <= 0) {
+            Session::flash('error', 'Crianca invalida.');
+            Response::redirect('/families');
+        }
+
+        $input = $this->sanitizeChildInput($_POST, $familyId);
+        $error = $this->validateChildInput($input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            $input['id'] = $childId;
+            Session::flash('child_form_old', $input);
+            Response::redirect('/families/show?id=' . $familyId . '&child_edit=' . $childId);
+        }
+
+        try {
+            $child = $this->childModel()->findById($childId);
+            if ($child === null || (int) ($child['family_id'] ?? 0) !== $familyId) {
+                Session::flash('error', 'Crianca nao encontrada.');
+                Response::redirect('/families/show?id=' . $familyId);
+            }
+
+            $this->childModel()->update($childId, $this->toChildPersistenceData($input));
+            $this->familyModel()->recalculateFamilyIndicators($familyId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao atualizar crianca.');
+            $input['id'] = $childId;
+            Session::flash('child_form_old', $input);
+            Response::redirect('/families/show?id=' . $familyId . '&child_edit=' . $childId);
+        }
+
+        Session::flash('success', 'Crianca atualizada com sucesso.');
+        Response::redirect('/families/show?id=' . $familyId);
+    }
+
+    public function deleteChild(): void
+    {
+        $familyId = (int) ($_GET['family_id'] ?? 0);
+        $childId = (int) ($_GET['id'] ?? 0);
+        if ($familyId <= 0 || $childId <= 0) {
+            Session::flash('error', 'Crianca invalida.');
+            Response::redirect('/families');
+        }
+
+        try {
+            $child = $this->childModel()->findById($childId);
+            if ($child === null || (int) ($child['family_id'] ?? 0) !== $familyId) {
+                Session::flash('error', 'Crianca nao encontrada.');
+                Response::redirect('/families/show?id=' . $familyId);
+            }
+
+            $this->childModel()->delete($childId);
+            $this->familyModel()->recalculateFamilyIndicators($familyId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao remover crianca.');
+            Response::redirect('/families/show?id=' . $familyId);
+        }
+
+        Session::flash('success', 'Crianca removida com sucesso.');
         Response::redirect('/families/show?id=' . $familyId);
     }
 
@@ -630,6 +749,18 @@ final class FamilyController
         ];
     }
 
+    private function defaultChildFormData(int $familyId): array
+    {
+        return [
+            'family_id' => $familyId,
+            'name' => '',
+            'birth_date' => '',
+            'age_years' => '',
+            'relationship' => '',
+            'notes' => '',
+        ];
+    }
+
     private function sanitizeMemberInput(array $post, int $familyId): array
     {
         return [
@@ -639,6 +770,19 @@ final class FamilyController
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
             'works' => isset($post['works']) ? 1 : 0,
             'income' => $this->sanitizeMoney((string) ($post['income'] ?? '0')),
+        ];
+    }
+
+    private function sanitizeChildInput(array $post, int $familyId): array
+    {
+        $age = trim((string) ($post['age_years'] ?? ''));
+        return [
+            'family_id' => $familyId,
+            'name' => trim((string) ($post['name'] ?? '')),
+            'birth_date' => trim((string) ($post['birth_date'] ?? '')),
+            'age_years' => $age === '' ? null : max(0, (int) $age),
+            'relationship' => trim((string) ($post['relationship'] ?? '')),
+            'notes' => trim((string) ($post['notes'] ?? '')),
         ];
     }
 
@@ -655,6 +799,19 @@ final class FamilyController
         return null;
     }
 
+    private function validateChildInput(array $input): ?string
+    {
+        if ((int) ($input['family_id'] ?? 0) <= 0) {
+            return 'Familia invalida para crianca.';
+        }
+
+        if (trim((string) ($input['name'] ?? '')) === '') {
+            return 'Nome da crianca e obrigatorio.';
+        }
+
+        return null;
+    }
+
     private function toMemberPersistenceData(array $input): array
     {
         return [
@@ -664,6 +821,18 @@ final class FamilyController
             'birth_date' => $input['birth_date'] !== '' ? $input['birth_date'] : null,
             'works' => (int) $input['works'],
             'income' => $input['income'],
+        ];
+    }
+
+    private function toChildPersistenceData(array $input): array
+    {
+        return [
+            'family_id' => (int) $input['family_id'],
+            'name' => $input['name'],
+            'birth_date' => ($input['birth_date'] ?? '') !== '' ? $input['birth_date'] : null,
+            'age_years' => $input['age_years'],
+            'relationship' => ($input['relationship'] ?? '') !== '' ? $input['relationship'] : null,
+            'notes' => ($input['notes'] ?? '') !== '' ? $input['notes'] : null,
         ];
     }
 

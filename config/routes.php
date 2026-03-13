@@ -43,18 +43,6 @@ return static function (Router $router, Container $container): void {
         });
     };
 
-    $childView = static function (callable $action): void {
-        (new AuthMiddleware())->handle(static function () use ($action): void {
-            (new PermissionMiddleware())->handle('children.view', $action);
-        });
-    };
-
-    $childManage = static function (callable $action): void {
-        (new AuthMiddleware())->handle(static function () use ($action): void {
-            (new PermissionMiddleware())->handle('children.manage', $action);
-        });
-    };
-
     $deliveryView = static function (callable $action): void {
         (new AuthMiddleware())->handle(static function () use ($action): void {
             (new PermissionMiddleware())->handle('deliveries.view', $action);
@@ -218,39 +206,57 @@ return static function (Router $router, Container $container): void {
         });
     });
 
-    $router->get('/children', static function () use ($container, $childView): void {
-        $childView(static function () use ($container): void {
-            (new ChildController($container))->index();
+    $router->post('/families/children', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->storeChild();
         });
     });
 
-    $router->get('/children/create', static function () use ($container, $childManage): void {
-        $childManage(static function () use ($container): void {
-            (new ChildController($container))->create();
+    $router->post('/families/children/update', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->updateChild();
         });
     });
 
-    $router->post('/children', static function () use ($container, $childManage): void {
-        $childManage(static function () use ($container): void {
-            (new ChildController($container))->store();
+    $router->post('/families/children/delete', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->deleteChild();
         });
     });
 
-    $router->get('/children/edit', static function () use ($container, $childManage): void {
-        $childManage(static function () use ($container): void {
-            (new ChildController($container))->edit();
+    $router->get('/children', static function () use ($container, $familyView): void {
+        $familyView(static function () use ($container): void {
+            (new ChildController($container))->legacyIndexRedirect();
         });
     });
 
-    $router->post('/children/update', static function () use ($container, $childManage): void {
-        $childManage(static function () use ($container): void {
-            (new ChildController($container))->update();
+    $router->get('/children/create', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new ChildController($container))->legacyCreateRedirect();
         });
     });
 
-    $router->post('/children/delete', static function () use ($container, $childManage): void {
-        $childManage(static function () use ($container): void {
-            (new ChildController($container))->delete();
+    $router->post('/children', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new ChildController($container))->legacyStoreRedirect();
+        });
+    });
+
+    $router->get('/children/edit', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new ChildController($container))->legacyEditRedirect();
+        });
+    });
+
+    $router->post('/children/update', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new ChildController($container))->legacyUpdateRedirect();
+        });
+    });
+
+    $router->post('/children/delete', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new ChildController($container))->legacyDeleteRedirect();
         });
     });
 

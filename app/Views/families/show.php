@@ -6,6 +6,8 @@ $members = is_array($members ?? null) ? $members : [];
 $children = is_array($children ?? null) ? $children : [];
 $memberForm = is_array($memberForm ?? null) ? $memberForm : [];
 $memberEditMode = (bool) ($memberEditMode ?? false);
+$childForm = is_array($childForm ?? null) ? $childForm : [];
+$childEditMode = (bool) ($childEditMode ?? false);
 $familyId = (int) ($family['id'] ?? 0);
 
 $addressLine = implode(' / ', array_filter([
@@ -225,15 +227,51 @@ $addressLine = implode(' / ', array_filter([
             <div class="card-body">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
                     <div>
-                        <h2 class="h5 mb-1">Criancas vinculadas (aba da familia)</h2>
-                        <p class="text-secondary mb-0">Cadastro e consulta de criancas relacionadas a esta familia.</p>
+                        <h2 class="h5 mb-1"><?= $childEditMode ? 'Editar crianca vinculada' : 'Adicionar crianca vinculada' ?></h2>
+                        <p class="text-secondary mb-0">Cadastro de criancas centralizado na aba de familia.</p>
                     </div>
-                    <div class="d-flex gap-2">
-                        <a class="btn btn-sm btn-outline-secondary" href="/children?family_id=<?= $familyId ?>">Ver lista de criancas</a>
-                        <a class="btn btn-sm btn-teal text-white" href="/children/create?family_id=<?= $familyId ?>">Nova crianca</a>
-                    </div>
+                    <?php if ($childEditMode) : ?>
+                        <a class="btn btn-sm btn-outline-secondary" href="/families/show?id=<?= $familyId ?>">Cancelar edicao</a>
+                    <?php endif; ?>
                 </div>
 
+                <form method="post" action="<?= $childEditMode
+                    ? '/families/children/update?id=' . (int) ($childForm['id'] ?? 0) . '&family_id=' . $familyId
+                    : '/families/children?family_id=' . $familyId ?>">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Nome</label>
+                            <input class="form-control" name="name" required value="<?= htmlspecialchars((string) ($childForm['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label">Nascimento</label>
+                            <input type="date" class="form-control" name="birth_date" value="<?= htmlspecialchars((string) ($childForm['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label">Idade aprox.</label>
+                            <input type="number" min="0" class="form-control" name="age_years" value="<?= htmlspecialchars((string) (($childForm['age_years'] ?? '') !== null ? (string) ($childForm['age_years'] ?? '') : ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Parentesco</label>
+                            <input class="form-control" name="relationship" value="<?= htmlspecialchars((string) ($childForm['relationship'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Observacoes</label>
+                            <input class="form-control" name="notes" value="<?= htmlspecialchars((string) ($childForm['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-teal text-white"><?= $childEditMode ? 'Salvar crianca' : 'Adicionar crianca' ?></button>
+                        <?php if ($childEditMode) : ?>
+                            <a class="btn btn-outline-secondary" href="/families/show?id=<?= $familyId ?>">Cancelar</a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <h3 class="h6 text-uppercase text-secondary mb-3">Criancas cadastradas</h3>
                 <div class="table-responsive">
                     <table class="table align-middle mb-0">
                         <thead>
@@ -266,8 +304,8 @@ $addressLine = implode(' / ', array_filter([
                                     <td><?= htmlspecialchars((string) ($child['relationship'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                     <td>
                                         <div class="d-flex flex-wrap gap-2">
-                                            <a class="btn btn-sm btn-outline-secondary" href="/children/edit?id=<?= $childId ?>">Editar</a>
-                                            <form method="post" action="/children/delete?id=<?= $childId ?>&back=family" class="m-0" onsubmit="return confirm('Remover crianca?');">
+                                            <a class="btn btn-sm btn-outline-secondary" href="/families/show?id=<?= $familyId ?>&child_edit=<?= $childId ?>">Editar</a>
+                                            <form method="post" action="/families/children/delete?id=<?= $childId ?>&family_id=<?= $familyId ?>" class="m-0" onsubmit="return confirm('Remover crianca?');">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
                                             </form>
                                         </div>

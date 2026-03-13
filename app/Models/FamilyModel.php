@@ -220,11 +220,21 @@ final class FamilyModel
             return;
         }
 
+        $childrenStmt = $this->pdo->prepare(
+            'SELECT COUNT(*) AS total_children
+             FROM children
+             WHERE family_id = :family_id'
+        );
+        $childrenStmt->execute(['family_id' => $familyId]);
+        $children = $childrenStmt->fetch();
+        $childrenCount = (int) ($children['total_children'] ?? 0);
+
         $update = $this->pdo->prepare(
             'UPDATE families
              SET adults_count = :adults_count,
                  workers_count = :workers_count,
-                 family_income_total = :family_income_total
+                 family_income_total = :family_income_total,
+                 children_count = :children_count
              WHERE id = :id'
         );
         $update->execute([
@@ -232,6 +242,7 @@ final class FamilyModel
             'adults_count' => (int) ($summary['adults_count'] ?? 0),
             'workers_count' => (int) ($summary['workers_count'] ?? 0),
             'family_income_total' => number_format((float) ($summary['total_income'] ?? 0), 2, '.', ''),
+            'children_count' => $childrenCount,
         ]);
     }
 
