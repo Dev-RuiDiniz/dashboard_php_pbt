@@ -43,16 +43,19 @@ Regras obrigatorias:
 - Editar familia.
 - Excluir familia.
 - Abrir detalhes da familia.
-- Gerenciar membros da familia (adicionar/editar/remover).
+- Gerenciar pessoas da familia no detalhe (`/families/show?id=...`) com botao unico `Adicionar pessoa`.
 - Cadastro rapido no formulario de familia:
   - Numero da familia exibido automaticamente pelo sistema (baseado no ID).
   - Mascaras automaticas em CPF, RG e Telefone.
   - Idade da responsavel calculada em tela a partir da data de nascimento.
   - Listas suspensas em tipo de moradia, estado civil, escolaridade e situacao profissional.
   - Compatibilidade com valores antigos (legados) em cadastros ja existentes.
-- Cadastro de criancas/dependentes:
-  - Cadastro, edicao e exclusao feitos somente na aba da familia (`/families/show?id=...`).
+- Cadastro unificado de pessoa na aba da familia:
+  - Escolher o tipo no fluxo inline: `Membro`, `Dependente` ou `Crianca`.
+  - `Dependente` e salvo no cadastro de membros usando parentesco `Dependente`.
+  - Cadastro, edicao e exclusao de membros/dependentes/criancas sem sair da pagina de detalhe.
   - `children_count` atualizado automaticamente com base nos registros de criancas.
+  - O principal da familia continua nos campos da propria familia (responsavel), sem duplicacao em membros.
 
 ### 5.3 Criancas
 - Modulo direto de criancas desativado para cadastro.

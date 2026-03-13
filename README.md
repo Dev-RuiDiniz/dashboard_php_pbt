@@ -25,7 +25,7 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
   - indicadores operacionais e atalhos
 - Familias
   - CRUD de familias
-  - CRUD de membros da familia
+  - cadastro unificado de pessoas da familia (membro, dependente e crianca) na aba de detalhe
 - Criancas
   - cadastro centralizado na aba de detalhe da familia
 - Pessoas acompanhadas

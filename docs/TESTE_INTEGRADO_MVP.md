@@ -20,8 +20,11 @@ Validar ponta a ponta os fluxos criticos antes/depois do deploy.
 - [ ] Confirmar listas suspensas de moradia, estado civil, escolaridade e situacao profissional.
 - [ ] Confirmar idade calculada da responsavel ao informar nascimento.
 - [ ] Confirmar exibicao do numero da familia na listagem, formulario (edicao) e detalhe.
+- [ ] Na pagina de detalhe da familia, clicar em `Adicionar pessoa` e alternar entre `Membro`, `Dependente` e `Crianca`.
+- [ ] Cadastrar membro pelo fluxo unificado e validar persistencia na mesma pagina.
+- [ ] Cadastrar dependente pelo fluxo unificado e validar gravacao em `family_members` com parentesco `Dependente`.
 - [ ] Cadastrar crianca na aba da familia (sem usar modulo `/children`).
-- [ ] Editar/remover crianca na mesma pagina da familia.
+- [ ] Editar/remover membro, dependente e crianca na mesma pagina da familia.
 - [ ] Confirmar `children_count` automatico apos criar/editar/remover crianca.
 - [ ] Confirmar redirecionamento informativo das rotas `/children*` para `Familias`.
 - [ ] Incluir membro e validar recalculo de renda.
