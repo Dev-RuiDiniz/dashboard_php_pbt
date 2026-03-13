@@ -27,7 +27,7 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
   - CRUD de familias
   - CRUD de membros da familia
 - Criancas
-  - CRUD completo
+  - cadastro centralizado na aba de detalhe da familia
 - Pessoas acompanhadas
   - CRUD completo
 - Fichas sociais (dentro de pessoa)
@@ -62,7 +62,7 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 - `/login`
 - `/dashboard`
 - `/families`
-- `/children`
+- `/children` (compatibilidade: redireciona para `Familias`)
 - `/people` (admin)
 - `/social-records` (admin)
 - `/delivery-events`

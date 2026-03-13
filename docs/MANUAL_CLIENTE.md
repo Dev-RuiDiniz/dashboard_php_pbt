@@ -50,12 +50,13 @@ Regras obrigatorias:
   - Idade da responsavel calculada em tela a partir da data de nascimento.
   - Listas suspensas em tipo de moradia, estado civil, escolaridade e situacao profissional.
   - Compatibilidade com valores antigos (legados) em cadastros ja existentes.
+- Cadastro de criancas/dependentes:
+  - Cadastro, edicao e exclusao feitos somente na aba da familia (`/families/show?id=...`).
+  - `children_count` atualizado automaticamente com base nos registros de criancas.
 
 ### 5.3 Criancas
-- Listar criancas.
-- Cadastrar crianca.
-- Editar crianca.
-- Excluir crianca.
+- Modulo direto de criancas desativado para cadastro.
+- Rotas `/children*` redirecionam para `Familias` com orientacao de uso.
 
 ### 5.4 Pessoas acompanhadas e ficha social (somente admin)
 - Listar pessoas.
@@ -137,7 +138,7 @@ Regras obrigatorias:
 - Login: `/login`
 - Dashboard: `/dashboard`
 - Familias: `/families`
-- Criancas: `/children`
+- Criancas: cadastro centralizado em `Familias` (`/families/show?id=...`)
 - Pessoas (somente admin): `/people`
 - Fichas sociais (somente admin): `/social-records`
 - Entregas: `/delivery-events`
