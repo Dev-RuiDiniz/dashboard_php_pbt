@@ -15,6 +15,11 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 - `database/` schema, migrations e seed
 - `docs/` documentacao operacional e deploy
 
+## Skill local do Codex
+- Skill instalada localmente: `C:\Users\RUI FRANCISCO\.codex\skills\maintain-dashboard-php-pbt`
+- Guia versionado no repositório: `docs/CODEX_LOCAL_SKILL.md`
+- Exemplo de uso: `Use $maintain-dashboard-php-pbt to extend or debug this custom PHP dashboard.`
+
 ## Modulos do sistema
 - Autenticacao e seguranca
   - login/logout
