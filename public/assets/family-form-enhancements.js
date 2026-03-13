@@ -67,6 +67,51 @@
         input.value = formatter(input.value);
     }
 
+    function calculateAgeYears(dateValue) {
+        var value = String(dateValue || '').trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            return '';
+        }
+
+        var birth = new Date(value + 'T00:00:00');
+        if (Number.isNaN(birth.getTime())) {
+            return '';
+        }
+
+        var today = new Date();
+        var age = today.getFullYear() - birth.getFullYear();
+        var monthDiff = today.getMonth() - birth.getMonth();
+        var dayDiff = today.getDate() - birth.getDate();
+
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+            age -= 1;
+        }
+
+        if (age < 0) {
+            return '';
+        }
+
+        return String(age);
+    }
+
+    function bindAgeCalculation(form) {
+        var birthDateInput = form.querySelector('input[name="birth_date"]');
+        var ageDisplayInput = form.querySelector('[data-family-age-display]');
+
+        if (!birthDateInput || !ageDisplayInput) {
+            return;
+        }
+
+        function updateAge() {
+            var age = calculateAgeYears(birthDateInput.value);
+            ageDisplayInput.value = age !== '' ? age + ' anos' : '';
+        }
+
+        birthDateInput.addEventListener('input', updateAge);
+        birthDateInput.addEventListener('change', updateAge);
+        updateAge();
+    }
+
     function initFamilyFormMasks(form) {
         var cpfInput = form.querySelector('input[name="cpf_responsible"]');
         var rgInput = form.querySelector('input[name="rg_responsible"]');
@@ -92,6 +137,8 @@
             phoneInput.setAttribute('maxlength', '15');
             bindMask(phoneInput, formatPhone);
         }
+
+        bindAgeCalculation(form);
     }
 
     document.addEventListener('DOMContentLoaded', function () {

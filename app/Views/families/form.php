@@ -40,11 +40,15 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                             <input class="form-control" name="rg_responsible" value="<?= htmlspecialchars((string) ($familyData['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
 
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <label class="form-label">Nascimento</label>
                             <input type="date" class="form-control" name="birth_date" value="<?= htmlspecialchars((string) ($familyData['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-2">
+                            <label class="form-label">Idade</label>
+                            <input type="text" class="form-control" data-family-age-display readonly tabindex="-1" placeholder="Automatica">
+                        </div>
+                        <div class="col-12 col-md-3">
                             <label class="form-label">Telefone</label>
                             <input class="form-control" name="phone" value="<?= htmlspecialchars((string) ($familyData['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
