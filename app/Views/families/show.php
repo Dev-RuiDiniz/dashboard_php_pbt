@@ -76,6 +76,9 @@ $addressLine = implode(' / ', array_filter([
                 <h2 class="h5 mb-3">Resumo da familia</h2>
 
                 <dl class="row mb-0">
+                    <dt class="col-5 text-secondary">Numero da familia</dt>
+                    <dd class="col-7">#<?= (int) ($family['id'] ?? 0) ?></dd>
+
                     <dt class="col-5 text-secondary">Responsavel</dt>
                     <dd class="col-7"><?= htmlspecialchars((string) ($family['responsible_name'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></dd>
 

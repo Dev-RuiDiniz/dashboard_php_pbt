@@ -68,8 +68,12 @@ final class FamilyController
 
         try {
             $families = $this->familyModel()->search($filters);
+            $filteredTotal = $this->familyModel()->count($filters);
+            $overallTotal = $this->familyModel()->count();
         } catch (Throwable $exception) {
             $families = [];
+            $filteredTotal = 0;
+            $overallTotal = 0;
         }
 
         View::render('families.index', [
@@ -80,6 +84,8 @@ final class FamilyController
             'authUser' => Session::get('auth_user', []),
             'families' => $families,
             'filters' => $filters,
+            'filteredTotal' => $filteredTotal,
+            'overallTotal' => $overallTotal,
             'success' => Session::consumeFlash('success'),
             'error' => Session::consumeFlash('error'),
         ]);

@@ -2,6 +2,8 @@
 declare(strict_types=1);
 
 $filters = is_array($filters ?? null) ? $filters : [];
+$filteredTotal = (int) ($filteredTotal ?? 0);
+$overallTotal = (int) ($overallTotal ?? 0);
 ?>
 <?php if (!empty($success)) : ?>
     <div class="alert alert-success shadow-sm border-0"><?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?></div>
@@ -16,6 +18,9 @@ $filters = is_array($filters ?? null) ? $filters : [];
             <div>
                 <h2 class="h5 mb-1">Familias cadastradas</h2>
                 <p class="text-secondary mb-0">Busca por nome, CPF, bairro, cidade e status.</p>
+                <div class="small text-secondary mt-1">
+                    Exibindo <?= $filteredTotal ?> registro(s) de <?= $overallTotal ?> familia(s) cadastrada(s).
+                </div>
             </div>
             <a class="btn btn-teal text-white" href="/families/create">Nova familia</a>
         </div>
@@ -54,6 +59,7 @@ $filters = is_array($filters ?? null) ? $filters : [];
         <table class="table align-middle mb-0">
             <thead>
                 <tr>
+                    <th>Nº</th>
                     <th>Responsavel</th>
                     <th>CPF</th>
                     <th>Endereco</th>
@@ -67,7 +73,7 @@ $filters = is_array($filters ?? null) ? $filters : [];
             <tbody>
             <?php if (empty($families)) : ?>
                 <tr>
-                    <td colspan="8" class="text-secondary p-4">Nenhuma familia encontrada.</td>
+                    <td colspan="9" class="text-secondary p-4">Nenhuma familia encontrada.</td>
                 </tr>
             <?php else : ?>
                 <?php foreach ($families as $family) : ?>
@@ -80,6 +86,7 @@ $filters = is_array($filters ?? null) ? $filters : [];
                     ]);
                     ?>
                     <tr>
+                        <td class="fw-semibold">#<?= $id ?></td>
                         <td>
                             <div class="fw-semibold"><?= htmlspecialchars((string) ($family['responsible_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                             <div class="small text-secondary"><?= htmlspecialchars((string) ($family['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>

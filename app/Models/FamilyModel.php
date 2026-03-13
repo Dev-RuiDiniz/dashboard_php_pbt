@@ -22,38 +22,7 @@ final class FamilyModel
                 WHERE 1=1';
         $params = [];
 
-        $q = trim((string) ($filters['q'] ?? ''));
-        if ($q !== '') {
-            $sql .= ' AND (
-                responsible_name LIKE :q_responsible
-                OR cpf_responsible LIKE :q_cpf
-                OR neighborhood LIKE :q_neighborhood
-                OR city LIKE :q_city
-            )';
-            $like = '%' . $q . '%';
-            $params['q_responsible'] = $like;
-            $params['q_cpf'] = $like;
-            $params['q_neighborhood'] = $like;
-            $params['q_city'] = $like;
-        }
-
-        $city = trim((string) ($filters['city'] ?? ''));
-        if ($city !== '') {
-            $sql .= ' AND city = :city';
-            $params['city'] = $city;
-        }
-
-        $status = trim((string) ($filters['status'] ?? ''));
-        if ($status !== '') {
-            $sql .= ' AND is_active = :is_active';
-            $params['is_active'] = $status === 'ativo' ? 1 : 0;
-        }
-
-        $docStatus = trim((string) ($filters['documentation_status'] ?? ''));
-        if ($docStatus !== '') {
-            $sql .= ' AND documentation_status = :documentation_status';
-            $params['documentation_status'] = $docStatus;
-        }
+        $sql .= $this->buildFilterSql($filters, $params);
 
         $sql .= ' ORDER BY responsible_name ASC, id DESC LIMIT 200';
 
@@ -62,6 +31,18 @@ final class FamilyModel
         $rows = $stmt->fetchAll();
 
         return is_array($rows) ? $rows : [];
+    }
+
+    public function count(array $filters = []): int
+    {
+        $sql = 'SELECT COUNT(*) AS total FROM families WHERE 1=1';
+        $params = [];
+        $sql .= $this->buildFilterSql($filters, $params);
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $row = $stmt->fetch();
+        return (int) ($row['total'] ?? 0);
     }
 
     public function findById(int $id): ?array
@@ -252,5 +233,45 @@ final class FamilyModel
             'workers_count' => (int) ($summary['workers_count'] ?? 0),
             'family_income_total' => number_format((float) ($summary['total_income'] ?? 0), 2, '.', ''),
         ]);
+    }
+
+    private function buildFilterSql(array $filters, array &$params): string
+    {
+        $sql = '';
+
+        $q = trim((string) ($filters['q'] ?? ''));
+        if ($q !== '') {
+            $sql .= ' AND (
+                responsible_name LIKE :q_responsible
+                OR cpf_responsible LIKE :q_cpf
+                OR neighborhood LIKE :q_neighborhood
+                OR city LIKE :q_city
+            )';
+            $like = '%' . $q . '%';
+            $params['q_responsible'] = $like;
+            $params['q_cpf'] = $like;
+            $params['q_neighborhood'] = $like;
+            $params['q_city'] = $like;
+        }
+
+        $city = trim((string) ($filters['city'] ?? ''));
+        if ($city !== '') {
+            $sql .= ' AND city = :city';
+            $params['city'] = $city;
+        }
+
+        $status = trim((string) ($filters['status'] ?? ''));
+        if ($status !== '') {
+            $sql .= ' AND is_active = :is_active';
+            $params['is_active'] = $status === 'ativo' ? 1 : 0;
+        }
+
+        $docStatus = trim((string) ($filters['documentation_status'] ?? ''));
+        if ($docStatus !== '') {
+            $sql .= ' AND documentation_status = :documentation_status';
+            $params['documentation_status'] = $docStatus;
+        }
+
+        return $sql;
     }
 }

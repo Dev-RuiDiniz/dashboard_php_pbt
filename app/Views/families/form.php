@@ -27,6 +27,21 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
 
                 <form method="post" action="<?= $isEdit ? '/families/update?id=' . (int) ($familyData['id'] ?? 0) : '/families' ?>">
                     <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Numero da familia</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                value="<?= $isEdit ? ('#' . (int) ($familyData['id'] ?? 0)) : 'Sera gerado ao salvar' ?>"
+                                readonly
+                                tabindex="-1"
+                            >
+                        </div>
+                        <div class="col-12 col-md-8 d-flex align-items-end">
+                            <div class="text-secondary small">
+                                Use o numero da familia como referencia rapida no atendimento e na conferencia.
+                            </div>
+                        </div>
                         <div class="col-12 col-lg-6">
                             <label class="form-label">Responsavel</label>
                             <input class="form-control" name="responsible_name" required value="<?= htmlspecialchars((string) ($familyData['responsible_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
