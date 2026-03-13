@@ -113,26 +113,26 @@
     }
 
     function initFamilyFormMasks(form) {
-        var cpfInput = form.querySelector('input[name="cpf_responsible"]');
-        var rgInput = form.querySelector('input[name="rg_responsible"]');
-        var phoneInput = form.querySelector('input[name="phone"]');
+        var cpfInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="cpf_responsible"], input[name="cpf"]'));
+        var rgInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="rg_responsible"], input[name="rg"]'));
+        var phoneInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="phone"]'));
 
-        if (cpfInput) {
+        cpfInputs.forEach(function (cpfInput) {
             cpfInput.setAttribute('inputmode', 'numeric');
             cpfInput.setAttribute('maxlength', '14');
             bindMask(cpfInput, formatCpf);
-        }
+        });
 
-        if (rgInput) {
+        rgInputs.forEach(function (rgInput) {
             rgInput.setAttribute('maxlength', '12');
             bindMask(rgInput, formatRg);
-        }
+        });
 
-        if (phoneInput) {
+        phoneInputs.forEach(function (phoneInput) {
             phoneInput.setAttribute('inputmode', 'numeric');
             phoneInput.setAttribute('maxlength', '15');
             bindMask(phoneInput, formatPhone);
-        }
+        });
 
         bindAgeCalculation(form);
     }

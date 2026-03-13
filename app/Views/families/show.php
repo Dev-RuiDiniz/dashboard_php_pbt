@@ -222,11 +222,11 @@ $renderAge = static function ($birthDate): string {
                                 </div>
                                 <div class="col-12 col-md-3">
                                     <label class="form-label">CPF</label>
-                                    <input class="form-control" name="cpf_responsible" value="<?= htmlspecialchars((string) ($principalForm['cpf_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                    <input class="form-control" name="cpf_responsible" required value="<?= htmlspecialchars((string) ($principalForm['cpf_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
                                 <div class="col-12 col-md-3">
                                     <label class="form-label">RG</label>
-                                    <input class="form-control" name="rg_responsible" value="<?= htmlspecialchars((string) ($principalForm['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                    <input class="form-control" name="rg_responsible" required value="<?= htmlspecialchars((string) ($principalForm['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <label class="form-label">Nascimento</label>
@@ -260,11 +260,19 @@ $renderAge = static function ($birthDate): string {
                             <input type="hidden" name="person_type" value="<?= $dependentMode ? 'dependent' : 'member' ?>" data-member-person-type>
 
                             <div class="row g-3">
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-5">
                                     <label class="form-label">Nome</label>
                                     <input class="form-control" name="name" required value="<?= htmlspecialchars((string) ($memberForm['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
-                                <div class="col-12 col-md-6" data-member-relationship-group>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label">CPF</label>
+                                    <input class="form-control" name="cpf" required placeholder="000.000.000-00" value="<?= htmlspecialchars((string) ($memberForm['cpf'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <label class="form-label">RG</label>
+                                    <input class="form-control" name="rg" required placeholder="00.000.000-0" value="<?= htmlspecialchars((string) ($memberForm['rg'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                                <div class="col-12 col-md-2" data-member-relationship-group>
                                     <label class="form-label">Parentesco</label>
                                     <input class="form-control" name="relationship" value="<?= htmlspecialchars((string) ($memberForm['relationship'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
@@ -323,6 +331,14 @@ $renderAge = static function ($birthDate): string {
                                     <input class="form-control" name="name" required value="<?= htmlspecialchars((string) ($childForm['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
                                 <div class="col-12 col-md-3">
+                                    <label class="form-label">CPF (opcional)</label>
+                                    <input class="form-control" name="cpf" placeholder="000.000.000-00" value="<?= htmlspecialchars((string) ($childForm['cpf'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <label class="form-label">RG (opcional)</label>
+                                    <input class="form-control" name="rg" placeholder="00.000.000-0" value="<?= htmlspecialchars((string) ($childForm['rg'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                                <div class="col-12 col-md-3">
                                     <label class="form-label">Nascimento</label>
                                     <input type="date" class="form-control" name="birth_date" value="<?= htmlspecialchars((string) ($childForm['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
@@ -366,6 +382,7 @@ $renderAge = static function ($birthDate): string {
                                 <th>Nome</th>
                                 <th>Tipo</th>
                                 <th>Parentesco</th>
+                                <th>Documentos</th>
                                 <th>Trabalha</th>
                                 <th>Renda</th>
                                 <th>Acoes</th>
@@ -374,7 +391,7 @@ $renderAge = static function ($birthDate): string {
                         <tbody>
                         <?php if (empty($members)) : ?>
                             <tr>
-                                <td colspan="6" class="text-secondary">Nenhum membro cadastrado.</td>
+                                <td colspan="7" class="text-secondary">Nenhum membro cadastrado.</td>
                             </tr>
                         <?php else : ?>
                             <?php foreach ($members as $member) : ?>
@@ -395,6 +412,10 @@ $renderAge = static function ($birthDate): string {
                                             : '<span class="badge text-bg-light border">Membro</span>' ?>
                                     </td>
                                     <td><?= htmlspecialchars($relationship !== '' ? $relationship : '-', ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td class="small">
+                                        <div>CPF: <?= htmlspecialchars((string) ($member['cpf'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                        <div>RG: <?= htmlspecialchars((string) ($member['rg'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                    </td>
                                     <td>
                                         <?= ((int) ($member['works'] ?? 0) === 1)
                                             ? '<span class="badge text-bg-success">Sim</span>'
@@ -429,6 +450,7 @@ $renderAge = static function ($birthDate): string {
                             <tr>
                                 <th>Nome</th>
                                 <th>Nascimento / Idade</th>
+                                <th>Documentos</th>
                                 <th>Parentesco</th>
                                 <th>Acoes</th>
                             </tr>
@@ -436,7 +458,7 @@ $renderAge = static function ($birthDate): string {
                         <tbody>
                         <?php if (empty($children)) : ?>
                             <tr>
-                                <td colspan="4" class="text-secondary">Nenhuma crianca vinculada.</td>
+                                <td colspan="5" class="text-secondary">Nenhuma crianca vinculada.</td>
                             </tr>
                         <?php else : ?>
                             <?php foreach ($children as $child) : ?>
@@ -457,6 +479,10 @@ $renderAge = static function ($birthDate): string {
                                     <td>
                                         <div><?= htmlspecialchars((string) ($child['birth_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                         <div class="small text-secondary">idade: <?= htmlspecialchars($childAgeText, ENT_QUOTES, 'UTF-8') ?></div>
+                                    </td>
+                                    <td class="small">
+                                        <div>CPF: <?= htmlspecialchars((string) ($child['cpf'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                        <div>RG: <?= htmlspecialchars((string) ($child['rg'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                     </td>
                                     <td><?= htmlspecialchars((string) ($child['relationship'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                     <td>
