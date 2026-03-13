@@ -4,6 +4,10 @@ declare(strict_types=1);
 $isEdit = ($mode ?? 'create') === 'edit';
 $familyData = is_array($family ?? null) ? $family : [];
 $docStatuses = is_array($docStatuses ?? null) ? $docStatuses : ['ok', 'pendente', 'parcial'];
+$housingTypes = is_array($housingTypes ?? null) ? $housingTypes : [];
+$maritalStatuses = is_array($maritalStatuses ?? null) ? $maritalStatuses : [];
+$educationLevels = is_array($educationLevels ?? null) ? $educationLevels : [];
+$professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalStatuses : [];
 ?>
 <div class="row justify-content-center">
     <div class="col-12">
@@ -46,7 +50,14 @@ $docStatuses = is_array($docStatuses ?? null) ? $docStatuses : ['ok', 'pendente'
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Tipo de moradia</label>
-                            <input class="form-control" name="housing_type" value="<?= htmlspecialchars((string) ($familyData['housing_type'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <select class="form-select" name="housing_type">
+                                <option value="">Selecione</option>
+                                <?php foreach ($housingTypes as $value => $label) : ?>
+                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($familyData['housing_type'] ?? '') === (string) $value) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
 
                         <div class="col-12"><hr><h3 class="h6 text-uppercase text-secondary mb-0">Endereco</h3></div>
@@ -89,15 +100,36 @@ $docStatuses = is_array($docStatuses ?? null) ? $docStatuses : ['ok', 'pendente'
 
                         <div class="col-12 col-md-4">
                             <label class="form-label">Estado civil</label>
-                            <input class="form-control" name="marital_status" value="<?= htmlspecialchars((string) ($familyData['marital_status'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <select class="form-select" name="marital_status">
+                                <option value="">Selecione</option>
+                                <?php foreach ($maritalStatuses as $value => $label) : ?>
+                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($familyData['marital_status'] ?? '') === (string) $value) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Escolaridade</label>
-                            <input class="form-control" name="education_level" value="<?= htmlspecialchars((string) ($familyData['education_level'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <select class="form-select" name="education_level">
+                                <option value="">Selecione</option>
+                                <?php foreach ($educationLevels as $value => $label) : ?>
+                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($familyData['education_level'] ?? '') === (string) $value) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Situacao profissional</label>
-                            <input class="form-control" name="professional_status" value="<?= htmlspecialchars((string) ($familyData['professional_status'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <select class="form-select" name="professional_status">
+                                <option value="">Selecione</option>
+                                <?php foreach ($professionalStatuses as $value => $label) : ?>
+                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($familyData['professional_status'] ?? '') === (string) $value) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="form-label">Profissao / detalhe</label>

@@ -17,6 +17,41 @@ use Throwable;
 final class FamilyController
 {
     private const DOC_STATUSES = ['ok', 'pendente', 'parcial'];
+    private const HOUSING_TYPES = [
+        'propria' => 'Propria',
+        'alugada' => 'Alugada',
+        'cedida' => 'Cedida',
+        'financiada' => 'Financiada',
+        'ocupacao' => 'Ocupacao',
+        'situacao_rua' => 'Situacao de rua',
+        'outro' => 'Outro',
+    ];
+    private const MARITAL_STATUSES = [
+        'solteiro' => 'Solteiro(a)',
+        'casado' => 'Casado(a)',
+        'uniao_estavel' => 'Uniao estavel',
+        'separado' => 'Separado(a)',
+        'divorciado' => 'Divorciado(a)',
+        'viuvo' => 'Viuvo(a)',
+    ];
+    private const EDUCATION_LEVELS = [
+        'analfabeto' => 'Analfabeto(a)',
+        'fundamental_incompleto' => 'Fundamental incompleto',
+        'fundamental_completo' => 'Fundamental completo',
+        'medio_incompleto' => 'Medio incompleto',
+        'medio_completo' => 'Medio completo',
+        'superior_incompleto' => 'Superior incompleto',
+        'superior_completo' => 'Superior completo',
+    ];
+    private const PROFESSIONAL_STATUSES = [
+        'desempregado' => 'Desempregado(a)',
+        'empregado' => 'Empregado(a)',
+        'autonomo' => 'Autonomo(a)',
+        'informal' => 'Trabalho informal',
+        'aposentado' => 'Aposentado(a)',
+        'afastado' => 'Afastado(a)',
+        'do_lar' => 'Do lar',
+    ];
 
     public function __construct(private readonly Container $container)
     {
@@ -339,6 +374,10 @@ final class FamilyController
             'mode' => $mode,
             'family' => $family,
             'docStatuses' => self::DOC_STATUSES,
+            'housingTypes' => $this->withLegacyOption(self::HOUSING_TYPES, (string) ($family['housing_type'] ?? '')),
+            'maritalStatuses' => $this->withLegacyOption(self::MARITAL_STATUSES, (string) ($family['marital_status'] ?? '')),
+            'educationLevels' => $this->withLegacyOption(self::EDUCATION_LEVELS, (string) ($family['education_level'] ?? '')),
+            'professionalStatuses' => $this->withLegacyOption(self::PROFESSIONAL_STATUSES, (string) ($family['professional_status'] ?? '')),
             'error' => Session::consumeFlash('error'),
         ]);
     }
@@ -561,5 +600,15 @@ final class FamilyController
             'general_notes' => $input['general_notes'] !== '' ? $input['general_notes'] : null,
             'is_active' => (int) $input['is_active'],
         ];
+    }
+
+    private function withLegacyOption(array $baseOptions, string $selectedValue): array
+    {
+        if ($selectedValue === '' || isset($baseOptions[$selectedValue])) {
+            return $baseOptions;
+        }
+
+        $baseOptions[$selectedValue] = 'Legado: ' . $selectedValue;
+        return $baseOptions;
     }
 }
