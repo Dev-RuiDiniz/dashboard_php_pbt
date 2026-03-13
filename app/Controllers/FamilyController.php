@@ -136,8 +136,8 @@ final class FamilyController
             Response::redirect('/families/create');
         }
 
-        Session::flash('success', 'Familia cadastrada com sucesso.');
-        Response::redirect('/families');
+        Session::flash('success', 'Familia cadastrada com sucesso. Continue no cadastro de pessoas da familia.');
+        Response::redirect('/families/show?id=' . $familyId . '&person_type=principal');
     }
 
     public function edit(): void

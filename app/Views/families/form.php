@@ -24,6 +24,11 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                 <?php if (!empty($error)) : ?>
                     <div class="alert alert-danger border-0 shadow-sm"><?= htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif; ?>
+                <?php if (!$isEdit) : ?>
+                    <div class="alert alert-light border-0 shadow-sm mb-3">
+                        Depois de salvar, o sistema abre automaticamente o detalhe da familia para cadastrar Principal, Membro, Dependente e Crianca na mesma aba.
+                    </div>
+                <?php endif; ?>
 
                 <form method="post" action="<?= $isEdit ? '/families/update?id=' . (int) ($familyData['id'] ?? 0) : '/families' ?>">
                     <div class="row g-3">
