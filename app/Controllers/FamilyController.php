@@ -107,8 +107,9 @@ final class FamilyController
     {
         $input = $this->sanitizeInput($_POST);
 
-        if (!$this->validateRequired($input)) {
-            Session::flash('error', 'Nome do responsavel e obrigatorio.');
+        $requiredError = $this->validateRequired($input);
+        if ($requiredError !== null) {
+            Session::flash('error', $requiredError);
             Session::flash('form_old', $input);
             Response::redirect('/families/create');
         }
@@ -178,8 +179,9 @@ final class FamilyController
 
         $input = $this->sanitizeInput($_POST);
 
-        if (!$this->validateRequired($input)) {
-            Session::flash('error', 'Nome do responsavel e obrigatorio.');
+        $requiredError = $this->validateRequired($input);
+        if ($requiredError !== null) {
+            Session::flash('error', $requiredError);
             Session::flash('form_old', $input);
             Response::redirect('/families/edit?id=' . $id);
         }
@@ -370,16 +372,9 @@ final class FamilyController
         }
 
         $input = $this->sanitizeResponsibleInput($_POST);
-        $error = $this->validateResponsibleInput($input);
+        $error = $this->validateResponsibleInput($input, $familyId);
         if ($error !== null) {
             Session::flash('error', $error);
-            Session::flash('principal_form_old', $input);
-            Response::redirect($this->familyShowUrl($familyId, 'principal'));
-        }
-
-        $cpfError = $this->validateCpfAndDuplicate($input, $familyId);
-        if ($cpfError !== null) {
-            Session::flash('error', $cpfError);
             Session::flash('principal_form_old', $input);
             Response::redirect($this->familyShowUrl($familyId, 'principal'));
         }
@@ -407,7 +402,7 @@ final class FamilyController
         $input = $this->sanitizeMemberInput($_POST, $familyId);
         $this->applyMemberPersonTypeRules($input);
         $personType = (string) ($input['person_type'] ?? 'member');
-        $error = $this->validateMemberInput($input);
+        $error = $this->validateMemberInput($input, null);
         if ($error !== null) {
             Session::flash('error', $error);
             Session::flash('member_form_old', $input);
@@ -444,7 +439,7 @@ final class FamilyController
         $input = $this->sanitizeMemberInput($_POST, $familyId);
         $this->applyMemberPersonTypeRules($input);
         $personType = (string) ($input['person_type'] ?? 'member');
-        $error = $this->validateMemberInput($input);
+        $error = $this->validateMemberInput($input, $memberId);
         if ($error !== null) {
             Session::flash('error', $error);
             $input['id'] = $memberId;
@@ -514,7 +509,7 @@ final class FamilyController
         }
 
         $input = $this->sanitizeChildInput($_POST, $familyId);
-        $error = $this->validateChildInput($input);
+        $error = $this->validateChildInput($input, null);
         if ($error !== null) {
             Session::flash('error', $error);
             Session::flash('child_form_old', $input);
@@ -549,7 +544,7 @@ final class FamilyController
         }
 
         $input = $this->sanitizeChildInput($_POST, $familyId);
-        $error = $this->validateChildInput($input);
+        $error = $this->validateChildInput($input, $childId);
         if ($error !== null) {
             Session::flash('error', $error);
             $input['id'] = $childId;
@@ -728,9 +723,25 @@ final class FamilyController
         return number_format((float) $filtered, 2, '.', '');
     }
 
-    private function validateRequired(array $input): bool
+    private function validateRequired(array $input): ?string
     {
-        return trim((string) ($input['responsible_name'] ?? '')) !== '';
+        if (trim((string) ($input['responsible_name'] ?? '')) === '') {
+            return 'Nome do responsavel principal e obrigatorio.';
+        }
+
+        if (trim((string) ($input['cpf_responsible'] ?? '')) === '') {
+            return 'CPF do responsavel principal e obrigatorio.';
+        }
+
+        if (trim((string) ($input['rg_responsible'] ?? '')) === '') {
+            return 'RG do responsavel principal e obrigatorio.';
+        }
+
+        if (!$this->isRgValid((string) ($input['rg_responsible'] ?? ''))) {
+            return 'RG invalido. Use o formato 00.000.000-0.';
+        }
+
+        return null;
     }
 
     private function validateControlledFields(array $input, ?array $existing): ?string
@@ -769,7 +780,7 @@ final class FamilyController
         $cpfRaw = (string) ($input['cpf_responsible'] ?? '');
         if ($cpfRaw === '') {
             $input['cpf_responsible'] = '';
-            return null;
+            return 'CPF do responsavel principal e obrigatorio.';
         }
 
         if (!CpfService::isValid($cpfRaw)) {
@@ -780,12 +791,18 @@ final class FamilyController
         $input['cpf_responsible'] = $cpfFormatted;
 
         try {
-            $duplicate = $this->familyModel()->findByCpfExcludingId($cpfFormatted, $excludeId);
+            $conflict = $this->familyModel()->findCpfConflict($cpfFormatted, [
+                'family_id' => $excludeId ?? 0,
+            ]);
         } catch (Throwable $exception) {
             return 'Falha ao validar duplicidade de CPF.';
         }
 
-        return $duplicate !== null ? 'Ja existe familia cadastrada com este CPF.' : null;
+        if ($conflict !== null) {
+            return $this->buildCpfConflictMessage($conflict);
+        }
+
+        return null;
     }
 
     private function sanitizeRg(string $value): string
@@ -838,6 +855,8 @@ final class FamilyController
             'family_id' => $familyId,
             'name' => '',
             'relationship' => '',
+            'cpf' => '',
+            'rg' => '',
             'birth_date' => '',
             'works' => 0,
             'income' => '0.00',
@@ -850,6 +869,8 @@ final class FamilyController
         return [
             'family_id' => $familyId,
             'name' => '',
+            'cpf' => '',
+            'rg' => '',
             'birth_date' => '',
             'age_years' => '',
             'relationship' => '',
@@ -876,6 +897,8 @@ final class FamilyController
             'family_id' => $familyId,
             'name' => trim((string) ($post['name'] ?? '')),
             'relationship' => trim((string) ($post['relationship'] ?? '')),
+            'cpf' => trim((string) ($post['cpf'] ?? '')),
+            'rg' => $this->sanitizeRg((string) ($post['rg'] ?? '')),
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
             'works' => isset($post['works']) ? 1 : 0,
             'income' => $this->sanitizeMoney((string) ($post['income'] ?? '0')),
@@ -889,6 +912,8 @@ final class FamilyController
         return [
             'family_id' => $familyId,
             'name' => trim((string) ($post['name'] ?? '')),
+            'cpf' => trim((string) ($post['cpf'] ?? '')),
+            'rg' => $this->sanitizeRg((string) ($post['rg'] ?? '')),
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
             'age_years' => $age === '' ? null : max(0, (int) $age),
             'relationship' => trim((string) ($post['relationship'] ?? '')),
@@ -909,10 +934,40 @@ final class FamilyController
         ];
     }
 
-    private function validateMemberInput(array $input): ?string
+    private function validateMemberInput(array &$input, ?int $memberId): ?string
     {
         if (trim((string) ($input['name'] ?? '')) === '') {
             return 'Nome do membro e obrigatorio.';
+        }
+
+        if (trim((string) ($input['cpf'] ?? '')) === '') {
+            return 'CPF do membro/dependente e obrigatorio.';
+        }
+
+        if (trim((string) ($input['rg'] ?? '')) === '') {
+            return 'RG do membro/dependente e obrigatorio.';
+        }
+
+        if (!$this->isRgValid((string) ($input['rg'] ?? ''))) {
+            return 'RG invalido. Use o formato 00.000.000-0.';
+        }
+
+        if (!CpfService::isValid((string) ($input['cpf'] ?? ''))) {
+            return 'CPF invalido.';
+        }
+
+        $input['cpf'] = (string) CpfService::format((string) $input['cpf']);
+
+        try {
+            $conflict = $this->familyModel()->findCpfConflict((string) $input['cpf'], [
+                'member_id' => $memberId ?? 0,
+            ]);
+        } catch (Throwable $exception) {
+            return 'Falha ao validar duplicidade de CPF.';
+        }
+
+        if ($conflict !== null) {
+            return $this->buildCpfConflictMessage($conflict);
         }
 
         if (!is_numeric((string) ($input['income'] ?? '0'))) {
@@ -922,7 +977,7 @@ final class FamilyController
         return null;
     }
 
-    private function validateChildInput(array $input): ?string
+    private function validateChildInput(array &$input, ?int $childId): ?string
     {
         if ((int) ($input['family_id'] ?? 0) <= 0) {
             return 'Familia invalida para crianca.';
@@ -932,13 +987,68 @@ final class FamilyController
             return 'Nome da crianca e obrigatorio.';
         }
 
+        $cpf = trim((string) ($input['cpf'] ?? ''));
+        if ($cpf !== '') {
+            if (!CpfService::isValid($cpf)) {
+                return 'CPF invalido.';
+            }
+
+            $input['cpf'] = (string) CpfService::format($cpf);
+
+            try {
+                $conflict = $this->familyModel()->findCpfConflict((string) $input['cpf'], [
+                    'child_id' => $childId ?? 0,
+                ]);
+            } catch (Throwable $exception) {
+                return 'Falha ao validar duplicidade de CPF.';
+            }
+
+            if ($conflict !== null) {
+                return $this->buildCpfConflictMessage($conflict);
+            }
+        }
+
+        $rg = trim((string) ($input['rg'] ?? ''));
+        if ($rg !== '' && !$this->isRgValid($rg)) {
+            return 'RG invalido. Use o formato 00.000.000-0.';
+        }
+
         return null;
     }
 
-    private function validateResponsibleInput(array $input): ?string
+    private function validateResponsibleInput(array &$input, int $familyId): ?string
     {
         if (trim((string) ($input['responsible_name'] ?? '')) === '') {
             return 'Nome do responsavel principal e obrigatorio.';
+        }
+
+        if (trim((string) ($input['cpf_responsible'] ?? '')) === '') {
+            return 'CPF do responsavel principal e obrigatorio.';
+        }
+
+        if (trim((string) ($input['rg_responsible'] ?? '')) === '') {
+            return 'RG do responsavel principal e obrigatorio.';
+        }
+
+        if (!$this->isRgValid((string) ($input['rg_responsible'] ?? ''))) {
+            return 'RG invalido. Use o formato 00.000.000-0.';
+        }
+
+        if (!CpfService::isValid((string) ($input['cpf_responsible'] ?? ''))) {
+            return 'CPF invalido.';
+        }
+
+        $input['cpf_responsible'] = (string) CpfService::format((string) $input['cpf_responsible']);
+        try {
+            $conflict = $this->familyModel()->findCpfConflict((string) $input['cpf_responsible'], [
+                'family_id' => $familyId,
+            ]);
+        } catch (Throwable $exception) {
+            return 'Falha ao validar duplicidade de CPF.';
+        }
+
+        if ($conflict !== null) {
+            return $this->buildCpfConflictMessage($conflict);
         }
 
         return null;
@@ -950,6 +1060,8 @@ final class FamilyController
             'family_id' => (int) $input['family_id'],
             'name' => $input['name'],
             'relationship' => $input['relationship'] !== '' ? $input['relationship'] : null,
+            'cpf' => $input['cpf'] !== '' ? $input['cpf'] : null,
+            'rg' => $input['rg'] !== '' ? $input['rg'] : null,
             'birth_date' => $input['birth_date'] !== '' ? $input['birth_date'] : null,
             'works' => (int) $input['works'],
             'income' => $input['income'],
@@ -961,11 +1073,38 @@ final class FamilyController
         return [
             'family_id' => (int) $input['family_id'],
             'name' => $input['name'],
+            'cpf' => ($input['cpf'] ?? '') !== '' ? $input['cpf'] : null,
+            'rg' => ($input['rg'] ?? '') !== '' ? $input['rg'] : null,
             'birth_date' => ($input['birth_date'] ?? '') !== '' ? $input['birth_date'] : null,
             'age_years' => $input['age_years'],
             'relationship' => ($input['relationship'] ?? '') !== '' ? $input['relationship'] : null,
             'notes' => ($input['notes'] ?? '') !== '' ? $input['notes'] : null,
         ];
+    }
+
+    private function isRgValid(string $rg): bool
+    {
+        return preg_match('/^\d{2}\.\d{3}\.\d{3}-[0-9A-Z]$/', trim($rg)) === 1;
+    }
+
+    private function buildCpfConflictMessage(array $conflict): string
+    {
+        $source = (string) ($conflict['source_table'] ?? '');
+        $name = trim((string) ($conflict['source_name'] ?? ''));
+
+        $target = match ($source) {
+            'families' => 'familia',
+            'family_members' => 'membro/dependente',
+            'children' => 'crianca',
+            'people' => 'pessoa',
+            default => 'cadastro existente',
+        };
+
+        if ($name !== '') {
+            return 'CPF ja cadastrado em ' . $target . ': ' . $name . '.';
+        }
+
+        return 'CPF ja cadastrado no sistema.';
     }
 
     private function toResponsiblePersistenceData(array $input): array

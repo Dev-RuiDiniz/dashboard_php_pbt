@@ -159,7 +159,7 @@ final class FamilyModel
     public function getMembersByFamilyId(int $familyId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, family_id, name, relationship, birth_date, works, income, created_at, updated_at
+            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, works, income, created_at, updated_at
              FROM family_members
              WHERE family_id = :family_id
              ORDER BY name ASC, id ASC'
@@ -172,7 +172,7 @@ final class FamilyModel
     public function findMemberById(int $memberId): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, family_id, name, relationship, birth_date, works, income
+            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, works, income
              FROM family_members
              WHERE id = :id
              LIMIT 1'
@@ -185,8 +185,8 @@ final class FamilyModel
     public function createMember(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO family_members (family_id, name, relationship, birth_date, works, income)
-             VALUES (:family_id, :name, :relationship, :birth_date, :works, :income)'
+            'INSERT INTO family_members (family_id, name, relationship, cpf, rg, birth_date, works, income)
+             VALUES (:family_id, :name, :relationship, :cpf, :rg, :birth_date, :works, :income)'
         );
         $stmt->execute($data);
         return (int) $this->pdo->lastInsertId();
@@ -199,12 +199,76 @@ final class FamilyModel
             'UPDATE family_members
              SET name = :name,
                  relationship = :relationship,
+                 cpf = :cpf,
+                 rg = :rg,
                  birth_date = :birth_date,
                  works = :works,
                  income = :income
              WHERE id = :id AND family_id = :family_id'
         );
         $stmt->execute($data);
+    }
+
+    public function findCpfConflict(string $cpfFormatted, array $exclude = []): ?array
+    {
+        $familyExcludeId = (int) ($exclude['family_id'] ?? 0);
+        $memberExcludeId = (int) ($exclude['member_id'] ?? 0);
+        $childExcludeId = (int) ($exclude['child_id'] ?? 0);
+        $personExcludeId = (int) ($exclude['person_id'] ?? 0);
+
+        $sql = 'SELECT source_table, source_id, source_name
+                FROM (
+                    SELECT
+                        \'families\' AS source_table,
+                        f.id AS source_id,
+                        f.responsible_name AS source_name
+                    FROM families f
+                    WHERE f.cpf_responsible = :cpf
+                      AND (:exclude_family_id = 0 OR f.id <> :exclude_family_id)
+
+                    UNION ALL
+
+                    SELECT
+                        \'family_members\' AS source_table,
+                        fm.id AS source_id,
+                        fm.name AS source_name
+                    FROM family_members fm
+                    WHERE fm.cpf = :cpf
+                      AND (:exclude_member_id = 0 OR fm.id <> :exclude_member_id)
+
+                    UNION ALL
+
+                    SELECT
+                        \'children\' AS source_table,
+                        c.id AS source_id,
+                        c.name AS source_name
+                    FROM children c
+                    WHERE c.cpf = :cpf
+                      AND (:exclude_child_id = 0 OR c.id <> :exclude_child_id)
+
+                    UNION ALL
+
+                    SELECT
+                        \'people\' AS source_table,
+                        p.id AS source_id,
+                        COALESCE(p.full_name, p.social_name, CONCAT(\'Pessoa #\', p.id)) AS source_name
+                    FROM people p
+                    WHERE p.cpf = :cpf
+                      AND (:exclude_person_id = 0 OR p.id <> :exclude_person_id)
+                ) AS conflicts
+                LIMIT 1';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'cpf' => $cpfFormatted,
+            'exclude_family_id' => $familyExcludeId,
+            'exclude_member_id' => $memberExcludeId,
+            'exclude_child_id' => $childExcludeId,
+            'exclude_person_id' => $personExcludeId,
+        ]);
+
+        $row = $stmt->fetch();
+        return is_array($row) ? $row : null;
     }
 
     public function deleteMember(int $memberId, int $familyId): void

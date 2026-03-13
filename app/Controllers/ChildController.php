@@ -102,6 +102,8 @@ final class ChildController
         $child = [
             'family_id' => $familyId > 0 ? $familyId : 0,
             'name' => '',
+            'cpf' => '',
+            'rg' => '',
             'birth_date' => '',
             'age_years' => '',
             'relationship' => '',
@@ -255,6 +257,8 @@ final class ChildController
         return [
             'family_id' => (int) ($post['family_id'] ?? 0),
             'name' => trim((string) ($post['name'] ?? '')),
+            'cpf' => trim((string) ($post['cpf'] ?? '')),
+            'rg' => trim((string) ($post['rg'] ?? '')),
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
             'age_years' => $age === '' ? null : max(0, (int) $age),
             'relationship' => trim((string) ($post['relationship'] ?? '')),
@@ -278,6 +282,8 @@ final class ChildController
         return [
             'family_id' => (int) $input['family_id'],
             'name' => $input['name'],
+            'cpf' => ($input['cpf'] ?? '') !== '' ? $input['cpf'] : null,
+            'rg' => ($input['rg'] ?? '') !== '' ? $input['rg'] : null,
             'birth_date' => ($input['birth_date'] ?? '') !== '' ? $input['birth_date'] : null,
             'age_years' => $input['age_years'],
             'relationship' => ($input['relationship'] ?? '') !== '' ? $input['relationship'] : null,
