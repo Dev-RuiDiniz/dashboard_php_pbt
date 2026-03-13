@@ -34,3 +34,4 @@
   - `docs/MANUAL_CLIENTE.md`
   - `docs/TESTE_INTEGRADO_MVP.md`
   - `docs/sprints/sprint-36.md`
+  - `docs/VALIDACAO_LOCAL_2026-03-13.md`

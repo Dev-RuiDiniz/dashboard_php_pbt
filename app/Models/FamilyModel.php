@@ -217,8 +217,8 @@ final class FamilyModel
                         f.id AS source_id,
                         f.responsible_name AS source_name
                     FROM families f
-                    WHERE f.cpf_responsible = :cpf
-                      AND (:exclude_family_id = 0 OR f.id <> :exclude_family_id)
+                    WHERE f.cpf_responsible = :cpf_families
+                      AND f.id <> COALESCE(NULLIF(:exclude_family_id_families, 0), -1)
 
                     UNION ALL
 
@@ -227,8 +227,8 @@ final class FamilyModel
                         fm.id AS source_id,
                         fm.name AS source_name
                     FROM family_members fm
-                    WHERE fm.cpf = :cpf
-                      AND (:exclude_member_id = 0 OR fm.id <> :exclude_member_id)
+                    WHERE fm.cpf = :cpf_members
+                      AND fm.id <> COALESCE(NULLIF(:exclude_member_id_members, 0), -1)
 
                     UNION ALL
 
@@ -237,8 +237,8 @@ final class FamilyModel
                         c.id AS source_id,
                         c.name AS source_name
                     FROM children c
-                    WHERE c.cpf = :cpf
-                      AND (:exclude_child_id = 0 OR c.id <> :exclude_child_id)
+                    WHERE c.cpf = :cpf_children
+                      AND c.id <> COALESCE(NULLIF(:exclude_child_id_children, 0), -1)
 
                     UNION ALL
 
@@ -247,18 +247,21 @@ final class FamilyModel
                         p.id AS source_id,
                         COALESCE(p.full_name, p.social_name, CONCAT(\'Pessoa #\', p.id)) AS source_name
                     FROM people p
-                    WHERE p.cpf = :cpf
-                      AND (:exclude_person_id = 0 OR p.id <> :exclude_person_id)
+                    WHERE p.cpf = :cpf_people
+                      AND p.id <> COALESCE(NULLIF(:exclude_person_id_people, 0), -1)
                 ) AS conflicts
                 LIMIT 1';
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            'cpf' => $cpfFormatted,
-            'exclude_family_id' => $familyExcludeId,
-            'exclude_member_id' => $memberExcludeId,
-            'exclude_child_id' => $childExcludeId,
-            'exclude_person_id' => $personExcludeId,
+            'cpf_families' => $cpfFormatted,
+            'cpf_members' => $cpfFormatted,
+            'cpf_children' => $cpfFormatted,
+            'cpf_people' => $cpfFormatted,
+            'exclude_family_id_families' => $familyExcludeId,
+            'exclude_member_id_members' => $memberExcludeId,
+            'exclude_child_id_children' => $childExcludeId,
+            'exclude_person_id_people' => $personExcludeId,
         ]);
 
         $row = $stmt->fetch();
