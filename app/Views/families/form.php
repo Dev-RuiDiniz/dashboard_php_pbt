@@ -16,7 +16,7 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
                         <h2 class="h4 mb-1"><?= $isEdit ? 'Editar familia' : 'Nova familia' ?></h2>
-                        <p class="text-secondary mb-0">Cadastro base com endereco e dados socioeconomicos.</p>
+                        <p class="text-secondary mb-0">Preencha rapido para concluir a entrevista.</p>
                     </div>
                     <a class="btn btn-outline-secondary" href="/families">Voltar</a>
                 </div>
@@ -44,7 +44,7 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         </div>
                         <div class="col-12 col-lg-6">
                             <label class="form-label">Responsavel</label>
-                            <input class="form-control" name="responsible_name" required value="<?= htmlspecialchars((string) ($familyData['responsible_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <input class="form-control" name="responsible_name" required autofocus placeholder="Nome completo da responsavel" value="<?= htmlspecialchars((string) ($familyData['responsible_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label">CPF</label>
@@ -52,9 +52,13 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         </div>
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label">RG</label>
-                            <input class="form-control" name="rg_responsible" value="<?= htmlspecialchars((string) ($familyData['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <input class="form-control" name="rg_responsible" placeholder="00.000.000-0" value="<?= htmlspecialchars((string) ($familyData['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
 
+                        <div class="col-12 col-md-3">
+                            <label class="form-label">Telefone</label>
+                            <input class="form-control" name="phone" placeholder="(00) 00000-0000" value="<?= htmlspecialchars((string) ($familyData['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
                         <div class="col-12 col-md-3">
                             <label class="form-label">Nascimento</label>
                             <input type="date" class="form-control" name="birth_date" value="<?= htmlspecialchars((string) ($familyData['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
@@ -62,10 +66,6 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         <div class="col-12 col-md-2">
                             <label class="form-label">Idade</label>
                             <input type="text" class="form-control" data-family-age-display readonly tabindex="-1" placeholder="Automatica">
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <label class="form-label">Telefone</label>
-                            <input class="form-control" name="phone" value="<?= htmlspecialchars((string) ($familyData['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Tipo de moradia</label>
@@ -150,8 +150,8 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label">Profissao / detalhe</label>
+                        <div class="col-12">
+                            <label class="form-label">Profissao (detalhe opcional)</label>
                             <input class="form-control" name="profession_detail" value="<?= htmlspecialchars((string) ($familyData['profession_detail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-6 col-md-2">
@@ -203,7 +203,7 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 mt-4">
-                        <button type="submit" class="btn btn-teal text-white"><?= $isEdit ? 'Salvar alteracoes' : 'Cadastrar familia' ?></button>
+                        <button type="submit" class="btn btn-teal text-white"><?= $isEdit ? 'Salvar alteracoes' : 'Salvar e continuar' ?></button>
                         <a class="btn btn-outline-secondary" href="/families">Cancelar</a>
                     </div>
                 </form>
