@@ -45,6 +45,26 @@ if ($dependentMode) {
 } elseif ($memberEditMode) {
     $memberFormTitle = 'Editar membro';
 }
+
+$renderAge = static function ($birthDate): string {
+    $value = trim((string) $birthDate);
+    if ($value === '' || preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) !== 1) {
+        return '-';
+    }
+
+    try {
+        $birth = new DateTimeImmutable($value);
+        $today = new DateTimeImmutable('today');
+    } catch (Throwable $exception) {
+        return '-';
+    }
+
+    if ($birth > $today) {
+        return '-';
+    }
+
+    return (string) $birth->diff($today)->y . ' anos';
+};
 ?>
 
 <?php if (!empty($success)) : ?>
@@ -212,6 +232,10 @@ if ($dependentMode) {
                                     <label class="form-label">Nascimento</label>
                                     <input type="date" class="form-control" name="birth_date" value="<?= htmlspecialchars((string) ($principalForm['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
+                                <div class="col-12 col-md-2">
+                                    <label class="form-label">Idade</label>
+                                    <input type="text" class="form-control" data-family-age-display readonly tabindex="-1" placeholder="Automatica">
+                                </div>
                                 <div class="col-12 col-md-4">
                                     <label class="form-label">Telefone</label>
                                     <input class="form-control" name="phone" value="<?= htmlspecialchars((string) ($principalForm['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
@@ -248,11 +272,15 @@ if ($dependentMode) {
                                     <label class="form-label">Classificacao</label>
                                     <input class="form-control" value="Dependente" readonly tabindex="-1">
                                 </div>
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-3">
                                     <label class="form-label">Nascimento</label>
                                     <input type="date" class="form-control" name="birth_date" value="<?= htmlspecialchars((string) ($memberForm['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-2">
+                                    <label class="form-label">Idade</label>
+                                    <input type="text" class="form-control" data-family-age-display readonly tabindex="-1" placeholder="Automatica">
+                                </div>
+                                <div class="col-12 col-md-3">
                                     <label class="form-label">Renda</label>
                                     <input class="form-control" name="income" value="<?= htmlspecialchars((string) ($memberForm['income'] ?? '0.00'), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
@@ -299,8 +327,8 @@ if ($dependentMode) {
                                     <input type="date" class="form-control" name="birth_date" value="<?= htmlspecialchars((string) ($childForm['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 </div>
                                 <div class="col-12 col-md-2">
-                                    <label class="form-label">Idade aprox.</label>
-                                    <input type="number" min="0" class="form-control" name="age_years" value="<?= htmlspecialchars((string) (($childForm['age_years'] ?? '') !== null ? (string) ($childForm['age_years'] ?? '') : ''), ENT_QUOTES, 'UTF-8') ?>">
+                                    <label class="form-label">Idade</label>
+                                    <input type="text" class="form-control" data-family-age-display readonly tabindex="-1" placeholder="Automatica">
                                 </div>
                                 <div class="col-12 col-md-3">
                                     <label class="form-label">Parentesco</label>
@@ -359,6 +387,7 @@ if ($dependentMode) {
                                     <td>
                                         <div class="fw-semibold"><?= htmlspecialchars((string) ($member['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                                         <div class="small text-secondary"><?= htmlspecialchars((string) ($member['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
+                                        <div class="small text-secondary">idade: <?= htmlspecialchars($renderAge($member['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                                     </td>
                                     <td>
                                         <?= $rowType === 'dependent'
@@ -411,7 +440,13 @@ if ($dependentMode) {
                             </tr>
                         <?php else : ?>
                             <?php foreach ($children as $child) : ?>
-                                <?php $childId = (int) ($child['id'] ?? 0); ?>
+                                <?php
+                                    $childId = (int) ($child['id'] ?? 0);
+                                    $childAgeRaw = $child['age_years'] ?? null;
+                                    $childAgeText = ($childAgeRaw !== null && trim((string) $childAgeRaw) !== '')
+                                        ? trim((string) $childAgeRaw) . ' anos'
+                                        : $renderAge($child['birth_date'] ?? '');
+                                ?>
                                 <tr>
                                     <td>
                                         <div class="fw-semibold"><?= htmlspecialchars((string) ($child['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
@@ -421,7 +456,7 @@ if ($dependentMode) {
                                     </td>
                                     <td>
                                         <div><?= htmlspecialchars((string) ($child['birth_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
-                                        <div class="small text-secondary">idade aprox.: <?= htmlspecialchars((string) (($child['age_years'] ?? '') !== null ? (string) ($child['age_years'] ?? '') : '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                        <div class="small text-secondary">idade: <?= htmlspecialchars($childAgeText, ENT_QUOTES, 'UTF-8') ?></div>
                                     </td>
                                     <td><?= htmlspecialchars((string) ($child['relationship'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                     <td>

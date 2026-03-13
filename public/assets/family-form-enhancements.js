@@ -117,10 +117,6 @@
         var rgInput = form.querySelector('input[name="rg_responsible"]');
         var phoneInput = form.querySelector('input[name="phone"]');
 
-        if (!cpfInput && !rgInput && !phoneInput) {
-            return;
-        }
-
         if (cpfInput) {
             cpfInput.setAttribute('inputmode', 'numeric');
             cpfInput.setAttribute('maxlength', '14');

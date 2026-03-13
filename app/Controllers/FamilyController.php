@@ -904,14 +904,13 @@ final class FamilyController
 
     private function sanitizeChildInput(array $post, int $familyId): array
     {
-        $age = trim((string) ($post['age_years'] ?? ''));
         return [
             'family_id' => $familyId,
             'name' => trim((string) ($post['name'] ?? '')),
             'cpf' => trim((string) ($post['cpf'] ?? '')),
             'rg' => $this->sanitizeRg((string) ($post['rg'] ?? '')),
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
-            'age_years' => $age === '' ? null : max(0, (int) $age),
+            'age_years' => null,
             'relationship' => trim((string) ($post['relationship'] ?? '')),
             'notes' => trim((string) ($post['notes'] ?? '')),
             'person_type' => 'child',
@@ -1066,16 +1065,44 @@ final class FamilyController
 
     private function toChildPersistenceData(array $input): array
     {
+        $birthDate = ($input['birth_date'] ?? '') !== '' ? (string) $input['birth_date'] : null;
+        $ageYears = $this->calculateAgeFromBirthDate($birthDate);
+
         return [
             'family_id' => (int) $input['family_id'],
             'name' => $input['name'],
             'cpf' => ($input['cpf'] ?? '') !== '' ? $input['cpf'] : null,
             'rg' => ($input['rg'] ?? '') !== '' ? $input['rg'] : null,
-            'birth_date' => ($input['birth_date'] ?? '') !== '' ? $input['birth_date'] : null,
-            'age_years' => $input['age_years'],
+            'birth_date' => $birthDate,
+            'age_years' => $ageYears,
             'relationship' => ($input['relationship'] ?? '') !== '' ? $input['relationship'] : null,
             'notes' => ($input['notes'] ?? '') !== '' ? $input['notes'] : null,
         ];
+    }
+
+    private function calculateAgeFromBirthDate(?string $birthDate): ?int
+    {
+        if ($birthDate === null || trim($birthDate) === '') {
+            return null;
+        }
+
+        $value = trim($birthDate);
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) !== 1) {
+            return null;
+        }
+
+        try {
+            $birth = new \DateTimeImmutable($value);
+            $today = new \DateTimeImmutable('today');
+        } catch (Throwable $exception) {
+            return null;
+        }
+
+        if ($birth > $today) {
+            return null;
+        }
+
+        return (int) $birth->diff($today)->y;
     }
 
     private function isRgValid(string $rg): bool
