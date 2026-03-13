@@ -206,6 +206,12 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->post('/families/principal/update', static function () use ($container, $familyManage): void {
+        $familyManage(static function () use ($container): void {
+            (new FamilyController($container))->updatePrincipal();
+        });
+    });
+
     $router->post('/families/children', static function () use ($container, $familyManage): void {
         $familyManage(static function () use ($container): void {
             (new FamilyController($container))->storeChild();

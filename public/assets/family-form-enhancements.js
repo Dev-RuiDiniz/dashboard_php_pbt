@@ -175,6 +175,10 @@
                 return;
             }
 
+            if (personType === 'principal' || personType === 'child') {
+                return;
+            }
+
             var isDependent = personType === 'dependent';
             if (isDependent) {
                 memberTitle.textContent = isMemberEditMode ? 'Editar dependente' : 'Adicionar dependente';
@@ -187,7 +191,7 @@
         }
 
         function setPersonType(type) {
-            var personType = type === 'dependent' || type === 'child' ? type : 'member';
+            var personType = type === 'principal' || type === 'dependent' || type === 'child' ? type : 'member';
 
             typeButtons.forEach(function (button) {
                 var active = button.getAttribute('data-person-type-btn') === personType;
@@ -198,7 +202,14 @@
 
             sections.forEach(function (section) {
                 var key = section.getAttribute('data-person-section');
-                var visible = personType === 'child' ? key === 'child' : key === 'member';
+                var visible = false;
+                if (personType === 'principal') {
+                    visible = key === 'principal';
+                } else if (personType === 'child') {
+                    visible = key === 'child';
+                } else {
+                    visible = key === 'member';
+                }
                 section.classList.toggle('d-none', !visible);
             });
 

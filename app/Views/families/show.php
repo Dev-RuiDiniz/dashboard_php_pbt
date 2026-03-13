@@ -8,17 +8,19 @@ $memberForm = is_array($memberForm ?? null) ? $memberForm : [];
 $memberEditMode = (bool) ($memberEditMode ?? false);
 $childForm = is_array($childForm ?? null) ? $childForm : [];
 $childEditMode = (bool) ($childEditMode ?? false);
+$principalForm = is_array($principalForm ?? null) ? $principalForm : [];
 $familyId = (int) ($family['id'] ?? 0);
 
 $personType = (string) ($personType ?? 'member');
-$allowedPersonTypes = ['member', 'dependent', 'child'];
+$allowedPersonTypes = ['principal', 'member', 'dependent', 'child'];
 if (!in_array($personType, $allowedPersonTypes, true)) {
     $personType = 'member';
 }
 
 $openPersonForm = (bool) ($openPersonForm ?? false);
 $dependentMode = $personType === 'dependent';
-$memberSectionVisible = $personType !== 'child';
+$principalSectionVisible = $personType === 'principal';
+$memberSectionVisible = in_array($personType, ['member', 'dependent'], true);
 $childSectionVisible = $personType === 'child';
 
 $addressLine = implode(' / ', array_filter([
@@ -30,6 +32,8 @@ $addressLine = implode(' / ', array_filter([
 $memberFormAction = $memberEditMode
     ? '/families/members/update?id=' . (int) ($memberForm['id'] ?? 0) . '&family_id=' . $familyId
     : '/families/members?family_id=' . $familyId;
+
+$principalFormAction = '/families/principal/update?family_id=' . $familyId;
 
 $childFormAction = $childEditMode
     ? '/families/children/update?id=' . (int) ($childForm['id'] ?? 0) . '&family_id=' . $familyId
@@ -169,7 +173,7 @@ if ($dependentMode) {
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
                     <div>
                         <h2 class="h5 mb-1">Cadastro de pessoas da familia</h2>
-                        <p class="text-secondary mb-0">Use um unico botao para incluir membro, dependente ou crianca.</p>
+                        <p class="text-secondary mb-0">Use um unico botao para incluir principal, membro, dependente ou crianca.</p>
                     </div>
                     <button type="button" class="btn btn-teal text-white" data-person-toggle>
                         <?= $openPersonForm ? 'Fechar cadastro' : 'Adicionar pessoa' ?>
@@ -178,9 +182,46 @@ if ($dependentMode) {
 
                 <div data-person-panel class="<?= $openPersonForm ? '' : 'd-none' ?>" data-person-open="<?= $openPersonForm ? '1' : '0' ?>">
                     <div class="btn-group mb-3 w-100" role="group" aria-label="Tipo de cadastro">
+                        <button type="button" class="btn <?= $personType === 'principal' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="principal">Principal</button>
                         <button type="button" class="btn <?= $personType === 'member' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="member">Membro</button>
                         <button type="button" class="btn <?= $personType === 'dependent' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="dependent">Dependente</button>
                         <button type="button" class="btn <?= $personType === 'child' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="child">Crianca</button>
+                    </div>
+
+                    <div data-person-section="principal" class="<?= $principalSectionVisible ? '' : 'd-none' ?>">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="h5 mb-0">Cadastrar responsavel principal</h3>
+                        </div>
+
+                        <form method="post" action="<?= $principalFormAction ?>">
+                            <input type="hidden" name="person_type" value="principal">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label">Nome</label>
+                                    <input class="form-control" name="responsible_name" required value="<?= htmlspecialchars((string) ($principalForm['responsible_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label">CPF</label>
+                                    <input class="form-control" name="cpf_responsible" value="<?= htmlspecialchars((string) ($principalForm['cpf_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label">RG</label>
+                                    <input class="form-control" name="rg_responsible" value="<?= htmlspecialchars((string) ($principalForm['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label">Nascimento</label>
+                                    <input type="date" class="form-control" name="birth_date" value="<?= htmlspecialchars((string) ($principalForm['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label">Telefone</label>
+                                    <input class="form-control" name="phone" value="<?= htmlspecialchars((string) ($principalForm['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                            </div>
+
+                            <div class="mt-3 d-flex gap-2">
+                                <button type="submit" class="btn btn-teal text-white">Salvar principal</button>
+                            </div>
+                        </form>
                     </div>
 
                     <div data-person-section="member" class="<?= $memberSectionVisible ? '' : 'd-none' ?>" data-member-edit-mode="<?= $memberEditMode ? '1' : '0' ?>">

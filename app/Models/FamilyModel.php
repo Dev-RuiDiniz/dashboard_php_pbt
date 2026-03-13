@@ -133,6 +133,23 @@ final class FamilyModel
         $stmt->execute($data);
     }
 
+    public function updateResponsible(int $id, array $data): void
+    {
+        $data['id'] = $id;
+
+        $stmt = $this->pdo->prepare(
+            'UPDATE families
+             SET responsible_name = :responsible_name,
+                 cpf_responsible = :cpf_responsible,
+                 rg_responsible = :rg_responsible,
+                 birth_date = :birth_date,
+                 phone = :phone
+             WHERE id = :id'
+        );
+
+        $stmt->execute($data);
+    }
+
     public function delete(int $id): void
     {
         $stmt = $this->pdo->prepare('DELETE FROM families WHERE id = :id');

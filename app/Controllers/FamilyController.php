@@ -52,7 +52,7 @@ final class FamilyController
         'afastado' => 'Afastado(a)',
         'do_lar' => 'Do lar',
     ];
-    private const PERSON_TYPES = ['member', 'dependent', 'child'];
+    private const PERSON_TYPES = ['principal', 'member', 'dependent', 'child'];
 
     public function __construct(private readonly Container $container)
     {
@@ -303,6 +303,13 @@ final class FamilyController
             $childEdit = array_merge($this->defaultChildFormData($familyId), $childOld);
         }
 
+        $principalOld = Session::consumeFlash('principal_form_old');
+        $hasPrincipalOld = is_array($principalOld);
+        $principalForm = $this->defaultPrincipalFormData($family);
+        if ($hasPrincipalOld) {
+            $principalForm = array_merge($principalForm, $principalOld);
+        }
+
         $memberForm = $memberEdit ?? $this->defaultMemberFormData($familyId);
         $childForm = $childEdit ?? $this->defaultChildFormData($familyId);
         $memberEditMode = $memberEdit !== null && isset($memberEdit['id']);
@@ -313,11 +320,13 @@ final class FamilyController
             $personType = 'child';
         } elseif ($memberEditMode || $hasMemberOld) {
             $personType = $this->resolveMemberPersonType($memberForm);
+        } elseif ($hasPrincipalOld) {
+            $personType = 'principal';
         } elseif ($requestedPersonType !== '') {
             $personType = $requestedPersonType;
         }
 
-        $openPersonForm = $memberEditMode || $childEditMode || $hasMemberOld || $hasChildOld || $requestedPersonType !== '';
+        $openPersonForm = $memberEditMode || $childEditMode || $hasMemberOld || $hasChildOld || $hasPrincipalOld || $requestedPersonType !== '';
 
         View::render('families.show', [
             '_layout' => 'layouts.app',
@@ -332,11 +341,59 @@ final class FamilyController
             'memberEditMode' => $memberEditMode,
             'childForm' => $childForm,
             'childEditMode' => $childEditMode,
+            'principalForm' => $principalForm,
             'personType' => $personType,
             'openPersonForm' => $openPersonForm,
             'success' => Session::consumeFlash('success'),
             'error' => Session::consumeFlash('error'),
         ]);
+    }
+
+    public function updatePrincipal(): void
+    {
+        $familyId = (int) ($_GET['family_id'] ?? 0);
+        if ($familyId <= 0) {
+            Session::flash('error', 'Familia invalida.');
+            Response::redirect('/families');
+        }
+
+        try {
+            $family = $this->familyModel()->findById($familyId);
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao carregar familia.');
+            Response::redirect('/families');
+        }
+
+        if ($family === null) {
+            Session::flash('error', 'Familia nao encontrada.');
+            Response::redirect('/families');
+        }
+
+        $input = $this->sanitizeResponsibleInput($_POST);
+        $error = $this->validateResponsibleInput($input);
+        if ($error !== null) {
+            Session::flash('error', $error);
+            Session::flash('principal_form_old', $input);
+            Response::redirect($this->familyShowUrl($familyId, 'principal'));
+        }
+
+        $cpfError = $this->validateCpfAndDuplicate($input, $familyId);
+        if ($cpfError !== null) {
+            Session::flash('error', $cpfError);
+            Session::flash('principal_form_old', $input);
+            Response::redirect($this->familyShowUrl($familyId, 'principal'));
+        }
+
+        try {
+            $this->familyModel()->updateResponsible($familyId, $this->toResponsiblePersistenceData($input));
+        } catch (Throwable $exception) {
+            Session::flash('error', 'Falha ao atualizar responsavel principal.');
+            Session::flash('principal_form_old', $input);
+            Response::redirect($this->familyShowUrl($familyId, 'principal'));
+        }
+
+        Session::flash('success', 'Responsavel principal atualizado com sucesso.');
+        Response::redirect($this->familyShowUrl($familyId, 'principal'));
     }
 
     public function storeMember(): void
@@ -801,6 +858,18 @@ final class FamilyController
         ];
     }
 
+    private function defaultPrincipalFormData(array $family): array
+    {
+        return [
+            'responsible_name' => (string) ($family['responsible_name'] ?? ''),
+            'cpf_responsible' => (string) ($family['cpf_responsible'] ?? ''),
+            'rg_responsible' => (string) ($family['rg_responsible'] ?? ''),
+            'birth_date' => (string) ($family['birth_date'] ?? ''),
+            'phone' => (string) ($family['phone'] ?? ''),
+            'person_type' => 'principal',
+        ];
+    }
+
     private function sanitizeMemberInput(array $post, int $familyId): array
     {
         return [
@@ -825,6 +894,18 @@ final class FamilyController
             'relationship' => trim((string) ($post['relationship'] ?? '')),
             'notes' => trim((string) ($post['notes'] ?? '')),
             'person_type' => 'child',
+        ];
+    }
+
+    private function sanitizeResponsibleInput(array $post): array
+    {
+        return [
+            'responsible_name' => trim((string) ($post['responsible_name'] ?? '')),
+            'cpf_responsible' => trim((string) ($post['cpf_responsible'] ?? '')),
+            'rg_responsible' => $this->sanitizeRg((string) ($post['rg_responsible'] ?? '')),
+            'birth_date' => trim((string) ($post['birth_date'] ?? '')),
+            'phone' => $this->sanitizePhone((string) ($post['phone'] ?? '')),
+            'person_type' => 'principal',
         ];
     }
 
@@ -854,6 +935,15 @@ final class FamilyController
         return null;
     }
 
+    private function validateResponsibleInput(array $input): ?string
+    {
+        if (trim((string) ($input['responsible_name'] ?? '')) === '') {
+            return 'Nome do responsavel principal e obrigatorio.';
+        }
+
+        return null;
+    }
+
     private function toMemberPersistenceData(array $input): array
     {
         return [
@@ -875,6 +965,17 @@ final class FamilyController
             'age_years' => $input['age_years'],
             'relationship' => ($input['relationship'] ?? '') !== '' ? $input['relationship'] : null,
             'notes' => ($input['notes'] ?? '') !== '' ? $input['notes'] : null,
+        ];
+    }
+
+    private function toResponsiblePersistenceData(array $input): array
+    {
+        return [
+            'responsible_name' => $input['responsible_name'],
+            'cpf_responsible' => $input['cpf_responsible'] !== '' ? $input['cpf_responsible'] : null,
+            'rg_responsible' => $input['rg_responsible'] !== '' ? $input['rg_responsible'] : null,
+            'birth_date' => $input['birth_date'] !== '' ? $input['birth_date'] : null,
+            'phone' => $input['phone'] !== '' ? $input['phone'] : null,
         ];
     }
 
