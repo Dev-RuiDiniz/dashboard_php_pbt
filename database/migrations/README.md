@@ -8,6 +8,7 @@ Ordem atual:
 2. `002_seeds_initial.sql`
 3. `003_security_hardening.sql`
 4. `004_children_count_backfill.sql`
+5. `005_family_people_documents.sql`
 
 ## Como aplicar (manual)
 

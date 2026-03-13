@@ -74,6 +74,8 @@ CREATE TABLE IF NOT EXISTS family_members (
   family_id INT NOT NULL,
   name VARCHAR(160) NOT NULL,
   relationship VARCHAR(40) NULL,
+  cpf VARCHAR(14) NULL,
+  rg VARCHAR(20) NULL,
   birth_date DATE NULL,
   works TINYINT(1) NOT NULL DEFAULT 0,
   income DECIMAL(10,2) NOT NULL DEFAULT 0,
@@ -82,13 +84,17 @@ CREATE TABLE IF NOT EXISTS family_members (
   CONSTRAINT fk_family_members_family FOREIGN KEY (family_id) REFERENCES families(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   INDEX idx_family_members_family_id (family_id),
-  INDEX idx_family_members_name (name)
+  INDEX idx_family_members_name (name),
+  UNIQUE KEY uq_family_members_cpf (cpf),
+  INDEX idx_family_members_rg (rg)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS children (
   id INT AUTO_INCREMENT PRIMARY KEY,
   family_id INT NOT NULL,
   name VARCHAR(160) NOT NULL,
+  cpf VARCHAR(14) NULL,
+  rg VARCHAR(20) NULL,
   birth_date DATE NULL,
   age_years INT NULL,
   relationship VARCHAR(40) NULL,
@@ -98,7 +104,9 @@ CREATE TABLE IF NOT EXISTS children (
   CONSTRAINT fk_children_family FOREIGN KEY (family_id) REFERENCES families(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   INDEX idx_children_family_id (family_id),
-  INDEX idx_children_name (name)
+  INDEX idx_children_name (name),
+  UNIQUE KEY uq_children_cpf (cpf),
+  INDEX idx_children_rg (rg)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS people (
