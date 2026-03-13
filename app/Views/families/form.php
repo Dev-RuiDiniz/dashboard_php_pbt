@@ -161,11 +161,13 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         </div>
                         <div class="col-6 col-md-2">
                             <label class="form-label">Adultos</label>
-                            <input type="number" min="0" class="form-control" name="adults_count" value="<?= htmlspecialchars((string) ($familyData['adults_count'] ?? 0), ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="number" min="0" class="form-control" value="<?= htmlspecialchars((string) ($familyData['adults_count'] ?? 0), ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
+                            <div class="form-text">Calculado por membros.</div>
                         </div>
                         <div class="col-6 col-md-2">
                             <label class="form-label">Trabalhadores</label>
-                            <input type="number" min="0" class="form-control" name="workers_count" value="<?= htmlspecialchars((string) ($familyData['workers_count'] ?? 0), ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="number" min="0" class="form-control" value="<?= htmlspecialchars((string) ($familyData['workers_count'] ?? 0), ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
+                            <div class="form-text">Calculado por membros.</div>
                         </div>
                         <div class="col-6 col-md-2">
                             <label class="form-label">Criancas</label>
@@ -174,7 +176,8 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Renda familiar total</label>
-                            <input class="form-control" name="family_income_total" value="<?= htmlspecialchars((string) ($familyData['family_income_total'] ?? '0.00'), ENT_QUOTES, 'UTF-8') ?>">
+                            <input class="form-control" value="<?= htmlspecialchars((string) ($familyData['family_income_total'] ?? '0.00'), ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
+                            <div class="form-text">Somatorio automatico de renda dos membros.</div>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Documentacao</label>

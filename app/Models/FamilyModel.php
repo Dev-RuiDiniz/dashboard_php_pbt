@@ -78,15 +78,13 @@ final class FamilyModel
                 responsible_name, cpf_responsible, rg_responsible, birth_date, phone,
                 marital_status, education_level, professional_status, profession_detail,
                 cep, address, address_number, address_complement, neighborhood, city, state,
-                location_reference, housing_type, adults_count, workers_count,
-                family_income_total, children_count, documentation_status,
+                location_reference, housing_type, documentation_status,
                 documentation_notes, needs_visit, general_notes, is_active
             ) VALUES (
                 :responsible_name, :cpf_responsible, :rg_responsible, :birth_date, :phone,
                 :marital_status, :education_level, :professional_status, :profession_detail,
                 :cep, :address, :address_number, :address_complement, :neighborhood, :city, :state,
-                :location_reference, :housing_type, :adults_count, :workers_count,
-                :family_income_total, :children_count, :documentation_status,
+                :location_reference, :housing_type, :documentation_status,
                 :documentation_notes, :needs_visit, :general_notes, :is_active
             )'
         );
@@ -118,10 +116,6 @@ final class FamilyModel
                 state = :state,
                 location_reference = :location_reference,
                 housing_type = :housing_type,
-                adults_count = :adults_count,
-                workers_count = :workers_count,
-                family_income_total = :family_income_total,
-                children_count = :children_count,
                 documentation_status = :documentation_status,
                 documentation_notes = :documentation_notes,
                 needs_visit = :needs_visit,
