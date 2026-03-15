@@ -1,6 +1,7 @@
 /vendor/
 /.env
 /dist/
+/.local/mariadb/
 /storage/logs/*
 /storage/exports/*
 /storage/uploads/*
