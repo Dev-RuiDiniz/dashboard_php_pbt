@@ -142,4 +142,24 @@ final class EquipmentLoanModel
         $rows = $stmt->fetchAll();
         return is_array($rows) ? $rows : [];
     }
+
+    public function listByFamilyId(int $familyId, int $limit = 20): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+                el.id, el.equipment_id, el.family_id, el.loan_date, el.due_date, el.return_date,
+                el.return_condition, el.notes, el.created_at,
+                e.code AS equipment_code, e.type AS equipment_type
+             FROM equipment_loans el
+             INNER JOIN equipment e ON e.id = el.equipment_id
+             WHERE el.family_id = :family_id
+             ORDER BY el.created_at DESC, el.id DESC
+             LIMIT :limit_rows'
+        );
+        $stmt->bindValue(':family_id', $familyId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit_rows', max(1, $limit), PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
 }

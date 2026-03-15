@@ -25,6 +25,7 @@ final class EquipmentLoanController
 
     public function index(): void
     {
+        $preselectedFamilyId = (int) ($_GET['family_id'] ?? 0);
         $filters = [
             'equipment_code' => trim((string) ($_GET['equipment_code'] ?? '')),
             'status' => trim((string) ($_GET['status'] ?? '')),
@@ -49,7 +50,7 @@ final class EquipmentLoanController
         $loanForm = [
             'equipment_id' => 0,
             'target_type' => 'family',
-            'family_id' => 0,
+            'family_id' => $preselectedFamilyId > 0 ? $preselectedFamilyId : 0,
             'person_id' => 0,
             'loan_date' => date('Y-m-d'),
             'due_date' => date('Y-m-d', strtotime('+30 days')),

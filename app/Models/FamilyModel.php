@@ -16,7 +16,7 @@ final class FamilyModel
     {
         $sql = 'SELECT
                     id, responsible_name, cpf_responsible, phone,
-                    neighborhood, city, state, family_income_total,
+                    neighborhood, city, state, family_income_total, family_income_average,
                     children_count, documentation_status, needs_visit, is_active, updated_at
                 FROM families
                 WHERE 1=1';
@@ -76,12 +76,14 @@ final class FamilyModel
         $stmt = $this->pdo->prepare(
             'INSERT INTO families (
                 responsible_name, cpf_responsible, rg_responsible, birth_date, phone,
+                responsible_works, responsible_income,
                 marital_status, education_level, professional_status, profession_detail,
                 cep, address, address_number, address_complement, neighborhood, city, state,
                 location_reference, housing_type, documentation_status,
                 documentation_notes, needs_visit, general_notes, is_active
             ) VALUES (
                 :responsible_name, :cpf_responsible, :rg_responsible, :birth_date, :phone,
+                :responsible_works, :responsible_income,
                 :marital_status, :education_level, :professional_status, :profession_detail,
                 :cep, :address, :address_number, :address_complement, :neighborhood, :city, :state,
                 :location_reference, :housing_type, :documentation_status,
@@ -103,6 +105,8 @@ final class FamilyModel
                 rg_responsible = :rg_responsible,
                 birth_date = :birth_date,
                 phone = :phone,
+                responsible_works = :responsible_works,
+                responsible_income = :responsible_income,
                 marital_status = :marital_status,
                 education_level = :education_level,
                 professional_status = :professional_status,
@@ -137,7 +141,9 @@ final class FamilyModel
                  cpf_responsible = :cpf_responsible,
                  rg_responsible = :rg_responsible,
                  birth_date = :birth_date,
-                 phone = :phone
+                 phone = :phone,
+                 responsible_works = :responsible_works,
+                 responsible_income = :responsible_income
              WHERE id = :id'
         );
 
@@ -279,10 +285,16 @@ final class FamilyModel
 
     public function recalculateFamilyIndicators(int $familyId): void
     {
+        $family = $this->findById($familyId);
+        if ($family === null) {
+            return;
+        }
+
         $stmt = $this->pdo->prepare(
             'SELECT
                 COALESCE(SUM(CASE WHEN works = 1 THEN 1 ELSE 0 END), 0) AS workers_count,
                 COALESCE(SUM(income), 0) AS total_income,
+                COUNT(*) AS member_count,
                 COALESCE(SUM(
                     CASE
                         WHEN birth_date IS NOT NULL AND birth_date <= DATE_SUB(CURDATE(), INTERVAL 18 YEAR) THEN 1
@@ -312,16 +324,69 @@ final class FamilyModel
              SET adults_count = :adults_count,
                  workers_count = :workers_count,
                  family_income_total = :family_income_total,
+                 family_income_average = :family_income_average,
                  children_count = :children_count
              WHERE id = :id'
         );
         $update->execute([
             'id' => $familyId,
-            'adults_count' => (int) ($summary['adults_count'] ?? 0),
-            'workers_count' => (int) ($summary['workers_count'] ?? 0),
-            'family_income_total' => number_format((float) ($summary['total_income'] ?? 0), 2, '.', ''),
+            'adults_count' => ((string) ($family['birth_date'] ?? '') !== '' && (string) ($family['birth_date'] ?? '') <= date('Y-m-d', strtotime('-18 years')))
+                ? (int) ($summary['adults_count'] ?? 0) + 1
+                : (int) ($summary['adults_count'] ?? 0),
+            'workers_count' => (int) ($summary['workers_count'] ?? 0) + ((int) ($family['responsible_works'] ?? 0) === 1 ? 1 : 0),
+            'family_income_total' => number_format((float) ($summary['total_income'] ?? 0) + (float) ($family['responsible_income'] ?? 0), 2, '.', ''),
+            'family_income_average' => number_format(
+                (
+                    (float) ($summary['total_income'] ?? 0)
+                    + (float) ($family['responsible_income'] ?? 0)
+                ) / max(1, 1 + (int) ($summary['member_count'] ?? 0) + $childrenCount),
+                2,
+                '.',
+                ''
+            ),
             'children_count' => $childrenCount,
         ]);
+    }
+
+    public function countChildren(int $familyId): int
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT COUNT(*) AS total_children
+             FROM children
+             WHERE family_id = :family_id'
+        );
+        $stmt->execute(['family_id' => $familyId]);
+        $row = $stmt->fetch();
+        return (int) ($row['total_children'] ?? 0);
+    }
+
+    public function updateIndicators(int $familyId, array $data): void
+    {
+        $data['id'] = $familyId;
+
+        $stmt = $this->pdo->prepare(
+            'UPDATE families
+             SET adults_count = :adults_count,
+                 workers_count = :workers_count,
+                 family_income_total = :family_income_total,
+                 family_income_average = :family_income_average,
+                 children_count = :children_count
+             WHERE id = :id'
+        );
+        $stmt->execute($data);
+    }
+
+    public function listFamilyMembersSummary(int $familyId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, name, relationship, birth_date, works, income
+             FROM family_members
+             WHERE family_id = :family_id
+             ORDER BY name ASC, id ASC'
+        );
+        $stmt->execute(['family_id' => $familyId]);
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
     }
 
     private function buildFilterSql(array $filters, array &$params): string

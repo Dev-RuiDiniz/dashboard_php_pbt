@@ -16,15 +16,17 @@ ON DUPLICATE KEY UPDATE
 
 -- Dados de exemplo (opcional para desenvolvimento local)
 INSERT INTO families (
-  responsible_name, cpf_responsible, phone, neighborhood, city, state,
+  responsible_name, cpf_responsible, phone, responsible_works, responsible_income, neighborhood, city, state,
   documentation_status, needs_visit, is_active
 )
 VALUES
-  ('Maria de Souza', '123.456.789-00', '(11) 99999-0001', 'Centro', 'Sao Paulo', 'SP', 'pendente', 1, 1),
-  ('Jose Almeida', '987.654.321-00', '(11) 99999-0002', 'Jardim Esperanca', 'Sao Paulo', 'SP', 'ok', 0, 1)
+  ('Maria de Souza', '123.456.789-00', '(11) 99999-0001', 1, 1200.00, 'Centro', 'Sao Paulo', 'SP', 'pendente', 1, 1),
+  ('Jose Almeida', '987.654.321-00', '(11) 99999-0002', 0, 0.00, 'Jardim Esperanca', 'Sao Paulo', 'SP', 'ok', 0, 1)
 ON DUPLICATE KEY UPDATE
   responsible_name = VALUES(responsible_name),
   phone = VALUES(phone),
+  responsible_works = VALUES(responsible_works),
+  responsible_income = VALUES(responsible_income),
   neighborhood = VALUES(neighborhood),
   city = VALUES(city),
   state = VALUES(state),

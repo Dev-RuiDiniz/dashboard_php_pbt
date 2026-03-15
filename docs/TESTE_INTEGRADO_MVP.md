@@ -21,7 +21,10 @@ Validar ponta a ponta os fluxos criticos antes/depois do deploy.
 - [ ] Confirmar idade calculada da responsavel ao informar nascimento.
 - [ ] Confirmar exibicao do numero da familia na listagem, formulario (edicao) e detalhe.
 - [ ] Na pagina de detalhe da familia, clicar em `Adicionar pessoa` e alternar entre `Principal`, `Membro`, `Dependente` e `Crianca`.
+- [ ] Validar que a primeira aba do detalhe e `Composicao Familiar`.
+- [ ] Validar navegacao das abas `Resumo`, `Entregas`, `Emprestimos`, `Visitas/Anotacoes` e `Pendencias`.
 - [ ] Atualizar dados do principal na propria aba da familia e validar persistencia.
+- [ ] Atualizar `trabalha` e `renda` do principal e validar persistencia.
 - [ ] Cadastrar membro pelo fluxo unificado e validar persistencia na mesma pagina.
 - [ ] Cadastrar dependente pelo fluxo unificado e validar gravacao em `family_members` com parentesco `Dependente`.
 - [ ] Cadastrar crianca na aba da familia (sem usar modulo `/children`).
@@ -31,11 +34,16 @@ Validar ponta a ponta os fluxos criticos antes/depois do deploy.
 - [ ] Confirmar que `Adultos`, `Trabalhadores`, `Criancas` e `Renda familiar total` nao aceitam edicao manual no formulario de familia.
 - [ ] Incluir membro/dependente e validar recalculo automatico de `family_income_total`, `adults_count` e `workers_count`.
 - [ ] Alterar/remover membro/dependente e validar novo recalculo automatico.
+- [ ] Validar recalculo de `family_income_average` apos alteracoes na composicao familiar.
+- [ ] Validar que principal entra em `family_income_total`, `family_income_average`, `adults_count` e `workers_count`.
 - [ ] Validar CPF/RG obrigatorios para principal, membro e dependente.
 - [ ] Validar crianca com CPF/RG opcionais e validacao de formato quando preenchidos.
 - [ ] Validar bloqueio de CPF duplicado entre `families`, `family_members`, `children` e `people`.
 - [ ] Confirmar idade automatica em tela para principal, membro/dependente e crianca ao alterar nascimento.
 - [ ] Confirmar persistencia automatica de `children.age_years` via `birth_date` (sem campo manual de idade).
+- [ ] Validar atalho de `Entregas` com familia preselecionada em um evento aberto.
+- [ ] Validar atalho de `Emprestimos` com `family_id` pre-preenchido.
+- [ ] Validar atalho de `Visitas` com `family_id` pre-preenchido.
 - [ ] Cadastrar pessoa acompanhada + ficha social.
 
 3. Encaminhamentos

@@ -19,6 +19,7 @@ Fonte: `Especificacao_Sistema_Igreja_Social_PHP_MySQL.docx` (secoes 3.3 e 4.1)
 - Endereco: `cep`, `address`, `address_number`, `address_complement`, `neighborhood`, `city`, `state`, `location_reference`.
 - Socioeconomico: `marital_status`, `education_level`, `professional_status`, `profession_detail`, `housing_type`.
 - Indicadores: `adults_count`, `workers_count`, `family_income_total`, `children_count`.
+- Indicador adicional consolidado: `family_income_average`.
 - Pendencias: `documentation_status`, `documentation_notes`, `needs_visit`, `general_notes`.
 
 ## Regras de negocio (familia)
@@ -26,7 +27,8 @@ Fonte: `Especificacao_Sistema_Igreja_Social_PHP_MySQL.docx` (secoes 3.3 e 4.1)
   - validar formato quando informado;
   - bloquear duplicidade.
 - Renda familiar:
-  - somar rendas dos membros para alimentar `family_income_total`.
+  - somar rendas do principal + membros + dependentes para alimentar `family_income_total`;
+  - calcular `family_income_average` per capita.
 - Pendencias:
   - permitir registrar status de documentacao e necessidade de visita.
 

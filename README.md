@@ -30,7 +30,9 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
   - indicadores operacionais e atalhos
 - Familias
   - CRUD de familias
-  - cadastro unificado de pessoas da familia (membro, dependente e crianca) na aba de detalhe
+  - detalhe da familia com abas: composicao familiar, resumo, entregas, emprestimos, visitas/anotacoes e pendencias
+  - cadastro unificado de pessoas da familia (principal, membro, dependente e crianca) na primeira aba do detalhe
+  - indicadores com renda total e media per capita por familia
 - Criancas
   - cadastro centralizado na aba de detalhe da familia
 - Pessoas acompanhadas
@@ -122,6 +124,10 @@ Resumo:
   - eventos de entrega e lista operacional (`create/delete`)
   - emprestimos de equipamentos (`create/delete`)
   - usuarios (`create/delete`)
+
+## Observacao de ambiente local
+- Se o projeto estiver sem `vendor/`, execute `composer install` antes de subir `public/index.php`.
+- No ambiente avaliado nesta implementacao, o PHP local nao possui extensao `openssl`; isso impede instalar dependencias pelo Composer nessa maquina sem ajuste do PHP.
 
 ## Pronto para producao
 - Template de ambiente de producao: `.env.production.example`

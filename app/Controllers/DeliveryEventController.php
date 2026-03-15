@@ -181,6 +181,7 @@ final class DeliveryEventController
     public function show(): void
     {
         $id = (int) ($_GET['id'] ?? 0);
+        $preselectedFamilyId = (int) ($_GET['family_id'] ?? 0);
         if ($id <= 0) {
             Session::flash('error', 'Evento invalido.');
             Response::redirect('/delivery-events');
@@ -206,8 +207,8 @@ final class DeliveryEventController
         }
 
         $deliveryForm = [
-            'target_type' => 'family',
-            'family_id' => 0,
+            'target_type' => $preselectedFamilyId > 0 ? 'family' : 'family',
+            'family_id' => $preselectedFamilyId > 0 ? $preselectedFamilyId : 0,
             'person_id' => 0,
             'quantity' => 1,
             'observations' => '',

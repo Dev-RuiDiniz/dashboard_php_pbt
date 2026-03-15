@@ -290,4 +290,33 @@ final class DeliveryModel
         $stmt->execute($params);
         return $stmt->fetchColumn() !== false;
     }
+
+    public function listByFamilyId(int $familyId, int $limit = 20): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+                d.id,
+                d.event_id,
+                d.ticket_number,
+                d.document_id,
+                d.observations,
+                d.status,
+                d.quantity,
+                d.delivered_at,
+                d.signature_name,
+                de.name AS event_name,
+                de.event_date,
+                de.status AS event_status
+             FROM deliveries d
+             INNER JOIN delivery_events de ON de.id = d.event_id
+             WHERE d.family_id = :family_id
+             ORDER BY de.event_date DESC, d.id DESC
+             LIMIT :limit_rows'
+        );
+        $stmt->bindValue(':family_id', $familyId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit_rows', max(1, $limit), PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
 }

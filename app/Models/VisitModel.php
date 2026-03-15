@@ -237,4 +237,25 @@ final class VisitModel
         $rows = $stmt->fetchAll();
         return is_array($rows) ? $rows : [];
     }
+
+    public function listByFamilyId(int $familyId, int $limit = 20): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+                v.id, v.family_id, v.scheduled_date, v.completed_at, v.notes, v.status, v.requested_at,
+                ru.name AS requested_by_name,
+                cu.name AS completed_by_name
+             FROM visits v
+             LEFT JOIN users ru ON ru.id = v.requested_by
+             LEFT JOIN users cu ON cu.id = v.completed_by
+             WHERE v.family_id = :family_id
+             ORDER BY v.requested_at DESC, v.id DESC
+             LIMIT :limit_rows'
+        );
+        $stmt->bindValue(':family_id', $familyId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit_rows', max(1, $limit), PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
 }

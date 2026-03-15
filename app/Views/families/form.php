@@ -26,7 +26,7 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                 <?php endif; ?>
                 <?php if (!$isEdit) : ?>
                     <div class="alert alert-light border-0 shadow-sm mb-3">
-                        Depois de salvar, o sistema abre automaticamente o detalhe da familia para cadastrar Principal, Membro, Dependente e Crianca na mesma aba.
+                        Depois de salvar, o sistema abre automaticamente o detalhe da familia na aba `Composicao Familiar` para cadastrar Principal, Membro, Dependente e Crianca.
                     </div>
                 <?php endif; ?>
 
@@ -177,7 +177,12 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         <div class="col-12 col-md-4">
                             <label class="form-label">Renda familiar total</label>
                             <input class="form-control" value="<?= htmlspecialchars((string) ($familyData['family_income_total'] ?? '0.00'), ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
-                            <div class="form-text">Somatorio automatico de renda dos membros.</div>
+                            <div class="form-text">Somatorio automatico da renda do principal, membros e dependentes.</div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Media de renda per capita</label>
+                            <input class="form-control" value="<?= htmlspecialchars((string) ($familyData['family_income_average'] ?? '0.00'), ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
+                            <div class="form-text">Calculada automaticamente pela composicao familiar.</div>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Documentacao</label>
@@ -198,6 +203,11 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         <div class="col-12">
                             <label class="form-label">Pendencias de documentacao</label>
                             <textarea class="form-control" name="documentation_notes" rows="2"><?= htmlspecialchars((string) ($familyData['documentation_notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
+                        </div>
+                        <div class="col-12">
+                            <div class="alert alert-light border small mb-0">
+                                Trabalho e renda do responsavel principal sao gerenciados na aba `Composicao Familiar`, junto com membros, dependentes e criancas.
+                            </div>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Observacoes gerais</label>

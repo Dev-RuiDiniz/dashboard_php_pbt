@@ -116,6 +116,7 @@
         var cpfInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="cpf_responsible"], input[name="cpf"]'));
         var rgInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="rg_responsible"], input[name="rg"]'));
         var phoneInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="phone"]'));
+        var moneyInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="income"], input[name="responsible_income"]'));
 
         cpfInputs.forEach(function (cpfInput) {
             cpfInput.setAttribute('inputmode', 'numeric');
@@ -132,6 +133,10 @@
             phoneInput.setAttribute('inputmode', 'numeric');
             phoneInput.setAttribute('maxlength', '15');
             bindMask(phoneInput, formatPhone);
+        });
+
+        moneyInputs.forEach(function (moneyInput) {
+            moneyInput.setAttribute('inputmode', 'decimal');
         });
 
         bindAgeCalculation(form);
@@ -152,6 +157,9 @@
         var memberSubmitLabel = hub.querySelector('[data-member-submit-label]');
         var memberSection = hub.querySelector('[data-person-section="member"]');
         var isMemberEditMode = memberSection && memberSection.getAttribute('data-member-edit-mode') === '1';
+        var relationshipGroup = hub.querySelector('[data-member-relationship-group]');
+        var relationshipSelect = relationshipGroup ? relationshipGroup.querySelector('select[name="relationship"]') : null;
+        var dependentHint = hub.querySelector('[data-dependent-hint]');
 
         if (!toggleButton || !panel || typeButtons.length === 0 || sections.length === 0) {
             return;
@@ -163,6 +171,17 @@
             toggleButton.textContent = open ? 'Fechar cadastro' : 'Adicionar pessoa';
         }
 
+        function focusFirstInput(section) {
+            if (!section) {
+                return;
+            }
+
+            var target = section.querySelector('input:not([type="hidden"]):not([readonly]), select:not([disabled]), textarea');
+            if (target && typeof target.focus === 'function') {
+                target.focus();
+            }
+        }
+
         function updateMemberLabels(personType) {
             if (!memberTitle || !memberSubmitLabel) {
                 return;
@@ -172,12 +191,40 @@
                 return;
             }
 
+            if (personType === 'dependent') {
+                memberTitle.textContent = isMemberEditMode ? 'Editar dependente' : 'Adicionar dependente';
+                memberSubmitLabel.textContent = isMemberEditMode ? 'Salvar dependente' : 'Adicionar dependente';
+                if (relationshipGroup) {
+                    relationshipGroup.classList.add('d-none');
+                }
+                if (relationshipSelect) {
+                    relationshipSelect.disabled = true;
+                    relationshipSelect.value = 'Dependente';
+                }
+                if (dependentHint) {
+                    dependentHint.classList.remove('d-none');
+                }
+                return;
+            }
+
             memberTitle.textContent = isMemberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar';
             memberSubmitLabel.textContent = isMemberEditMode ? 'Salvar membro' : 'Adicionar membro';
+            if (relationshipGroup) {
+                relationshipGroup.classList.remove('d-none');
+            }
+            if (relationshipSelect) {
+                relationshipSelect.disabled = false;
+            }
+            if (dependentHint) {
+                dependentHint.classList.add('d-none');
+            }
         }
 
         function setPersonType(type) {
-            var personType = type === 'principal' || type === 'child' ? type : 'member';
+            var personType = 'member';
+            if (type === 'principal' || type === 'child' || type === 'dependent') {
+                personType = type;
+            }
 
             typeButtons.forEach(function (button) {
                 var active = button.getAttribute('data-person-type-btn') === personType;
@@ -200,11 +247,12 @@
             });
 
             if (memberTypeInput) {
-                memberTypeInput.value = 'member';
+                memberTypeInput.value = personType === 'dependent' ? 'dependent' : 'member';
             }
 
             updateMemberLabels(personType);
             setPanelOpen(true);
+            focusFirstInput(hub.querySelector('[data-person-section="' + (personType === 'principal' ? 'principal' : (personType === 'child' ? 'child' : 'member')) + '"]'));
         }
 
         toggleButton.addEventListener('click', function () {

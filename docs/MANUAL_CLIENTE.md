@@ -43,7 +43,7 @@ Regras obrigatorias:
 - Editar familia.
 - Excluir familia.
 - Abrir detalhes da familia.
-- Gerenciar pessoas da familia no detalhe (`/families/show?id=...`) com botao unico `Adicionar pessoa`.
+- Gerenciar pessoas da familia no detalhe (`/families/show?id=...`) com abas e com a primeira aba `Composicao Familiar`.
 - Cadastro rapido no formulario de familia:
   - Numero da familia exibido automaticamente pelo sistema (baseado no ID).
   - Mascaras automaticas em CPF, RG e Telefone.
@@ -53,8 +53,16 @@ Regras obrigatorias:
   - Compatibilidade com valores antigos (legados) em cadastros ja existentes.
   - Indicadores de `Adultos`, `Trabalhadores`, `Criancas` e `Renda familiar total` sao informativos (nao editaveis nesta tela).
 - Cadastro unificado de pessoa na aba da familia:
+  - O detalhe da familia agora organiza o trabalho em abas:
+    - `Composicao Familiar`
+    - `Resumo`
+    - `Entregas`
+    - `Emprestimos`
+    - `Visitas/Anotacoes`
+    - `Pendencias`
   - Escolher o tipo no fluxo inline: `Principal`, `Membro`, `Dependente` ou `Crianca`.
   - `Principal` atualiza os campos da responsavel na propria familia sem abrir outra tela.
+  - `Principal` tambem registra `trabalha` e `renda`.
   - `Membro` e `Dependente` exigem CPF e RG.
   - `Dependente` e salvo no cadastro de membros usando parentesco `Dependente`.
   - `Crianca` aceita CPF e RG opcionais.
@@ -64,6 +72,14 @@ Regras obrigatorias:
   - `children_count` atualizado automaticamente com base nos registros de criancas.
   - CPF e unico no sistema (bloqueia duplicidade entre familia, membro/dependente, crianca e pessoa acompanhada).
   - O principal da familia continua nos campos da propria familia (responsavel), sem duplicacao em membros.
+  - `family_income_total` considera principal + membros + dependentes.
+  - `family_income_average` registra a media per capita da familia.
+  - `adults_count` e `workers_count` tambem consideram o responsavel principal quando aplicavel.
+- Abas de apoio no detalhe:
+  - `Entregas`: historico da familia por evento e acesso rapido para abrir evento com a familia preselecionada.
+  - `Emprestimos`: historico de emprestimos e atalho para novo emprestimo com `family_id`.
+  - `Visitas/Anotacoes`: historico da familia e atalho para solicitar visita.
+  - `Pendencias`: documentacao, visita pendente, status do cadastro e observacoes.
 
 ### 5.3 Criancas
 - Modulo direto de criancas desativado para cadastro.
