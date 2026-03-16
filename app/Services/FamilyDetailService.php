@@ -41,7 +41,7 @@ final class FamilyDetailService
         }, $members);
 
         $requestedTab = $this->sanitizeTab((string) ($query['tab'] ?? 'composition'));
-        $requestedPersonType = $this->compositionService->sanitizePersonType((string) ($query['person_type'] ?? ''), 'member');
+        $requestedPersonType = $this->compositionService->sanitizePersonType((string) ($query['person_type'] ?? ''), '');
 
         $memberEditId = (int) ($query['member_edit'] ?? 0);
         $memberEdit = null;
