@@ -1,10 +1,11 @@
--- Dashboard PHP PBT - MVP final (Sprint 20)
+-- Dashboard PHP PBT - schema consolidado + seeds iniciais
 -- Arquivo unico para importacao inicial no MySQL/MariaDB
--- Ordem: schema atualizado + seeds iniciais
+-- Baseline alinhado ate a Sprint 37
+-- Ordem: schema atualizado + seeds iniciais + baseline de migrations
 
 SET NAMES utf8mb4;
 
--- Sprint 5 - Schema MVP (MySQL/MariaDB)
+-- Schema consolidado (MySQL/MariaDB)
 -- Sistema Igreja Social - Dashboard PHP PBT
 -- Recomendado: InnoDB + utf8mb4
 
@@ -344,6 +345,12 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   INDEX idx_audit_logs_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  migration VARCHAR(255) NOT NULL UNIQUE,
+  applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ==============================
 -- Seeds iniciais
 -- ==============================
@@ -407,4 +414,15 @@ ON DUPLICATE KEY UPDATE
   condition_state = VALUES(condition_state),
   status = VALUES(status),
   notes = VALUES(notes);
+
+-- Baseline de migrations para bases novas importadas por este arquivo.
+-- Evita que `php database/migrate.php` tente reaplicar alteracoes ja consolidadas.
+INSERT IGNORE INTO schema_migrations (migration)
+VALUES
+  ('001_schema_mvp.sql'),
+  ('002_seeds_initial.sql'),
+  ('003_security_hardening.sql'),
+  ('004_children_count_backfill.sql'),
+  ('005_family_people_documents.sql'),
+  ('006_family_income_average_and_principal_work.sql');
 

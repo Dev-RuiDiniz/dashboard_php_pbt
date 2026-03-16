@@ -1,4 +1,4 @@
--- Sprint 5 - Schema MVP (MySQL/MariaDB)
+-- Schema consolidado (MySQL/MariaDB)
 -- Sistema Igreja Social - Dashboard PHP PBT
 -- Recomendado: InnoDB + utf8mb4
 

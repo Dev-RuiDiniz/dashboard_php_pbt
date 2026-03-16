@@ -31,7 +31,7 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 - Familias
   - CRUD de familias
   - detalhe da familia com abas: composicao familiar, resumo, entregas, emprestimos, visitas/anotacoes e pendencias
-  - cadastro unificado de pessoas da familia (principal, membro, dependente e crianca) na primeira aba do detalhe
+  - cadastro unificado de pessoas da familia (principal, membro e crianca) na primeira aba do detalhe
   - indicadores com renda total e media per capita por familia
 - Criancas
   - cadastro centralizado na aba de detalhe da familia
@@ -92,8 +92,11 @@ copy .env.example .env
 3. Ajustar credenciais de banco no `.env`.
 4. Criar schema/dados iniciais:
 ```bash
-# primeiro deploy local:
+# banco novo:
 # importar database/final_mvp.sql no MySQL
+#
+# banco ja existente:
+# php database/migrate.php
 ```
 5. Subir servidor local:
 ```bash
@@ -107,7 +110,8 @@ Checklist completo em:
 Resumo:
 - apontar Document Root para `public/`
 - configurar `.env` de producao (`APP_ENV=production`, `APP_DEBUG=false`)
-- importar `database/final_mvp.sql`
+- banco novo: importar `database/final_mvp.sql`
+- banco existente: rodar `php database/migrate.php` ou aplicar as migrations pendentes
 - validar `/health`
 
 ## Manual do cliente
