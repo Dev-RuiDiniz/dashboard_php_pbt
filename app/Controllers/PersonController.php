@@ -634,7 +634,7 @@ final class PersonController
 
         $target = match ($source) {
             'families' => 'familia',
-            'family_members' => 'membro/dependente',
+            'family_members' => 'membro da familia',
             'children' => 'crianca',
             'people' => 'pessoa',
             default => 'cadastro existente',

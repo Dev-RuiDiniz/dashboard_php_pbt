@@ -36,7 +36,7 @@ final class FamilyDetailService
         $members = array_map(function (array $member): array {
             $personType = $this->compositionService->resolveMemberPersonType($member);
             $member['person_type'] = $personType;
-            $member['type_label'] = $personType === 'dependent' ? 'Dependente' : 'Membro';
+            $member['type_label'] = 'Membro';
             return $member;
         }, $members);
 
@@ -124,7 +124,11 @@ final class FamilyDetailService
             'Outro',
         ];
         $memberRelationshipCurrent = trim((string) ($memberForm['relationship'] ?? ''));
-        if ($memberRelationshipCurrent !== '' && $memberRelationshipCurrent !== 'Dependente' && !in_array($memberRelationshipCurrent, $relationshipOptions, true)) {
+        if ($memberRelationshipCurrent === 'Dependente') {
+            $memberForm['relationship'] = '';
+            $memberRelationshipCurrent = '';
+        }
+        if ($memberRelationshipCurrent !== '' && !in_array($memberRelationshipCurrent, $relationshipOptions, true)) {
             $relationshipOptions[] = $memberRelationshipCurrent;
         }
 

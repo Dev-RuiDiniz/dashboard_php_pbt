@@ -159,8 +159,6 @@
         var isMemberEditMode = memberSection && memberSection.getAttribute('data-member-edit-mode') === '1';
         var relationshipGroup = hub.querySelector('[data-member-relationship-group]');
         var relationshipSelect = relationshipGroup ? relationshipGroup.querySelector('select[name="relationship"]') : null;
-        var dependentHint = hub.querySelector('[data-dependent-hint]');
-
         if (!toggleButton || !panel || typeButtons.length === 0 || sections.length === 0) {
             return;
         }
@@ -191,22 +189,6 @@
                 return;
             }
 
-            if (personType === 'dependent') {
-                memberTitle.textContent = isMemberEditMode ? 'Editar dependente' : 'Adicionar dependente';
-                memberSubmitLabel.textContent = isMemberEditMode ? 'Salvar dependente' : 'Adicionar dependente';
-                if (relationshipGroup) {
-                    relationshipGroup.classList.add('d-none');
-                }
-                if (relationshipSelect) {
-                    relationshipSelect.disabled = true;
-                    relationshipSelect.value = 'Dependente';
-                }
-                if (dependentHint) {
-                    dependentHint.classList.remove('d-none');
-                }
-                return;
-            }
-
             memberTitle.textContent = isMemberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar';
             memberSubmitLabel.textContent = isMemberEditMode ? 'Salvar membro' : 'Adicionar membro';
             if (relationshipGroup) {
@@ -215,14 +197,11 @@
             if (relationshipSelect) {
                 relationshipSelect.disabled = false;
             }
-            if (dependentHint) {
-                dependentHint.classList.add('d-none');
-            }
         }
 
         function setPersonType(type) {
             var personType = 'member';
-            if (type === 'principal' || type === 'child' || type === 'dependent') {
+            if (type === 'principal' || type === 'child') {
                 personType = type;
             }
 
@@ -247,7 +226,7 @@
             });
 
             if (memberTypeInput) {
-                memberTypeInput.value = personType === 'dependent' ? 'dependent' : 'member';
+                memberTypeInput.value = 'member';
             }
 
             updateMemberLabels(personType);

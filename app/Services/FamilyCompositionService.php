@@ -10,7 +10,7 @@ use Throwable;
 
 final class FamilyCompositionService
 {
-    public const PERSON_TYPES = ['principal', 'member', 'dependent', 'child'];
+    public const PERSON_TYPES = ['principal', 'member', 'child'];
 
     public function __construct(
         private readonly FamilyModel $familyModel,
@@ -75,7 +75,7 @@ final class FamilyCompositionService
 
     public function resolveMemberPersonType(array $member): string
     {
-        return trim((string) ($member['relationship'] ?? '')) === 'Dependente' ? 'dependent' : 'member';
+        return 'member';
     }
 
     public function sanitizePrincipalInput(array $post): array
@@ -301,12 +301,7 @@ final class FamilyCompositionService
 
     private function applyMemberPersonTypeRules(array &$input): void
     {
-        $input['person_type'] = $input['person_type'] === 'dependent' ? 'dependent' : 'member';
-        if ($input['person_type'] === 'dependent') {
-            $input['relationship'] = 'Dependente';
-        } elseif (trim((string) ($input['relationship'] ?? '')) === 'Dependente') {
-            $input['relationship'] = '';
-        }
+        $input['person_type'] = 'member';
     }
 
     private function toMemberPersistenceData(array $input): array

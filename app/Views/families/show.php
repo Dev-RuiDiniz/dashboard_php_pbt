@@ -16,17 +16,17 @@ $relationshipOptions = is_array($relationshipOptions ?? null) ? $relationshipOpt
 $familyId = (int) ($family['id'] ?? 0);
 $activeTab = (string) ($activeTab ?? 'composition');
 $personType = (string) ($personType ?? 'member');
-$allowedPersonTypes = ['principal', 'member', 'dependent', 'child'];
+$allowedPersonTypes = ['principal', 'member', 'child'];
 if (!in_array($personType, $allowedPersonTypes, true)) {
     $personType = 'member';
 }
 $memberFormPersonType = (string) ($memberForm['person_type'] ?? $personType);
-if (!in_array($memberFormPersonType, ['member', 'dependent'], true)) {
-    $memberFormPersonType = in_array($personType, ['member', 'dependent'], true) ? $personType : 'member';
+if ($memberFormPersonType !== 'member') {
+    $memberFormPersonType = $personType === 'member' ? $personType : 'member';
 }
 $openPersonForm = (bool) ($openPersonForm ?? false);
 $principalSectionVisible = $personType === 'principal';
-$memberSectionVisible = in_array($personType, ['member', 'dependent'], true);
+$memberSectionVisible = $personType === 'member';
 $childSectionVisible = $personType === 'child';
 $addressLine = (string) ($addressLine ?? '');
 $principalFormAction = '/families/principal/update?family_id=' . $familyId;
@@ -182,7 +182,7 @@ $deliveryStatusClass = static function (string $status): string {
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
                 <div>
                     <h3 class="h5 mb-1">Cadastro de pessoas da familia</h3>
-                    <p class="text-secondary mb-0">A primeira aba concentra o fluxo completo de principal, membro, dependente e crianca.</p>
+                    <p class="text-secondary mb-0">A primeira aba concentra o fluxo completo de principal, membro da familia e crianca.</p>
                 </div>
                 <button type="button" class="btn btn-teal text-white" data-person-toggle>
                     <?= $openPersonForm ? 'Fechar cadastro' : 'Adicionar pessoa' ?>
@@ -193,7 +193,6 @@ $deliveryStatusClass = static function (string $status): string {
                 <div class="btn-group mb-3 w-100" role="group" aria-label="Tipo de cadastro">
                     <button type="button" class="btn <?= $personType === 'principal' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="principal">Principal</button>
                     <button type="button" class="btn <?= $personType === 'member' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="member">Membro</button>
-                    <button type="button" class="btn <?= $personType === 'dependent' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="dependent">Dependente</button>
                     <button type="button" class="btn <?= $personType === 'child' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="child">Crianca</button>
                 </div>
 
@@ -249,7 +248,7 @@ $deliveryStatusClass = static function (string $status): string {
 
                 <div data-person-section="member" class="<?= $memberSectionVisible ? '' : 'd-none' ?>" data-member-edit-mode="<?= $memberEditMode ? '1' : '0' ?>">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h3 class="h5 mb-0" data-member-form-title><?= $memberFormPersonType === 'dependent' ? ($memberEditMode ? 'Editar dependente' : 'Adicionar dependente') : ($memberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar') ?></h3>
+                        <h3 class="h5 mb-0" data-member-form-title><?= $memberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar' ?></h3>
                         <?php if ($memberEditMode) : ?>
                             <a class="btn btn-sm btn-outline-secondary" href="<?= htmlspecialchars($personUrl($memberFormPersonType), ENT_QUOTES, 'UTF-8') ?>">Cancelar edicao</a>
                         <?php endif; ?>
@@ -272,7 +271,7 @@ $deliveryStatusClass = static function (string $status): string {
                             </div>
                             <div class="col-12 col-md-2" data-member-relationship-group>
                                 <label class="form-label">Parentesco</label>
-                                <select class="form-select" name="relationship" <?= $memberFormPersonType === 'dependent' ? 'disabled' : '' ?>>
+                                <select class="form-select" name="relationship">
                                     <option value="">Selecione</option>
                                     <?php foreach ($relationshipOptions as $relationshipOption) : ?>
                                         <option value="<?= htmlspecialchars($relationshipOption, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($memberForm['relationship'] ?? '') === $relationshipOption) ? 'selected' : '' ?>>
@@ -280,9 +279,6 @@ $deliveryStatusClass = static function (string $status): string {
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                            </div>
-                            <div class="col-12 <?= $memberFormPersonType === 'dependent' ? '' : 'd-none' ?>" data-dependent-hint>
-                                <div class="alert alert-light border mb-0">Dependente e registrado em membros familiares com parentesco fixo `Dependente`.</div>
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">Nascimento</label>
@@ -305,7 +301,7 @@ $deliveryStatusClass = static function (string $status): string {
                         </div>
 
                         <div class="mt-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-teal text-white" data-member-submit-label><?= $memberFormPersonType === 'dependent' ? ($memberEditMode ? 'Salvar dependente' : 'Adicionar dependente') : ($memberEditMode ? 'Salvar membro' : 'Adicionar membro') ?></button>
+                            <button type="submit" class="btn btn-teal text-white" data-member-submit-label><?= $memberEditMode ? 'Salvar membro' : 'Adicionar membro' ?></button>
                             <?php if ($memberEditMode) : ?>
                                 <a class="btn btn-outline-secondary" href="<?= htmlspecialchars($personUrl($memberFormPersonType), ENT_QUOTES, 'UTF-8') ?>">Cancelar</a>
                             <?php endif; ?>
@@ -372,7 +368,7 @@ $deliveryStatusClass = static function (string $status): string {
         <div class="col-12 col-xl-7">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <h3 class="h6 text-uppercase text-secondary mb-3">Membros e dependentes cadastrados</h3>
+                    <h3 class="h6 text-uppercase text-secondary mb-3">Membros da familia cadastrados</h3>
                     <div class="table-responsive">
                         <table class="table align-middle mb-0">
                             <thead>

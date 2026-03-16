@@ -291,7 +291,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
         }
 
-        Session::flash('success', $personType === 'dependent' ? 'Dependente adicionado com sucesso.' : 'Membro adicionado com sucesso.');
+        Session::flash('success', 'Membro adicionado com sucesso.');
         Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
     }
 
@@ -329,7 +329,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, 'composition', $personType, ['member_edit' => $memberId]));
         }
 
-        Session::flash('success', $personType === 'dependent' ? 'Dependente atualizado com sucesso.' : 'Membro atualizado com sucesso.');
+        Session::flash('success', 'Membro atualizado com sucesso.');
         Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
     }
 
@@ -350,7 +350,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
         }
 
-        Session::flash('success', $personType === 'dependent' ? 'Dependente removido com sucesso.' : 'Membro removido com sucesso.');
+        Session::flash('success', 'Membro removido com sucesso.');
         Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
     }
 

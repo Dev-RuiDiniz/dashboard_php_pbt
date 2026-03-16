@@ -26,7 +26,7 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                 <?php endif; ?>
                 <?php if (!$isEdit) : ?>
                     <div class="alert alert-light border-0 shadow-sm mb-3">
-                        Depois de salvar, o sistema abre automaticamente o detalhe da familia na aba `Composicao Familiar` para cadastrar Principal, Membro, Dependente e Crianca.
+                        Depois de salvar, o sistema abre automaticamente o detalhe da familia na aba `Composicao Familiar` para cadastrar Principal, Membro e Crianca.
                     </div>
                 <?php endif; ?>
 
@@ -177,7 +177,7 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         <div class="col-12 col-md-4">
                             <label class="form-label">Renda familiar total</label>
                             <input class="form-control" value="<?= htmlspecialchars((string) ($familyData['family_income_total'] ?? '0.00'), ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
-                            <div class="form-text">Somatorio automatico da renda do principal, membros e dependentes.</div>
+                            <div class="form-text">Somatorio automatico da renda do principal e dos membros da familia.</div>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Media de renda per capita</label>
@@ -206,7 +206,7 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         </div>
                         <div class="col-12">
                             <div class="alert alert-light border small mb-0">
-                                Trabalho e renda do responsavel principal sao gerenciados na aba `Composicao Familiar`, junto com membros, dependentes e criancas.
+                                Trabalho e renda do responsavel principal sao gerenciados na aba `Composicao Familiar`, junto com membros e criancas.
                             </div>
                         </div>
                         <div class="col-12">
