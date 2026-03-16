@@ -16,6 +16,8 @@ $relationshipOptions = is_array($relationshipOptions ?? null) ? $relationshipOpt
 $familyId = (int) ($family['id'] ?? 0);
 $activeTab = (string) ($activeTab ?? 'composition');
 $personType = (string) ($personType ?? 'member');
+$auth = is_array($authUser ?? null) ? $authUser : [];
+$canDeleteFamily = (string) ($auth['role'] ?? '') === 'admin';
 $allowedPersonTypes = ['principal', 'member', 'child'];
 if (!in_array($personType, $allowedPersonTypes, true)) {
     $personType = 'member';
@@ -100,9 +102,12 @@ $deliveryStatusClass = static function (string $status): string {
     <a class="btn btn-outline-secondary" href="/families">Voltar para lista</a>
     <a class="btn btn-outline-primary" href="/families/edit?id=<?= $familyId ?>">Editar familia</a>
     <a class="btn btn-outline-success" href="<?= htmlspecialchars($personUrl('principal'), ENT_QUOTES, 'UTF-8') ?>">Abrir composicao</a>
-    <form method="post" action="/families/delete?id=<?= $familyId ?>" class="m-0" onsubmit="return confirm('Remover familia? Esta acao exclui membros e criancas vinculados.');">
-        <button type="submit" class="btn btn-outline-danger">Remover familia</button>
-    </form>
+    <?php if ($canDeleteFamily) : ?>
+        <form method="post" action="/families/delete?id=<?= $familyId ?>" class="m-0" onsubmit="return confirm('Confirmar exclusao da familia? Esta acao exclui membros e criancas vinculados.');">
+            <input type="hidden" name="confirm_delete" value="1">
+            <button type="submit" class="btn btn-outline-danger">Remover familia</button>
+        </form>
+    <?php endif; ?>
 </div>
 
 <div class="card border-0 shadow-sm mb-3">

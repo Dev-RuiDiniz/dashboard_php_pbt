@@ -4,6 +4,8 @@ declare(strict_types=1);
 $filters = is_array($filters ?? null) ? $filters : [];
 $filteredTotal = (int) ($filteredTotal ?? 0);
 $overallTotal = (int) ($overallTotal ?? 0);
+$auth = is_array($authUser ?? null) ? $authUser : [];
+$canDeleteFamily = (string) ($auth['role'] ?? '') === 'admin';
 ?>
 <?php if (!empty($success)) : ?>
     <div class="alert alert-success shadow-sm border-0"><?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?></div>
@@ -111,9 +113,12 @@ $overallTotal = (int) ($overallTotal ?? 0);
                             <div class="d-flex flex-wrap gap-2">
                                 <a class="btn btn-sm btn-outline-primary" href="/families/show?id=<?= $id ?>">Detalhe</a>
                                 <a class="btn btn-sm btn-outline-secondary" href="/families/edit?id=<?= $id ?>">Editar</a>
-                                <form method="post" action="/families/delete?id=<?= $id ?>" class="m-0" onsubmit="return confirm('Remover familia? Esta acao exclui membros e criancas vinculados.');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
-                                </form>
+                                <?php if ($canDeleteFamily) : ?>
+                                    <form method="post" action="/families/delete?id=<?= $id ?>" class="m-0" onsubmit="return confirm('Confirmar exclusao da familia? Esta acao exclui membros e criancas vinculados.');">
+                                        <input type="hidden" name="confirm_delete" value="1">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>

@@ -170,6 +170,11 @@ final class FamilyController
             Response::redirect('/families');
         }
 
+        if ((string) ($_POST['confirm_delete'] ?? '') !== '1') {
+            Session::flash('error', 'Confirmacao de exclusao nao informada.');
+            Response::redirect('/families/show?id=' . $id);
+        }
+
         try {
             if ($this->familyModel()->findById($id) === null) {
                 Session::flash('error', 'Familia nao encontrada.');
