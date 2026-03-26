@@ -129,11 +129,8 @@ final class FamilyRegistrationService
             return 'CPF do responsavel principal e obrigatorio.';
         }
 
-        if (trim((string) ($input['rg_responsible'] ?? '')) === '') {
-            return 'RG do responsavel principal e obrigatorio.';
-        }
-
-        if (!FamilyDataSupport::isRgValid((string) ($input['rg_responsible'] ?? ''))) {
+        $rg = trim((string) ($input['rg_responsible'] ?? ''));
+        if ($rg !== '' && !FamilyDataSupport::isRgValid($rg)) {
             return 'RG invalido. Use o formato 00.000.000-0.';
         }
 

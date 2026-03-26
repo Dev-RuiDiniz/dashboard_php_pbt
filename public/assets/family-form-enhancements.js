@@ -112,6 +112,30 @@
         updateAge();
     }
 
+    function bindMemberAdultRules(form) {
+        var birthDateInput = form.querySelector('input[name="birth_date"]');
+        var worksGroup = form.querySelector('[data-member-works-group]');
+        var worksInput = worksGroup ? worksGroup.querySelector('input[name="works"]') : null;
+
+        if (!birthDateInput || !worksGroup || !worksInput) {
+            return;
+        }
+
+        function updateRules() {
+            var age = calculateAgeYears(birthDateInput.value);
+            var isAdult = age !== '' && Number(age) >= 18;
+            worksGroup.classList.toggle('d-none', !isAdult);
+            worksInput.disabled = !isAdult;
+            if (!isAdult) {
+                worksInput.checked = false;
+            }
+        }
+
+        birthDateInput.addEventListener('input', updateRules);
+        birthDateInput.addEventListener('change', updateRules);
+        updateRules();
+    }
+
     function initFamilyFormMasks(form) {
         var cpfInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="cpf_responsible"], input[name="cpf"]'));
         var rgInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="rg_responsible"], input[name="rg"]'));
@@ -140,6 +164,7 @@
         });
 
         bindAgeCalculation(form);
+        bindMemberAdultRules(form);
     }
 
     function initFamilyPersonHub() {

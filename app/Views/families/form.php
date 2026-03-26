@@ -57,7 +57,7 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                         </div>
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label">RG</label>
-                            <input class="form-control" name="rg_responsible" required placeholder="00.000.000-0" value="<?= htmlspecialchars((string) ($familyData['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <input class="form-control" name="rg_responsible" placeholder="opcional" value="<?= htmlspecialchars((string) ($familyData['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
 
                         <div class="col-12 col-md-3">

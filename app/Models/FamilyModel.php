@@ -159,7 +159,7 @@ final class FamilyModel
     public function getMembersByFamilyId(int $familyId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, works, income, created_at, updated_at
+            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, studies, works, income, created_at, updated_at
              FROM family_members
              WHERE family_id = :family_id
              ORDER BY name ASC, id ASC'
@@ -172,7 +172,7 @@ final class FamilyModel
     public function findMemberById(int $memberId): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, works, income
+            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, studies, works, income
              FROM family_members
              WHERE id = :id
              LIMIT 1'
@@ -185,8 +185,8 @@ final class FamilyModel
     public function createMember(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO family_members (family_id, name, relationship, cpf, rg, birth_date, works, income)
-             VALUES (:family_id, :name, :relationship, :cpf, :rg, :birth_date, :works, :income)'
+            'INSERT INTO family_members (family_id, name, relationship, cpf, rg, birth_date, studies, works, income)
+             VALUES (:family_id, :name, :relationship, :cpf, :rg, :birth_date, :studies, :works, :income)'
         );
         $stmt->execute($data);
         return (int) $this->pdo->lastInsertId();
@@ -202,6 +202,7 @@ final class FamilyModel
                  cpf = :cpf,
                  rg = :rg,
                  birth_date = :birth_date,
+                 studies = :studies,
                  works = :works,
                  income = :income
              WHERE id = :id AND family_id = :family_id'
@@ -379,7 +380,7 @@ final class FamilyModel
     public function listFamilyMembersSummary(int $familyId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, name, relationship, birth_date, works, income
+            'SELECT id, name, relationship, birth_date, studies, works, income
              FROM family_members
              WHERE family_id = :family_id
              ORDER BY name ASC, id ASC'

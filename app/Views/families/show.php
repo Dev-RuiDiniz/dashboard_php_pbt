@@ -89,6 +89,9 @@ $deliveryStatusClass = static function (string $status): string {
         default => 'text-bg-light border',
     };
 };
+
+$hasDocumentationPending = in_array((string) ($family['documentation_status'] ?? ''), ['pendente', 'parcial'], true)
+    || trim((string) ($family['documentation_notes'] ?? '')) !== '';
 ?>
 
 <?php if (!empty($success)) : ?>
@@ -128,6 +131,11 @@ $deliveryStatusClass = static function (string $status): string {
             </div>
             <div class="d-flex flex-wrap gap-2 align-content-start">
                 <span class="badge text-bg-light border">Docs: <?= htmlspecialchars((string) ($family['documentation_status'] ?? 'ok'), ENT_QUOTES, 'UTF-8') ?></span>
+                <?php if ($hasDocumentationPending) : ?>
+                    <span class="badge text-bg-danger">Documentacao pendente</span>
+                <?php else : ?>
+                    <span class="badge text-bg-success">Documentacao em dia</span>
+                <?php endif; ?>
                 <?php if ((int) ($family['needs_visit'] ?? 0) === 1) : ?>
                     <span class="badge text-bg-warning">Visita pendente</span>
                 <?php else : ?>
@@ -223,7 +231,7 @@ $deliveryStatusClass = static function (string $status): string {
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">RG</label>
-                                <input class="form-control" name="rg_responsible" required placeholder="00.000.000-0" value="<?= htmlspecialchars((string) ($principalForm['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                <input class="form-control" name="rg_responsible" placeholder="opcional" value="<?= htmlspecialchars((string) ($principalForm['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label">Nascimento</label>
@@ -276,7 +284,7 @@ $deliveryStatusClass = static function (string $status): string {
                             </div>
                             <div class="col-12 col-md-2">
                                 <label class="form-label">RG</label>
-                                <input class="form-control" name="rg" required placeholder="00.000.000-0" value="<?= htmlspecialchars((string) ($memberForm['rg'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                <input class="form-control" name="rg" placeholder="opcional" value="<?= htmlspecialchars((string) ($memberForm['rg'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
                             <div class="col-12 col-md-2" data-member-relationship-group>
                                 <label class="form-label">Parentesco</label>
@@ -301,11 +309,20 @@ $deliveryStatusClass = static function (string $status): string {
                                 <label class="form-label">Renda</label>
                                 <input class="form-control" name="income" value="<?= htmlspecialchars((string) ($memberForm['income'] ?? '0.00'), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
-                            <div class="col-12 col-md-4 d-flex align-items-end">
+                            <div class="col-12 col-md-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="member_studies" name="studies" value="1" <?= ((int) ($memberForm['studies'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="member_studies">Estuda</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-3 d-flex align-items-end" data-member-works-group>
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" id="works" name="works" value="1" <?= ((int) ($memberForm['works'] ?? 0) === 1) ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="works">Trabalha</label>
                                 </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-text">Para maiores de idade: informe se estuda e se trabalha. Para menores, apenas estudo.</div>
                             </div>
                         </div>
 
@@ -353,6 +370,12 @@ $deliveryStatusClass = static function (string $status): string {
                                 <label class="form-label">Parentesco</label>
                                 <input class="form-control" name="relationship" value="<?= htmlspecialchars((string) ($childForm['relationship'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
+                            <div class="col-12 col-md-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="child_studies" name="studies" value="1" <?= ((int) ($childForm['studies'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="child_studies">Estuda</label>
+                                </div>
+                            </div>
                             <div class="col-12">
                                 <label class="form-label">Observacoes</label>
                                 <input class="form-control" name="notes" value="<?= htmlspecialchars((string) ($childForm['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
@@ -385,6 +408,7 @@ $deliveryStatusClass = static function (string $status): string {
                                     <th>Tipo</th>
                                     <th>Nome</th>
                                     <th>Documentos</th>
+                                    <th>Estuda</th>
                                     <th>Trabalha</th>
                                     <th>Renda</th>
                                     <th>Acoes</th>
@@ -393,7 +417,7 @@ $deliveryStatusClass = static function (string $status): string {
                             <tbody>
                             <?php if (empty($members)) : ?>
                                 <tr>
-                                    <td colspan="6" class="text-secondary">Nenhum registro cadastrado.</td>
+                                    <td colspan="7" class="text-secondary">Nenhum registro cadastrado.</td>
                                 </tr>
                             <?php else : ?>
                                 <?php foreach ($members as $member) : ?>
@@ -408,6 +432,11 @@ $deliveryStatusClass = static function (string $status): string {
                                         <td class="small">
                                             <div>CPF: <?= htmlspecialchars((string) ($member['cpf'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                             <div>RG: <?= htmlspecialchars((string) ($member['rg'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                        </td>
+                                        <td>
+                                            <?= ((int) ($member['studies'] ?? 0) === 1)
+                                                ? '<span class="badge text-bg-success">Sim</span>'
+                                                : '<span class="badge text-bg-light border">Nao</span>' ?>
                                         </td>
                                         <td>
                                             <?= ((int) ($member['works'] ?? 0) === 1)
@@ -443,6 +472,7 @@ $deliveryStatusClass = static function (string $status): string {
                                 <tr>
                                     <th>Nome</th>
                                     <th>Nascimento / Idade</th>
+                                    <th>Estuda</th>
                                     <th>Documentos</th>
                                     <th>Acoes</th>
                                 </tr>
@@ -450,7 +480,7 @@ $deliveryStatusClass = static function (string $status): string {
                             <tbody>
                             <?php if (empty($children)) : ?>
                                 <tr>
-                                    <td colspan="4" class="text-secondary">Nenhuma crianca vinculada.</td>
+                                    <td colspan="5" class="text-secondary">Nenhuma crianca vinculada.</td>
                                 </tr>
                             <?php else : ?>
                                 <?php foreach ($children as $child) : ?>
@@ -464,6 +494,11 @@ $deliveryStatusClass = static function (string $status): string {
                                             <div><?= htmlspecialchars((string) ($child['birth_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                             <div class="small text-secondary">idade: <?= htmlspecialchars(((string) ($child['age_years'] ?? '')) !== '' ? ((string) $child['age_years'] . ' anos') : $renderAge($child['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                                         </td>
+                                        <td>
+                                            <?= ((int) ($child['studies'] ?? 0) === 1)
+                                                ? '<span class="badge text-bg-success">Sim</span>'
+                                                : '<span class="badge text-bg-light border">Nao</span>' ?>
+                                        </td>
                                         <td class="small">
                                             <div>CPF: <?= htmlspecialchars((string) ($child['cpf'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                             <div>RG: <?= htmlspecialchars((string) ($child['rg'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
@@ -475,6 +510,7 @@ $deliveryStatusClass = static function (string $status): string {
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
                                                 </form>
                                             </div>
+                                            <div class="small text-secondary mt-1">Se o cadastro estiver errado como crianca, remova e recadastre em Membro.</div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -708,6 +744,10 @@ $deliveryStatusClass = static function (string $status): string {
                     <div class="mb-3">
                         <div class="small text-secondary text-uppercase">Documentacao</div>
                         <div class="fw-semibold"><?= htmlspecialchars((string) ($family['documentation_status'] ?? 'ok'), ENT_QUOTES, 'UTF-8') ?></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="small text-secondary text-uppercase">Alerta documental</div>
+                        <div class="fw-semibold"><?= $hasDocumentationPending ? 'Documentacao pendente' : 'Sem pendencias' ?></div>
                     </div>
                     <div class="mb-3">
                         <div class="small text-secondary text-uppercase">Necessita visita</div>

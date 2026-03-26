@@ -52,6 +52,7 @@ final class FamilyCompositionService
             'cpf' => '',
             'rg' => '',
             'birth_date' => '',
+            'studies' => 0,
             'works' => 0,
             'income' => '0.00',
             'person_type' => 'member',
@@ -68,6 +69,7 @@ final class FamilyCompositionService
             'birth_date' => '',
             'age_years' => '',
             'relationship' => '',
+            'studies' => 0,
             'notes' => '',
             'person_type' => 'child',
         ];
@@ -101,6 +103,7 @@ final class FamilyCompositionService
             'cpf' => trim((string) ($post['cpf'] ?? '')),
             'rg' => FamilyDataSupport::sanitizeRg((string) ($post['rg'] ?? '')),
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
+            'studies' => isset($post['studies']) ? 1 : 0,
             'works' => isset($post['works']) ? 1 : 0,
             'income' => FamilyDataSupport::sanitizeMoney((string) ($post['income'] ?? '0')),
             'person_type' => $this->sanitizePersonType((string) ($post['person_type'] ?? ''), 'member'),
@@ -117,6 +120,7 @@ final class FamilyCompositionService
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
             'age_years' => null,
             'relationship' => trim((string) ($post['relationship'] ?? '')),
+            'studies' => isset($post['studies']) ? 1 : 0,
             'notes' => trim((string) ($post['notes'] ?? '')),
             'person_type' => 'child',
         ];
@@ -132,11 +136,8 @@ final class FamilyCompositionService
             return 'CPF do responsavel principal e obrigatorio.';
         }
 
-        if (trim((string) ($input['rg_responsible'] ?? '')) === '') {
-            return 'RG do responsavel principal e obrigatorio.';
-        }
-
-        if (!FamilyDataSupport::isRgValid((string) ($input['rg_responsible'] ?? ''))) {
+        $rg = trim((string) ($input['rg_responsible'] ?? ''));
+        if ($rg !== '' && !FamilyDataSupport::isRgValid($rg)) {
             return 'RG invalido. Use o formato 00.000.000-0.';
         }
 
@@ -175,11 +176,8 @@ final class FamilyCompositionService
             return 'CPF do membro familiar e obrigatorio.';
         }
 
-        if (trim((string) ($input['rg'] ?? '')) === '') {
-            return 'RG do membro familiar e obrigatorio.';
-        }
-
-        if (!FamilyDataSupport::isRgValid((string) ($input['rg'] ?? ''))) {
+        $rg = trim((string) ($input['rg'] ?? ''));
+        if ($rg !== '' && !FamilyDataSupport::isRgValid($rg)) {
             return 'RG invalido. Use o formato 00.000.000-0.';
         }
 
@@ -302,6 +300,9 @@ final class FamilyCompositionService
     private function applyMemberPersonTypeRules(array &$input): void
     {
         $input['person_type'] = 'member';
+        if (!FamilyDataSupport::isAdult((string) ($input['birth_date'] ?? ''))) {
+            $input['works'] = 0;
+        }
     }
 
     private function toMemberPersistenceData(array $input): array
@@ -313,6 +314,7 @@ final class FamilyCompositionService
             'cpf' => $input['cpf'] !== '' ? $input['cpf'] : null,
             'rg' => $input['rg'] !== '' ? $input['rg'] : null,
             'birth_date' => $input['birth_date'] !== '' ? $input['birth_date'] : null,
+            'studies' => (int) ($input['studies'] ?? 0),
             'works' => (int) $input['works'],
             'income' => $input['income'],
         ];
@@ -331,6 +333,7 @@ final class FamilyCompositionService
             'birth_date' => $birthDate,
             'age_years' => $ageYears,
             'relationship' => ($input['relationship'] ?? '') !== '' ? $input['relationship'] : null,
+            'studies' => (int) ($input['studies'] ?? 0),
             'notes' => ($input['notes'] ?? '') !== '' ? $input['notes'] : null,
         ];
     }
