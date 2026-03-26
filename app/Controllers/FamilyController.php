@@ -14,6 +14,7 @@ use App\Models\EquipmentLoanModel;
 use App\Models\FamilyModel;
 use App\Models\VisitModel;
 use App\Services\FamilyCompositionService;
+use App\Services\FamilyDataSupport;
 use App\Services\FamilyDetailService;
 use App\Services\FamilyIndicatorsService;
 use App\Services\FamilyRegistrationService;
@@ -472,6 +473,8 @@ final class FamilyController
             'maritalStatuses' => $registration->withLegacyOption(FamilyRegistrationService::MARITAL_STATUSES, (string) ($family['marital_status'] ?? '')),
             'educationLevels' => $registration->withLegacyOption(FamilyRegistrationService::EDUCATION_LEVELS, (string) ($family['education_level'] ?? '')),
             'professionalStatuses' => $registration->withLegacyOption(FamilyRegistrationService::PROFESSIONAL_STATUSES, (string) ($family['professional_status'] ?? '')),
+            'chronicDiseaseOptions' => $registration->withLegacyOption(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS, (string) ($family['chronic_disease'] ?? '')),
+            'socialBenefitOptions' => $registration->withLegacyOption(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS, (string) ($family['social_benefit'] ?? '')),
             'error' => Session::consumeFlash('error'),
         ]);
     }

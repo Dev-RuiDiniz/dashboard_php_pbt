@@ -8,6 +8,8 @@ $housingTypes = is_array($housingTypes ?? null) ? $housingTypes : [];
 $maritalStatuses = is_array($maritalStatuses ?? null) ? $maritalStatuses : [];
 $educationLevels = is_array($educationLevels ?? null) ? $educationLevels : [];
 $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalStatuses : [];
+$chronicDiseaseOptions = is_array($chronicDiseaseOptions ?? null) ? $chronicDiseaseOptions : [];
+$socialBenefitOptions = is_array($socialBenefitOptions ?? null) ? $socialBenefitOptions : [];
 ?>
 <div class="row justify-content-center">
     <div class="col-12">
@@ -208,6 +210,49 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
                             <div class="alert alert-light border small mb-0">
                                 Trabalho e renda do responsavel principal sao gerenciados na aba `Composicao Familiar`, junto com membros e criancas.
                             </div>
+                        </div>
+                        <div class="col-12"><hr><h3 class="h6 text-uppercase text-secondary mb-0">Saude e beneficios do responsavel</h3></div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Doenca cronica</label>
+                            <select class="form-select" name="chronic_disease">
+                                <option value="">Nao informado</option>
+                                <?php foreach ($chronicDiseaseOptions as $value => $label) : ?>
+                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($familyData['chronic_disease'] ?? '') === (string) $value) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="family_has_physical_disability" name="has_physical_disability" value="1" <?= ((int) ($familyData['has_physical_disability'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="family_has_physical_disability">Possui deficiencia fisica</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Qual deficiencia</label>
+                            <input class="form-control" name="physical_disability_details" value="<?= htmlspecialchars((string) ($familyData['physical_disability_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="family_uses_continuous_medication" name="uses_continuous_medication" value="1" <?= ((int) ($familyData['uses_continuous_medication'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="family_uses_continuous_medication">Faz uso de medicacao continua</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Qual medicacao</label>
+                            <input class="form-control" name="continuous_medication_details" value="<?= htmlspecialchars((string) ($familyData['continuous_medication_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Beneficio social</label>
+                            <select class="form-select" name="social_benefit">
+                                <option value="">Nao informado</option>
+                                <?php foreach ($socialBenefitOptions as $value => $label) : ?>
+                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($familyData['social_benefit'] ?? '') === (string) $value) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Observacoes gerais</label>

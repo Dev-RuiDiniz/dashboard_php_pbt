@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 $isEdit = ($mode ?? 'create') === 'edit';
 $person = is_array($person ?? null) ? $person : [];
+$chronicDiseaseOptions = is_array($chronicDiseaseOptions ?? null) ? $chronicDiseaseOptions : [];
+$socialBenefitOptions = is_array($socialBenefitOptions ?? null) ? $socialBenefitOptions : [];
 ?>
 <div class="row justify-content-center">
     <div class="col-12">
@@ -45,8 +47,9 @@ $person = is_array($person ?? null) ? $person : [];
                             <input type="date" class="form-control" name="birth_date" value="<?= htmlspecialchars((string) ($person['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-3">
-                            <label class="form-label">Idade aproximada</label>
-                            <input type="number" min="0" class="form-control" name="approx_age" value="<?= htmlspecialchars((string) (($person['approx_age'] ?? '') !== null ? (string) ($person['approx_age'] ?? '') : ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <label class="form-label">Idade calculada</label>
+                            <input type="text" class="form-control" data-family-age-display readonly tabindex="-1" value="<?= htmlspecialchars((string) (($person['approx_age'] ?? '') !== null ? (string) ($person['approx_age'] ?? '') . ' anos' : ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="approx_age" value="<?= htmlspecialchars((string) (($person['approx_age'] ?? '') !== null ? (string) ($person['approx_age'] ?? '') : ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Genero</label>
@@ -68,6 +71,14 @@ $person = is_array($person ?? null) ? $person : [];
                         <div class="col-12 col-md-4">
                             <label class="form-label">Local onde permanece</label>
                             <input class="form-control" name="stay_location" value="<?= htmlspecialchars((string) ($person['stay_location'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Numero telefone</label>
+                            <input class="form-control" name="phone" value="<?= htmlspecialchars((string) ($person['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <label class="form-label">Endereco anterior</label>
+                            <input class="form-control" name="previous_address" value="<?= htmlspecialchars((string) ($person['previous_address'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-4 d-flex align-items-end">
                             <div class="form-check mb-2">
@@ -105,6 +116,50 @@ $person = is_array($person ?? null) ? $person : [];
                         <div class="col-12 col-md-4">
                             <label class="form-label">Detalhe do interesse</label>
                             <input class="form-control" name="work_interest_detail" value="<?= htmlspecialchars((string) ($person['work_interest_detail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+
+                        <div class="col-12"><hr><h3 class="h6 text-uppercase text-secondary mb-0">Saude e beneficios</h3></div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Doenca cronica</label>
+                            <select class="form-select" name="chronic_disease">
+                                <option value="">Nao informado</option>
+                                <?php foreach ($chronicDiseaseOptions as $value => $label) : ?>
+                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($person['chronic_disease'] ?? '') === (string) $value) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="person_has_physical_disability" name="has_physical_disability" value="1" <?= ((int) ($person['has_physical_disability'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="person_has_physical_disability">Possui deficiencia fisica</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Qual deficiencia</label>
+                            <input class="form-control" name="physical_disability_details" value="<?= htmlspecialchars((string) ($person['physical_disability_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="person_uses_continuous_medication" name="uses_continuous_medication" value="1" <?= ((int) ($person['uses_continuous_medication'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="person_uses_continuous_medication">Faz uso de medicacao continua</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Qual medicacao</label>
+                            <input class="form-control" name="continuous_medication_details" value="<?= htmlspecialchars((string) ($person['continuous_medication_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Beneficio social</label>
+                            <select class="form-select" name="social_benefit">
+                                <option value="">Nao informado</option>
+                                <?php foreach ($socialBenefitOptions as $value => $label) : ?>
+                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($person['social_benefit'] ?? '') === (string) $value) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </div>
 

@@ -545,6 +545,22 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                         <dd class="col-7"><?= htmlspecialchars((string) (($family['professional_status'] ?? '') !== '' ? $family['professional_status'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
                         <dt class="col-5 text-secondary">Renda principal</dt>
                         <dd class="col-7">R$ <?= number_format((float) ($family['responsible_income'] ?? 0), 2, ',', '.') ?> / <?= ((int) ($family['responsible_works'] ?? 0) === 1) ? 'Trabalha' : 'Nao trabalha' ?></dd>
+                        <dt class="col-5 text-secondary">Doenca cronica</dt>
+                        <dd class="col-7"><?= htmlspecialchars((string) (($family['chronic_disease'] ?? '') !== '' ? $family['chronic_disease'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+                        <dt class="col-5 text-secondary">Deficiencia fisica</dt>
+                        <dd class="col-7">
+                            <?= ((int) ($family['has_physical_disability'] ?? 0) === 1)
+                                ? htmlspecialchars((string) (($family['physical_disability_details'] ?? '') !== '' ? $family['physical_disability_details'] : 'Sim'), ENT_QUOTES, 'UTF-8')
+                                : 'Nao' ?>
+                        </dd>
+                        <dt class="col-5 text-secondary">Medicacao continua</dt>
+                        <dd class="col-7">
+                            <?= ((int) ($family['uses_continuous_medication'] ?? 0) === 1)
+                                ? htmlspecialchars((string) (($family['continuous_medication_details'] ?? '') !== '' ? $family['continuous_medication_details'] : 'Sim'), ENT_QUOTES, 'UTF-8')
+                                : 'Nao' ?>
+                        </dd>
+                        <dt class="col-5 text-secondary">Beneficio social</dt>
+                        <dd class="col-7"><?= htmlspecialchars((string) (($family['social_benefit'] ?? '') !== '' ? $family['social_benefit'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
                     </dl>
                 </div>
             </div>

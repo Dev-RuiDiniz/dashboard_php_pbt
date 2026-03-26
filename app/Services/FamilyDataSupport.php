@@ -9,6 +9,22 @@ use Throwable;
 
 final class FamilyDataSupport
 {
+    public const CHRONIC_DISEASE_OPTIONS = [
+        'hipertensao' => 'Hipertensao',
+        'diabetes' => 'Diabetes',
+        'doencas_cardiovasculares' => 'Doencas cardiovasculares',
+        'obesidade' => 'Obesidade',
+        'doenca_osteomuscular' => 'Doenca osteomuscular',
+        'depressao_transtornos_mentais' => 'Depressao e Transtornos Mentais',
+    ];
+
+    public const SOCIAL_BENEFIT_OPTIONS = [
+        'bolsa_familia' => 'Bolsa Familia',
+        'bpc_loas' => 'Beneficio de Prestacao Continuada (BPC/LOAS)',
+        'tarifa_social_energia' => 'Tarifa Social de Energia Eletrica',
+        'aposentadoria' => 'Aposentadoria',
+    ];
+
     public static function sanitizeRg(string $value): string
     {
         $raw = preg_replace('/[^0-9A-Z]/', '', strtoupper(trim($value)));

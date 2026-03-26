@@ -85,6 +85,12 @@ final class FamilyRegistrationService
             'needs_visit' => 0,
             'general_notes' => '',
             'is_active' => 1,
+            'chronic_disease' => '',
+            'has_physical_disability' => 0,
+            'physical_disability_details' => '',
+            'uses_continuous_medication' => 0,
+            'continuous_medication_details' => '',
+            'social_benefit' => '',
         ];
     }
 
@@ -116,6 +122,12 @@ final class FamilyRegistrationService
             'needs_visit' => isset($post['needs_visit']) ? 1 : 0,
             'general_notes' => trim((string) ($post['general_notes'] ?? '')),
             'is_active' => isset($post['is_active']) ? 1 : 0,
+            'chronic_disease' => trim((string) ($post['chronic_disease'] ?? '')),
+            'has_physical_disability' => isset($post['has_physical_disability']) ? 1 : 0,
+            'physical_disability_details' => trim((string) ($post['physical_disability_details'] ?? '')),
+            'uses_continuous_medication' => isset($post['uses_continuous_medication']) ? 1 : 0,
+            'continuous_medication_details' => trim((string) ($post['continuous_medication_details'] ?? '')),
+            'social_benefit' => trim((string) ($post['social_benefit'] ?? '')),
         ];
     }
 
@@ -139,6 +151,8 @@ final class FamilyRegistrationService
             'marital_status' => ['options' => array_keys(self::MARITAL_STATUSES), 'label' => 'Estado civil'],
             'education_level' => ['options' => array_keys(self::EDUCATION_LEVELS), 'label' => 'Escolaridade'],
             'professional_status' => ['options' => array_keys(self::PROFESSIONAL_STATUSES), 'label' => 'Situacao profissional'],
+            'chronic_disease' => ['options' => array_keys(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS), 'label' => 'Doenca cronica'],
+            'social_benefit' => ['options' => array_keys(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS), 'label' => 'Beneficio social'],
         ];
 
         foreach ($fieldConfig as $field => $config) {
@@ -214,6 +228,14 @@ final class FamilyRegistrationService
             $input['documentation_status'] = 'ok';
         }
 
+        if ((int) ($input['has_physical_disability'] ?? 0) !== 1) {
+            $input['physical_disability_details'] = '';
+        }
+
+        if ((int) ($input['uses_continuous_medication'] ?? 0) !== 1) {
+            $input['continuous_medication_details'] = '';
+        }
+
         return [
             'responsible_name' => $input['responsible_name'],
             'cpf_responsible' => $input['cpf_responsible'] !== '' ? $input['cpf_responsible'] : null,
@@ -240,6 +262,12 @@ final class FamilyRegistrationService
             'needs_visit' => (int) $input['needs_visit'],
             'general_notes' => $input['general_notes'] !== '' ? $input['general_notes'] : null,
             'is_active' => (int) $input['is_active'],
+            'chronic_disease' => $input['chronic_disease'] !== '' ? $input['chronic_disease'] : null,
+            'has_physical_disability' => (int) ($input['has_physical_disability'] ?? 0),
+            'physical_disability_details' => $input['physical_disability_details'] !== '' ? $input['physical_disability_details'] : null,
+            'uses_continuous_medication' => (int) ($input['uses_continuous_medication'] ?? 0),
+            'continuous_medication_details' => $input['continuous_medication_details'] !== '' ? $input['continuous_medication_details'] : null,
+            'social_benefit' => $input['social_benefit'] !== '' ? $input['social_benefit'] : null,
         ];
     }
 }

@@ -14,6 +14,7 @@ use App\Models\ReferralModel;
 use App\Models\SocialRecordModel;
 use App\Models\SpiritualFollowupModel;
 use App\Services\CpfService;
+use App\Services\FamilyDataSupport;
 use PDO;
 use Throwable;
 
@@ -550,6 +551,8 @@ final class PersonController
             'authUser' => Session::get('auth_user', []),
             'mode' => $mode,
             'person' => $person,
+            'chronicDiseaseOptions' => $this->withLegacyOption(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS, (string) ($person['chronic_disease'] ?? '')),
+            'socialBenefitOptions' => $this->withLegacyOption(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS, (string) ($person['social_benefit'] ?? '')),
             'error' => Session::consumeFlash('error'),
         ]);
     }
@@ -567,6 +570,8 @@ final class PersonController
             'is_homeless' => 0,
             'homeless_time' => '',
             'stay_location' => '',
+            'phone' => '',
+            'previous_address' => '',
             'has_family_in_region' => 0,
             'family_contact' => '',
             'education_level' => '',
@@ -574,23 +579,33 @@ final class PersonController
             'formal_work_history' => 0,
             'work_interest' => 0,
             'work_interest_detail' => '',
+            'chronic_disease' => '',
+            'has_physical_disability' => 0,
+            'physical_disability_details' => '',
+            'uses_continuous_medication' => 0,
+            'continuous_medication_details' => '',
+            'social_benefit' => '',
         ];
     }
 
     private function sanitizeInput(array $post): array
     {
         $approxAge = trim((string) ($post['approx_age'] ?? ''));
+        $birthDate = trim((string) ($post['birth_date'] ?? ''));
+        $calculatedAge = FamilyDataSupport::calculateAgeFromBirthDate($birthDate);
         return [
             'full_name' => trim((string) ($post['full_name'] ?? '')),
             'social_name' => trim((string) ($post['social_name'] ?? '')),
             'cpf' => trim((string) ($post['cpf'] ?? '')),
             'rg' => trim((string) ($post['rg'] ?? '')),
-            'birth_date' => trim((string) ($post['birth_date'] ?? '')),
-            'approx_age' => $approxAge === '' ? null : max(0, (int) $approxAge),
+            'birth_date' => $birthDate,
+            'approx_age' => $calculatedAge ?? ($approxAge === '' ? null : max(0, (int) $approxAge)),
             'gender' => trim((string) ($post['gender'] ?? '')),
             'is_homeless' => isset($post['is_homeless']) ? 1 : 0,
             'homeless_time' => trim((string) ($post['homeless_time'] ?? '')),
             'stay_location' => trim((string) ($post['stay_location'] ?? '')),
+            'phone' => FamilyDataSupport::sanitizePhone((string) ($post['phone'] ?? '')),
+            'previous_address' => trim((string) ($post['previous_address'] ?? '')),
             'has_family_in_region' => isset($post['has_family_in_region']) ? 1 : 0,
             'family_contact' => trim((string) ($post['family_contact'] ?? '')),
             'education_level' => trim((string) ($post['education_level'] ?? '')),
@@ -598,6 +613,12 @@ final class PersonController
             'formal_work_history' => isset($post['formal_work_history']) ? 1 : 0,
             'work_interest' => isset($post['work_interest']) ? 1 : 0,
             'work_interest_detail' => trim((string) ($post['work_interest_detail'] ?? '')),
+            'chronic_disease' => trim((string) ($post['chronic_disease'] ?? '')),
+            'has_physical_disability' => isset($post['has_physical_disability']) ? 1 : 0,
+            'physical_disability_details' => trim((string) ($post['physical_disability_details'] ?? '')),
+            'uses_continuous_medication' => isset($post['uses_continuous_medication']) ? 1 : 0,
+            'continuous_medication_details' => trim((string) ($post['continuous_medication_details'] ?? '')),
+            'social_benefit' => trim((string) ($post['social_benefit'] ?? '')),
         ];
     }
 
@@ -622,6 +643,14 @@ final class PersonController
             if ($conflict !== null) {
                 return $this->buildCpfConflictMessage($conflict);
             }
+        }
+
+        if (($input['chronic_disease'] ?? '') !== '' && !array_key_exists((string) $input['chronic_disease'], FamilyDataSupport::CHRONIC_DISEASE_OPTIONS)) {
+            return 'Doenca cronica invalida.';
+        }
+
+        if (($input['social_benefit'] ?? '') !== '' && !array_key_exists((string) $input['social_benefit'], FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS)) {
+            return 'Beneficio social invalido.';
         }
 
         return null;
@@ -649,6 +678,13 @@ final class PersonController
 
     private function toPersistenceData(array $input): array
     {
+        if ((int) ($input['has_physical_disability'] ?? 0) !== 1) {
+            $input['physical_disability_details'] = '';
+        }
+        if ((int) ($input['uses_continuous_medication'] ?? 0) !== 1) {
+            $input['continuous_medication_details'] = '';
+        }
+
         return [
             'full_name' => $input['full_name'] !== '' ? $input['full_name'] : null,
             'social_name' => $input['social_name'] !== '' ? $input['social_name'] : null,
@@ -660,6 +696,8 @@ final class PersonController
             'is_homeless' => (int) $input['is_homeless'],
             'homeless_time' => $input['homeless_time'] !== '' ? $input['homeless_time'] : null,
             'stay_location' => $input['stay_location'] !== '' ? $input['stay_location'] : null,
+            'phone' => $input['phone'] !== '' ? $input['phone'] : null,
+            'previous_address' => $input['previous_address'] !== '' ? $input['previous_address'] : null,
             'has_family_in_region' => (int) $input['has_family_in_region'],
             'family_contact' => $input['family_contact'] !== '' ? $input['family_contact'] : null,
             'education_level' => $input['education_level'] !== '' ? $input['education_level'] : null,
@@ -667,7 +705,23 @@ final class PersonController
             'formal_work_history' => (int) $input['formal_work_history'],
             'work_interest' => (int) $input['work_interest'],
             'work_interest_detail' => $input['work_interest_detail'] !== '' ? $input['work_interest_detail'] : null,
+            'chronic_disease' => $input['chronic_disease'] !== '' ? $input['chronic_disease'] : null,
+            'has_physical_disability' => (int) ($input['has_physical_disability'] ?? 0),
+            'physical_disability_details' => $input['physical_disability_details'] !== '' ? $input['physical_disability_details'] : null,
+            'uses_continuous_medication' => (int) ($input['uses_continuous_medication'] ?? 0),
+            'continuous_medication_details' => $input['continuous_medication_details'] !== '' ? $input['continuous_medication_details'] : null,
+            'social_benefit' => $input['social_benefit'] !== '' ? $input['social_benefit'] : null,
         ];
+    }
+
+    private function withLegacyOption(array $baseOptions, string $selectedValue): array
+    {
+        if ($selectedValue === '' || isset($baseOptions[$selectedValue])) {
+            return $baseOptions;
+        }
+
+        $baseOptions[$selectedValue] = 'Legado: ' . $selectedValue;
+        return $baseOptions;
     }
 
     private function personModel(): PersonModel
