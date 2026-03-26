@@ -37,6 +37,8 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
   - data de cadastro e ultima atualizacao visiveis
   - alerta de documentacao pendente e alerta de visita
   - composicao familiar com `Estuda?` para criancas e adultos, e `Trabalha?` para maiores de idade
+  - multiplos telefones com identificacao livre e telefone principal para compatibilidade
+  - `valor do aluguel` quando a moradia for `Alugada`
   - campos de saude e beneficio social no cadastro base do responsavel
 - Criancas
   - cadastro centralizado na aba de detalhe da familia
@@ -44,7 +46,8 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
   - CRUD completo
   - mantem rota tecnica `/people`
   - idade calculada automaticamente a partir da data de nascimento
-  - telefone, endereco anterior, data de cadastro e ultima atualizacao visiveis
+  - multiplos telefones com identificacao livre e telefone principal para compatibilidade
+  - endereco anterior, data de cadastro e ultima atualizacao visiveis
   - campos de saude e beneficio social no cadastro base
 - Fichas sociais (dentro de pessoa)
   - CRUD completo
@@ -100,6 +103,11 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 - `Nova Familia` e `Nova Pessoa` agora exibem datas de cadastro e atualizacao.
 - O sistema aceita salvar familia, membro e crianca sem RG, validando o formato apenas quando o campo for preenchido.
 - Cadastro base de familia e PROJETO AMOR passou a registrar doenca cronica, deficiencia fisica, medicacao continua e beneficio social.
+- Familia e PROJETO AMOR agora aceitam mais de um telefone, com campo de identificacao como `filha`, `neta`, `vizinha` ou `recado`.
+- O telefone principal continua sendo espelhado no campo legado para nao quebrar listagens, buscas e relatorios existentes.
+- Quando a moradia da familia for `Alugada`, o formulario exibe e salva `Valor do aluguel`; se a moradia mudar, esse valor e limpo automaticamente.
+- Os campos `Possui alguma Deficiencia Fisica?` e `Faz Uso de Medicacao Continua?` passaram a usar fluxo explicito `Sim/Não`, com campo complementar exibido apenas quando necessario.
+- `Doenca cronica` foi alinhado para as 7 opcoes operacionais atuais, mantendo compatibilidade de edicao para o valor legado agrupado.
 - Emprestimos de equipamento passaram a distinguir claramente quem retirou o item e quem vai usa-lo.
 - Estado de conservacao `ruim` agora gera inativacao do equipamento ate a conclusao da manutencao.
 
