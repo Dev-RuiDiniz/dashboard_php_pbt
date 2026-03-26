@@ -1,6 +1,6 @@
 # Dashboard PHP PBT - Sistema Igreja Social
 
-Sistema web em PHP + MySQL para operacao social da igreja, com controle de familias, pessoas acompanhadas, entregas, equipamentos, visitas, usuarios e relatorios.
+Sistema web em PHP + MySQL para operacao social da igreja, com controle de familias, PROJETO AMOR, entregas, equipamentos, visitas, usuarios e relatorios.
 
 ## Stack e requisitos
 - PHP `8.2+`
@@ -33,10 +33,19 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
   - detalhe da familia com abas: composicao familiar, resumo, entregas, emprestimos, visitas/anotacoes e pendencias
   - cadastro unificado de pessoas da familia (principal, membro e crianca) na primeira aba do detalhe
   - indicadores com renda total e media per capita por familia
+  - RG opcional no cadastro do responsavel, membros e criancas
+  - data de cadastro e ultima atualizacao visiveis
+  - alerta de documentacao pendente e alerta de visita
+  - composicao familiar com `Estuda?` para criancas e adultos, e `Trabalha?` para maiores de idade
+  - campos de saude e beneficio social no cadastro base do responsavel
 - Criancas
   - cadastro centralizado na aba de detalhe da familia
-- Pessoas acompanhadas
+- PROJETO AMOR
   - CRUD completo
+  - mantem rota tecnica `/people`
+  - idade calculada automaticamente a partir da data de nascimento
+  - telefone, endereco anterior, data de cadastro e ultima atualizacao visiveis
+  - campos de saude e beneficio social no cadastro base
 - Fichas sociais (dentro de pessoa)
   - CRUD completo
 - Encaminhamentos (dentro de pessoa)
@@ -48,10 +57,16 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
   - CRUD da lista operacional (convidados/entregas)
   - fluxo de status `nao_veio -> presente -> retirou`
   - fechar/reabrir evento, CSV e impressao
+  - bloqueio mensal considerando apenas registros ja baixados como `retirou`
+  - mensagens operacionais mais claras para duplicidade, bloqueio mensal e limite de cestas
 - Equipamentos
   - CRUD completo
 - Emprestimos de equipamentos
   - criar, listar, devolver, excluir
+  - novos tipos: `cadeira_banho`, `equipamentos_enfermaria`, `bengala_quatro_pes`, `bota_ortopedica_dortler`, `tipoia`
+  - snapshot da retirada com responsavel, telefone, CPF, endereco e usuario do equipamento
+  - devolucao ruim gera alerta visivel, registro de manutencao e equipamento `inativo`
+  - retorno apos manutencao libera o equipamento novamente para `disponivel`
 - Visitas
   - CRUD completo + concluir visita
 - Relatorios
@@ -79,6 +94,14 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 - `/reports`
 - `/users` (admin)
 - `/health`
+
+## Atualizacoes operacionais de 26/03/2026
+- Interface do modulo de moradores de rua renomeada para `PROJETO AMOR`, preservando as rotas internas.
+- `Nova Familia` e `Nova Pessoa` agora exibem datas de cadastro e atualizacao.
+- O sistema aceita salvar familia, membro e crianca sem RG, validando o formato apenas quando o campo for preenchido.
+- Cadastro base de familia e PROJETO AMOR passou a registrar doenca cronica, deficiencia fisica, medicacao continua e beneficio social.
+- Emprestimos de equipamento passaram a distinguir claramente quem retirou o item e quem vai usa-lo.
+- Estado de conservacao `ruim` agora gera inativacao do equipamento ate a conclusao da manutencao.
 
 ## Setup local rapido
 1. Instalar dependencias:
