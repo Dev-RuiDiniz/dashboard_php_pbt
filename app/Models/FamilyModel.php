@@ -117,7 +117,7 @@ final class FamilyModel
                 responsible_works, responsible_income,
                 marital_status, education_level, professional_status, profession_detail,
                 cep, address, address_number, address_complement, neighborhood, city, state,
-                location_reference, housing_type, documentation_status,
+                location_reference, housing_type, rent_amount, documentation_status,
                 documentation_notes, needs_visit, general_notes, is_active,
                 chronic_disease, has_physical_disability, physical_disability_details,
                 uses_continuous_medication, continuous_medication_details, social_benefit
@@ -126,7 +126,7 @@ final class FamilyModel
                 :responsible_works, :responsible_income,
                 :marital_status, :education_level, :professional_status, :profession_detail,
                 :cep, :address, :address_number, :address_complement, :neighborhood, :city, :state,
-                :location_reference, :housing_type, :documentation_status,
+                :location_reference, :housing_type, :rent_amount, :documentation_status,
                 :documentation_notes, :needs_visit, :general_notes, :is_active,
                 :chronic_disease, :has_physical_disability, :physical_disability_details,
                 :uses_continuous_medication, :continuous_medication_details, :social_benefit
@@ -162,6 +162,7 @@ final class FamilyModel
                 state = :state,
                 location_reference = :location_reference,
                 housing_type = :housing_type,
+                rent_amount = :rent_amount,
                 documentation_status = :documentation_status,
                 documentation_notes = :documentation_notes,
                 needs_visit = :needs_visit,

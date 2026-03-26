@@ -76,6 +76,7 @@ final class FamilyRegistrationService
             'state' => '',
             'location_reference' => '',
             'housing_type' => '',
+            'rent_amount' => '',
             'adults_count' => 0,
             'workers_count' => 0,
             'family_income_total' => '0.00',
@@ -118,6 +119,7 @@ final class FamilyRegistrationService
             'state' => strtoupper(substr(trim((string) ($post['state'] ?? '')), 0, 2)),
             'location_reference' => trim((string) ($post['location_reference'] ?? '')),
             'housing_type' => trim((string) ($post['housing_type'] ?? '')),
+            'rent_amount' => trim((string) ($post['rent_amount'] ?? '')),
             'documentation_status' => trim((string) ($post['documentation_status'] ?? 'ok')),
             'documentation_notes' => trim((string) ($post['documentation_notes'] ?? '')),
             'needs_visit' => isset($post['needs_visit']) ? 1 : 0,
@@ -178,6 +180,10 @@ final class FamilyRegistrationService
 
         if (!is_numeric((string) ($input['responsible_income'] ?? '0'))) {
             return 'Renda do responsavel principal invalida.';
+        }
+
+        if (($input['rent_amount'] ?? '') !== '' && !is_numeric(FamilyDataSupport::sanitizeMoney((string) $input['rent_amount']))) {
+            return 'Valor do aluguel invalido.';
         }
 
         if (!\App\Services\CpfService::isValid((string) ($input['cpf_responsible'] ?? ''))) {
@@ -243,6 +249,13 @@ final class FamilyRegistrationService
             $input['continuous_medication_details'] = '';
         }
 
+        if (($input['housing_type'] ?? '') === 'alugada') {
+            $sanitizedRent = FamilyDataSupport::sanitizeMoney((string) ($input['rent_amount'] ?? ''));
+            $input['rent_amount'] = $sanitizedRent !== '0.00' || trim((string) ($input['rent_amount'] ?? '')) !== '' ? $sanitizedRent : null;
+        } else {
+            $input['rent_amount'] = null;
+        }
+
         return [
             'responsible_name' => $input['responsible_name'],
             'cpf_responsible' => $input['cpf_responsible'] !== '' ? $input['cpf_responsible'] : null,
@@ -264,6 +277,7 @@ final class FamilyRegistrationService
             'state' => $input['state'] !== '' ? $input['state'] : null,
             'location_reference' => $input['location_reference'] !== '' ? $input['location_reference'] : null,
             'housing_type' => $input['housing_type'] !== '' ? $input['housing_type'] : null,
+            'rent_amount' => $input['rent_amount'],
             'documentation_status' => $input['documentation_status'],
             'documentation_notes' => $input['documentation_notes'] !== '' ? $input['documentation_notes'] : null,
             'needs_visit' => (int) $input['needs_visit'],

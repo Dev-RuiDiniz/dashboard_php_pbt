@@ -622,6 +622,10 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                         <dd class="col-7"><?= htmlspecialchars((string) ($family['birth_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?> (<?= htmlspecialchars($renderAge($family['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>)</dd>
                         <dt class="col-5 text-secondary">Moradia</dt>
                         <dd class="col-7"><?= htmlspecialchars((string) (($family['housing_type'] ?? '') !== '' ? $family['housing_type'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+                        <?php if ((string) ($family['housing_type'] ?? '') === 'alugada') : ?>
+                            <dt class="col-5 text-secondary">Valor do aluguel</dt>
+                            <dd class="col-7">R$ <?= number_format((float) ($family['rent_amount'] ?? 0), 2, ',', '.') ?></dd>
+                        <?php endif; ?>
                         <dt class="col-5 text-secondary">Estado civil</dt>
                         <dd class="col-7"><?= htmlspecialchars((string) (($family['marital_status'] ?? '') !== '' ? $family['marital_status'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
                         <dt class="col-5 text-secondary">Escolaridade</dt>

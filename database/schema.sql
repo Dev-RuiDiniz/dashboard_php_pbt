@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS families (
   state CHAR(2) NULL,
   location_reference VARCHAR(200) NULL,
   housing_type VARCHAR(60) NULL,
+  rent_amount DECIMAL(10,2) NULL,
   adults_count INT NOT NULL DEFAULT 0,
   workers_count INT NOT NULL DEFAULT 0,
   family_income_total DECIMAL(10,2) NOT NULL DEFAULT 0,

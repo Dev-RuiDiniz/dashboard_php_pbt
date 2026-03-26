@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS families (
   state CHAR(2) NULL,
   location_reference VARCHAR(200) NULL,
   housing_type VARCHAR(60) NULL,
+  rent_amount DECIMAL(10,2) NULL,
   adults_count INT NOT NULL DEFAULT 0,
   workers_count INT NOT NULL DEFAULT 0,
   family_income_total DECIMAL(10,2) NOT NULL DEFAULT 0,
@@ -482,5 +483,6 @@ VALUES
   ('007_family_members_and_children_studies.sql'),
   ('008_family_people_health_and_benefits.sql'),
   ('009_equipment_loans_borrowers_and_maintenance.sql'),
-  ('010_family_and_person_multiple_phones.sql');
+  ('010_family_and_person_multiple_phones.sql'),
+  ('011_family_rent_amount.sql');
 

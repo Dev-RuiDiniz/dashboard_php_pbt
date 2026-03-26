@@ -129,7 +129,7 @@ $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['n
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Tipo de moradia</label>
-                            <select class="form-select" name="housing_type">
+                            <select class="form-select" name="housing_type" data-housing-type>
                                 <option value="">Selecione</option>
                                 <?php foreach ($housingTypes as $value => $label) : ?>
                                     <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($familyData['housing_type'] ?? '') === (string) $value) ? 'selected' : '' ?>>
@@ -137,6 +137,10 @@ $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['n
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        <div class="col-12 col-md-4 <?= ((string) ($familyData['housing_type'] ?? '') === 'alugada') ? '' : 'd-none' ?>" data-rent-amount-group>
+                            <label class="form-label">Valor do aluguel</label>
+                            <input class="form-control" name="rent_amount" placeholder="0,00" value="<?= htmlspecialchars((string) ($familyData['rent_amount'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
 
                         <div class="col-12"><hr><h3 class="h6 text-uppercase text-secondary mb-0">Endereco</h3></div>
@@ -412,6 +416,21 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     setupPhoneCollection('family-phones');
+
+    const housingType = document.querySelector('[data-housing-type]');
+    const rentGroup = document.querySelector('[data-rent-amount-group]');
+    if (housingType && rentGroup) {
+        const rentInput = rentGroup.querySelector('input[name="rent_amount"]');
+        const syncRent = function () {
+            const visible = housingType.value === 'alugada';
+            rentGroup.classList.toggle('d-none', !visible);
+            if (!visible && rentInput) {
+                rentInput.value = '';
+            }
+        };
+        housingType.addEventListener('change', syncRent);
+        syncRent();
+    }
 });
 </script>
 
