@@ -121,6 +121,10 @@ $deliveryStatusClass = static function (string $status): string {
                     · Telefone <?= htmlspecialchars((string) ($family['phone'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
                 </div>
                 <div class="small text-secondary"><?= htmlspecialchars($addressLine !== '' ? $addressLine : '-', ENT_QUOTES, 'UTF-8') ?></div>
+                <div class="small text-secondary mt-2">
+                    Cadastro: <?= htmlspecialchars((string) (($family['created_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?>
+                    · Ultima atualizacao: <?= htmlspecialchars((string) (($family['updated_at'] ?? '') ?: ($family['created_at'] ?? '-')), ENT_QUOTES, 'UTF-8') ?>
+                </div>
             </div>
             <div class="d-flex flex-wrap gap-2 align-content-start">
                 <span class="badge text-bg-light border">Docs: <?= htmlspecialchars((string) ($family['documentation_status'] ?? 'ok'), ENT_QUOTES, 'UTF-8') ?></span>

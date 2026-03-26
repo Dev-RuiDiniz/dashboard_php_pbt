@@ -17,7 +17,7 @@ final class FamilyModel
         $sql = 'SELECT
                     id, responsible_name, cpf_responsible, phone,
                     neighborhood, city, state, family_income_total, family_income_average,
-                    children_count, documentation_status, needs_visit, is_active, updated_at
+                    children_count, documentation_status, needs_visit, is_active, created_at, updated_at
                 FROM families
                 WHERE 1=1';
         $params = [];

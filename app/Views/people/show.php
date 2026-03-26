@@ -70,6 +70,12 @@ $displayName = (string) (($person['full_name'] ?? '') ?: ($person['social_name']
                             ? '<span class="badge text-bg-success">Sim</span>'
                             : '<span class="badge text-bg-light border">Nao/sem info</span>' ?>
                     </dd>
+
+                    <dt class="col-5 text-secondary">Data de cadastro</dt>
+                    <dd class="col-7"><?= htmlspecialchars((string) (($person['created_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+
+                    <dt class="col-5 text-secondary">Ultima atualizacao</dt>
+                    <dd class="col-7"><?= htmlspecialchars((string) (($person['updated_at'] ?? '') ?: ($person['created_at'] ?? '-')), ENT_QUOTES, 'UTF-8') ?></dd>
                 </dl>
             </div>
         </div>

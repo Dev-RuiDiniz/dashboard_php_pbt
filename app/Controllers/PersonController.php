@@ -40,7 +40,7 @@ final class PersonController
         View::render('people.index', [
             '_layout' => 'layouts.app',
             'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
-            'pageTitle' => 'Pessoas acompanhadas',
+            'pageTitle' => 'PROJETO AMOR',
             'activeMenu' => 'pessoas',
             'authUser' => Session::get('auth_user', []),
             'people' => $people,

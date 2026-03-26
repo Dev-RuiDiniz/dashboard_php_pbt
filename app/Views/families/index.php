@@ -67,6 +67,8 @@ $canDeleteFamily = (string) ($auth['role'] ?? '') === 'admin';
                     <th>Endereco</th>
                     <th>Renda</th>
                     <th>Media</th>
+                    <th>Cadastro</th>
+                    <th>Atualizacao</th>
                     <th>Docs</th>
                     <th>Visita</th>
                     <th>Status</th>
@@ -76,7 +78,7 @@ $canDeleteFamily = (string) ($auth['role'] ?? '') === 'admin';
             <tbody>
             <?php if (empty($families)) : ?>
                 <tr>
-                    <td colspan="10" class="text-secondary p-4">Nenhuma familia encontrada.</td>
+                    <td colspan="12" class="text-secondary p-4">Nenhuma familia encontrada.</td>
                 </tr>
             <?php else : ?>
                 <?php foreach ($families as $family) : ?>
@@ -98,6 +100,8 @@ $canDeleteFamily = (string) ($auth['role'] ?? '') === 'admin';
                         <td><?= htmlspecialchars($parts ? implode(' / ', $parts) : '-', ENT_QUOTES, 'UTF-8') ?></td>
                         <td>R$ <?= number_format((float) ($family['family_income_total'] ?? 0), 2, ',', '.') ?></td>
                         <td>R$ <?= number_format((float) ($family['family_income_average'] ?? 0), 2, ',', '.') ?></td>
+                        <td><?= htmlspecialchars((string) (($family['created_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars((string) (($family['updated_at'] ?? '') ?: ($family['created_at'] ?? '-')), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><span class="badge text-bg-light border"><?= htmlspecialchars((string) ($family['documentation_status'] ?? 'ok'), ENT_QUOTES, 'UTF-8') ?></span></td>
                         <td>
                             <?= ((int) ($family['needs_visit'] ?? 0) === 1)
