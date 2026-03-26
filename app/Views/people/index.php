@@ -73,6 +73,9 @@ $filters = is_array($filters ?? null) ? $filters : [];
                             <div class="small text-secondary">
                                 nome social: <?= htmlspecialchars((string) (($person['social_name'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?>
                             </div>
+                            <div class="small text-secondary">
+                                tel.: <?= htmlspecialchars((string) (($person['phone'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?>
+                            </div>
                         </td>
                         <td>
                             <div>CPF: <?= htmlspecialchars((string) (($person['cpf'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>

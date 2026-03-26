@@ -37,6 +37,10 @@ final class FamilyCompositionService
             'rg_responsible' => (string) ($family['rg_responsible'] ?? ''),
             'birth_date' => (string) ($family['birth_date'] ?? ''),
             'phone' => (string) ($family['phone'] ?? ''),
+            'phones' => FamilyDataSupport::fallbackPhoneEntries(
+                is_array($family['phones'] ?? null) ? $family['phones'] : [],
+                (string) ($family['phone'] ?? '')
+            ),
             'responsible_works' => (int) ($family['responsible_works'] ?? 0),
             'responsible_income' => number_format((float) ($family['responsible_income'] ?? 0), 2, '.', ''),
             'person_type' => 'principal',
@@ -87,10 +91,11 @@ final class FamilyCompositionService
             'cpf_responsible' => trim((string) ($post['cpf_responsible'] ?? '')),
             'rg_responsible' => FamilyDataSupport::sanitizeRg((string) ($post['rg_responsible'] ?? '')),
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
-            'phone' => FamilyDataSupport::sanitizePhone((string) ($post['phone'] ?? '')),
+            'phones' => FamilyDataSupport::sanitizePhoneEntries($post['phones'] ?? []),
             'responsible_works' => isset($post['responsible_works']) ? 1 : 0,
             'responsible_income' => FamilyDataSupport::sanitizeMoney((string) ($post['responsible_income'] ?? '0')),
             'person_type' => 'principal',
+            'phone' => '',
         ];
     }
 
@@ -247,6 +252,9 @@ final class FamilyCompositionService
 
     public function updatePrincipal(int $familyId, array $input): void
     {
+        $input['phones'] = FamilyDataSupport::sanitizePhoneEntries($input['phones'] ?? []);
+        $input['phone'] = FamilyDataSupport::primaryPhoneFromEntries($input['phones']);
+
         $this->familyModel->updateResponsible($familyId, [
             'responsible_name' => $input['responsible_name'],
             'cpf_responsible' => $input['cpf_responsible'] !== '' ? $input['cpf_responsible'] : null,
@@ -256,6 +264,7 @@ final class FamilyCompositionService
             'responsible_works' => (int) $input['responsible_works'],
             'responsible_income' => $input['responsible_income'],
         ]);
+        $this->familyModel->replacePhones($familyId, $input['phones']);
         $this->indicatorsService->recalculate($familyId);
     }
 

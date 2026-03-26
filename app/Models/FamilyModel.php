@@ -53,6 +53,44 @@ final class FamilyModel
         return is_array($row) ? $row : null;
     }
 
+    public function getPhones(int $familyId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, family_id, number, label, sort_order, is_primary, created_at, updated_at
+             FROM family_phones
+             WHERE family_id = :family_id
+             ORDER BY is_primary DESC, sort_order ASC, id ASC'
+        );
+        $stmt->execute(['family_id' => $familyId]);
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
+
+    public function replacePhones(int $familyId, array $phones): void
+    {
+        $delete = $this->pdo->prepare('DELETE FROM family_phones WHERE family_id = :family_id');
+        $delete->execute(['family_id' => $familyId]);
+
+        if ($phones === []) {
+            return;
+        }
+
+        $insert = $this->pdo->prepare(
+            'INSERT INTO family_phones (family_id, number, label, sort_order, is_primary)
+             VALUES (:family_id, :number, :label, :sort_order, :is_primary)'
+        );
+
+        foreach ($phones as $phone) {
+            $insert->execute([
+                'family_id' => $familyId,
+                'number' => $phone['number'],
+                'label' => ($phone['label'] ?? '') !== '' ? $phone['label'] : null,
+                'sort_order' => (int) ($phone['sort_order'] ?? 0),
+                'is_primary' => (int) ($phone['is_primary'] ?? 0),
+            ]);
+        }
+    }
+
     public function findByCpfExcludingId(string $cpfFormatted, ?int $excludeId = null): ?array
     {
         $sql = 'SELECT id, cpf_responsible, responsible_name FROM families WHERE cpf_responsible = :cpf';

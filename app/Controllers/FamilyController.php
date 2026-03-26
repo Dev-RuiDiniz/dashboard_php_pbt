@@ -104,6 +104,12 @@ final class FamilyController
 
         try {
             $family = $this->familyModel()->findById($id);
+            if (is_array($family)) {
+                $family['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+                    $this->familyModel()->getPhones($id),
+                    (string) ($family['phone'] ?? '')
+                );
+            }
         } catch (Throwable) {
             Session::flash('error', 'Falha ao carregar familia.');
             Response::redirect('/families');
@@ -459,6 +465,10 @@ final class FamilyController
     private function renderForm(string $mode, array $family): void
     {
         $registration = $this->registrationService();
+        $family['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+            is_array($family['phones'] ?? null) ? $family['phones'] : [],
+            (string) ($family['phone'] ?? '')
+        );
 
         View::render('families.form', [
             '_layout' => 'layouts.app',

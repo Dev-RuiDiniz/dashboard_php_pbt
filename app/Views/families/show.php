@@ -22,6 +22,8 @@ $allowedPersonTypes = ['principal', 'member', 'child'];
 if (!in_array($personType, $allowedPersonTypes, true)) {
     $personType = 'member';
 }
+$familyPhones = is_array($family['phones'] ?? null) ? $family['phones'] : [];
+$principalPhones = is_array($principalForm['phones'] ?? null) ? $principalForm['phones'] : [['number' => '', 'label' => '', 'is_primary' => 1]];
 $memberFormPersonType = (string) ($memberForm['person_type'] ?? $personType);
 if ($memberFormPersonType !== 'member') {
     $memberFormPersonType = $personType === 'member' ? $personType : 'member';
@@ -121,8 +123,23 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                 <h2 class="h4 mb-1"><?= htmlspecialchars((string) ($family['responsible_name'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></h2>
                 <div class="text-secondary mb-2">
                     CPF <?= htmlspecialchars((string) ($family['cpf_responsible'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
-                    · Telefone <?= htmlspecialchars((string) ($family['phone'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
+                    · Telefone <?= htmlspecialchars((string) (($familyPhones[0]['number'] ?? '') !== '' ? (string) $familyPhones[0]['number'] : '-'), ENT_QUOTES, 'UTF-8') ?>
                 </div>
+                <?php if ($familyPhones !== []) : ?>
+                    <div class="small text-secondary">
+                        <?php foreach ($familyPhones as $phone) : ?>
+                            <div>
+                                <?= htmlspecialchars((string) ($phone['number'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
+                                <?php if (trim((string) ($phone['label'] ?? '')) !== '') : ?>
+                                    · <?= htmlspecialchars((string) $phone['label'], ENT_QUOTES, 'UTF-8') ?>
+                                <?php endif; ?>
+                                <?php if ((int) ($phone['is_primary'] ?? 0) === 1) : ?>
+                                    <span class="badge text-bg-light border">Principal</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
                 <div class="small text-secondary"><?= htmlspecialchars($addressLine !== '' ? $addressLine : '-', ENT_QUOTES, 'UTF-8') ?></div>
                 <div class="small text-secondary mt-2">
                     Cadastro: <?= htmlspecialchars((string) (($family['created_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?>
@@ -241,9 +258,61 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                                 <label class="form-label">Idade</label>
                                 <input type="text" class="form-control" data-family-age-display readonly tabindex="-1" placeholder="Automatica">
                             </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label">Telefone</label>
-                                <input class="form-control" name="phone" value="<?= htmlspecialchars((string) ($principalForm['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label d-flex justify-content-between align-items-center">
+                                    <span>Telefones</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-phone-add data-phone-target="principal-phones">Adicionar telefone</button>
+                                </label>
+                                <div class="vstack gap-2" id="principal-phones">
+                                    <?php foreach ($principalPhones as $index => $phoneEntry) : ?>
+                                        <div class="border rounded p-2" data-phone-row>
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-12 col-md-5">
+                                                    <label class="form-label small">Numero</label>
+                                                    <input class="form-control" name="phones[<?= $index ?>][number]" value="<?= htmlspecialchars((string) ($phoneEntry['number'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                                </div>
+                                                <div class="col-12 col-md-5">
+                                                    <label class="form-label small">Identificacao / observacao</label>
+                                                    <input class="form-control" name="phones[<?= $index ?>][label]" value="<?= htmlspecialchars((string) ($phoneEntry['label'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                                </div>
+                                                <div class="col-6 col-md-1">
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="radio" name="phone_primary" value="<?= $index ?>" <?= ((int) ($phoneEntry['is_primary'] ?? 0) === 1) ? 'checked' : '' ?> data-phone-primary>
+                                                        <label class="form-check-label small">Principal</label>
+                                                    </div>
+                                                    <input type="hidden" name="phones[<?= $index ?>][is_primary]" value="<?= ((int) ($phoneEntry['is_primary'] ?? 0) === 1) ? '1' : '0' ?>" data-phone-primary-hidden>
+                                                </div>
+                                                <div class="col-6 col-md-1 d-grid">
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-phone-remove>Remover</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <template id="principal-phones-template">
+                                    <div class="border rounded p-2" data-phone-row>
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-12 col-md-5">
+                                                <label class="form-label small">Numero</label>
+                                                <input class="form-control" data-phone-number>
+                                            </div>
+                                            <div class="col-12 col-md-5">
+                                                <label class="form-label small">Identificacao / observacao</label>
+                                                <input class="form-control" data-phone-label>
+                                            </div>
+                                            <div class="col-6 col-md-1">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="radio" data-phone-primary>
+                                                    <label class="form-check-label small">Principal</label>
+                                                </div>
+                                                <input type="hidden" value="0" data-phone-primary-hidden>
+                                            </div>
+                                            <div class="col-6 col-md-1 d-grid">
+                                                <button type="button" class="btn btn-outline-danger btn-sm" data-phone-remove>Remover</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">Renda</label>
@@ -531,8 +600,24 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                     <dl class="row mb-0">
                         <dt class="col-5 text-secondary">Endereco</dt>
                         <dd class="col-7"><?= htmlspecialchars($addressLine !== '' ? $addressLine : '-', ENT_QUOTES, 'UTF-8') ?></dd>
-                        <dt class="col-5 text-secondary">Telefone</dt>
-                        <dd class="col-7"><?= htmlspecialchars((string) ($family['phone'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+                        <dt class="col-5 text-secondary">Telefones</dt>
+                        <dd class="col-7">
+                            <?php if ($familyPhones === []) : ?>
+                                -
+                            <?php else : ?>
+                                <?php foreach ($familyPhones as $phone) : ?>
+                                    <div>
+                                        <?= htmlspecialchars((string) ($phone['number'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
+                                        <?php if (trim((string) ($phone['label'] ?? '')) !== '') : ?>
+                                            · <?= htmlspecialchars((string) $phone['label'], ENT_QUOTES, 'UTF-8') ?>
+                                        <?php endif; ?>
+                                        <?php if ((int) ($phone['is_primary'] ?? 0) === 1) : ?>
+                                            <span class="badge text-bg-light border">Principal</span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </dd>
                         <dt class="col-5 text-secondary">Nascimento principal</dt>
                         <dd class="col-7"><?= htmlspecialchars((string) ($family['birth_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?> (<?= htmlspecialchars($renderAge($family['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>)</dd>
                         <dt class="col-5 text-secondary">Moradia</dt>
@@ -698,6 +783,91 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
         </div>
     </div>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const setupPhoneCollection = function (targetId) {
+        const container = document.getElementById(targetId);
+        const template = document.getElementById(targetId + '-template');
+        const addButton = document.querySelector('[data-phone-add][data-phone-target="' + targetId + '"]');
+        if (!container || !template || !addButton) {
+            return;
+        }
+
+        const sync = function () {
+            const rows = Array.from(container.querySelectorAll('[data-phone-row]'));
+            rows.forEach(function (row, index) {
+                const number = row.querySelector('[name*="[number]"], [data-phone-number]');
+                const label = row.querySelector('[name*="[label]"], [data-phone-label]');
+                const radio = row.querySelector('[data-phone-primary]');
+                const hidden = row.querySelector('[data-phone-primary-hidden]');
+                if (number) {
+                    number.name = 'phones[' + index + '][number]';
+                }
+                if (label) {
+                    label.name = 'phones[' + index + '][label]';
+                }
+                if (radio) {
+                    radio.name = 'phone_primary';
+                    radio.value = String(index);
+                }
+                if (hidden) {
+                    hidden.name = 'phones[' + index + '][is_primary]';
+                    hidden.value = radio && radio.checked ? '1' : '0';
+                }
+            });
+
+            if (!rows.some(function (row) {
+                const radio = row.querySelector('[data-phone-primary]');
+                return radio && radio.checked;
+            }) && rows[0]) {
+                const radio = rows[0].querySelector('[data-phone-primary]');
+                if (radio) {
+                    radio.checked = true;
+                }
+            }
+
+            rows.forEach(function (row) {
+                const hidden = row.querySelector('[data-phone-primary-hidden]');
+                const radio = row.querySelector('[data-phone-primary]');
+                if (hidden) {
+                    hidden.value = radio && radio.checked ? '1' : '0';
+                }
+            });
+        };
+
+        container.addEventListener('change', function (event) {
+            if (event.target.matches('[data-phone-primary]')) {
+                sync();
+            }
+        });
+
+        container.addEventListener('click', function (event) {
+            const removeButton = event.target.closest('[data-phone-remove]');
+            if (!removeButton) {
+                return;
+            }
+            const row = removeButton.closest('[data-phone-row]');
+            if (row) {
+                row.remove();
+                if (!container.querySelector('[data-phone-row]')) {
+                    addButton.click();
+                }
+                sync();
+            }
+        });
+
+        addButton.addEventListener('click', function () {
+            container.appendChild(template.content.cloneNode(true));
+            sync();
+        });
+
+        sync();
+    };
+
+    setupPhoneCollection('principal-phones');
+});
+</script>
 
 <?php if ($activeTab === 'visits') : ?>
     <div class="card border-0 shadow-sm">

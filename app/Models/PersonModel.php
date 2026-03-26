@@ -16,6 +16,7 @@ final class PersonModel
     {
         $sql = 'SELECT
                     id, full_name, social_name, cpf, rg, birth_date, approx_age, gender,
+                    phone,
                     is_homeless, homeless_time, stay_location, work_interest, created_at, updated_at
                 FROM people
                 WHERE 1=1';
@@ -64,6 +65,44 @@ final class PersonModel
         $stmt->execute(['id' => $id]);
         $row = $stmt->fetch();
         return is_array($row) ? $row : null;
+    }
+
+    public function getPhones(int $personId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, person_id, number, label, sort_order, is_primary, created_at, updated_at
+             FROM person_phones
+             WHERE person_id = :person_id
+             ORDER BY is_primary DESC, sort_order ASC, id ASC'
+        );
+        $stmt->execute(['person_id' => $personId]);
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
+
+    public function replacePhones(int $personId, array $phones): void
+    {
+        $delete = $this->pdo->prepare('DELETE FROM person_phones WHERE person_id = :person_id');
+        $delete->execute(['person_id' => $personId]);
+
+        if ($phones === []) {
+            return;
+        }
+
+        $insert = $this->pdo->prepare(
+            'INSERT INTO person_phones (person_id, number, label, sort_order, is_primary)
+             VALUES (:person_id, :number, :label, :sort_order, :is_primary)'
+        );
+
+        foreach ($phones as $phone) {
+            $insert->execute([
+                'person_id' => $personId,
+                'number' => $phone['number'],
+                'label' => ($phone['label'] ?? '') !== '' ? $phone['label'] : null,
+                'sort_order' => (int) ($phone['sort_order'] ?? 0),
+                'is_primary' => (int) ($phone['is_primary'] ?? 0),
+            ]);
+        }
     }
 
     public function findByCpfExcludingId(string $cpfFormatted, ?int $excludeId = null): ?array

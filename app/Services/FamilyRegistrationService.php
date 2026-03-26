@@ -60,6 +60,7 @@ final class FamilyRegistrationService
             'rg_responsible' => '',
             'birth_date' => '',
             'phone' => '',
+            'phones' => FamilyDataSupport::fallbackPhoneEntries([], null),
             'responsible_works' => 0,
             'responsible_income' => '0.00',
             'marital_status' => '',
@@ -101,7 +102,7 @@ final class FamilyRegistrationService
             'cpf_responsible' => trim((string) ($post['cpf_responsible'] ?? '')),
             'rg_responsible' => FamilyDataSupport::sanitizeRg((string) ($post['rg_responsible'] ?? '')),
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
-            'phone' => FamilyDataSupport::sanitizePhone((string) ($post['phone'] ?? '')),
+            'phones' => FamilyDataSupport::sanitizePhoneEntries($post['phones'] ?? []),
             'responsible_works' => isset($post['responsible_works']) ? 1 : 0,
             'responsible_income' => FamilyDataSupport::sanitizeMoney((string) ($post['responsible_income'] ?? '0')),
             'marital_status' => trim((string) ($post['marital_status'] ?? '')),
@@ -128,6 +129,7 @@ final class FamilyRegistrationService
             'uses_continuous_medication' => isset($post['uses_continuous_medication']) ? 1 : 0,
             'continuous_medication_details' => trim((string) ($post['continuous_medication_details'] ?? '')),
             'social_benefit' => trim((string) ($post['social_benefit'] ?? '')),
+            'phone' => '',
         ];
     }
 
@@ -202,6 +204,7 @@ final class FamilyRegistrationService
     public function create(array $input): int
     {
         $familyId = $this->familyModel->create($this->toPersistenceData($input));
+        $this->familyModel->replacePhones($familyId, $input['phones'] ?? []);
         $this->indicatorsService->recalculate($familyId);
         return $familyId;
     }
@@ -209,6 +212,7 @@ final class FamilyRegistrationService
     public function update(int $familyId, array $input): void
     {
         $this->familyModel->update($familyId, $this->toPersistenceData($input));
+        $this->familyModel->replacePhones($familyId, $input['phones'] ?? []);
         $this->indicatorsService->recalculate($familyId);
     }
 
@@ -224,6 +228,9 @@ final class FamilyRegistrationService
 
     private function toPersistenceData(array $input): array
     {
+        $input['phones'] = FamilyDataSupport::sanitizePhoneEntries($input['phones'] ?? []);
+        $input['phone'] = FamilyDataSupport::primaryPhoneFromEntries($input['phones']);
+
         if (!in_array($input['documentation_status'], self::DOC_STATUSES, true)) {
             $input['documentation_status'] = 'ok';
         }

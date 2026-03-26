@@ -93,6 +93,21 @@ CREATE TABLE IF NOT EXISTS family_members (
   INDEX idx_family_members_rg (rg)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS family_phones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  family_id INT NOT NULL,
+  number VARCHAR(20) NOT NULL,
+  label VARCHAR(120) NULL,
+  sort_order INT NOT NULL DEFAULT 1,
+  is_primary TINYINT(1) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_family_phones_family FOREIGN KEY (family_id) REFERENCES families(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX idx_family_phones_family_id (family_id),
+  INDEX idx_family_phones_primary (family_id, is_primary, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS children (
   id INT AUTO_INCREMENT PRIMARY KEY,
   family_id INT NOT NULL,
@@ -180,6 +195,21 @@ CREATE TABLE IF NOT EXISTS social_records (
   INDEX idx_social_records_created_by (created_by),
   INDEX idx_social_records_consent_at (consent_at),
   INDEX idx_social_records_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS person_phones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  person_id INT NOT NULL,
+  number VARCHAR(20) NOT NULL,
+  label VARCHAR(120) NULL,
+  sort_order INT NOT NULL DEFAULT 1,
+  is_primary TINYINT(1) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_person_phones_person FOREIGN KEY (person_id) REFERENCES people(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX idx_person_phones_person_id (person_id),
+  INDEX idx_person_phones_primary (person_id, is_primary, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS referrals (

@@ -73,7 +73,8 @@ final class PersonController
         }
 
         try {
-            $this->personModel()->create($this->toPersistenceData($input));
+            $personId = $this->personModel()->create($this->toPersistenceData($input));
+            $this->personModel()->replacePhones($personId, $input['phones'] ?? []);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao cadastrar pessoa acompanhada.');
             Session::flash('form_old', $input);
@@ -94,6 +95,12 @@ final class PersonController
 
         try {
             $person = $this->personModel()->findById($id);
+            if (is_array($person)) {
+                $person['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+                    $this->personModel()->getPhones($id),
+                    (string) ($person['phone'] ?? '')
+                );
+            }
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao carregar cadastro.');
             Response::redirect('/people');
@@ -135,6 +142,7 @@ final class PersonController
             }
 
             $this->personModel()->update($id, $this->toPersistenceData($input));
+            $this->personModel()->replacePhones($id, $input['phones'] ?? []);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao atualizar pessoa acompanhada.');
             Session::flash('form_old', $input);
@@ -191,6 +199,10 @@ final class PersonController
                 Session::flash('error', 'Pessoa nao encontrada.');
                 Response::redirect('/people');
             }
+            $person['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+                $this->personModel()->getPhones($id),
+                (string) ($person['phone'] ?? '')
+            );
 
             $timeline = $this->socialRecordModel()->findByPersonId($id);
             $families = $this->familyModel()->search([]);
@@ -543,6 +555,11 @@ final class PersonController
 
     private function renderForm(string $mode, array $person): void
     {
+        $person['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+            is_array($person['phones'] ?? null) ? $person['phones'] : [],
+            (string) ($person['phone'] ?? '')
+        );
+
         View::render('people.form', [
             '_layout' => 'layouts.app',
             'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
@@ -571,6 +588,7 @@ final class PersonController
             'homeless_time' => '',
             'stay_location' => '',
             'phone' => '',
+            'phones' => FamilyDataSupport::fallbackPhoneEntries([], null),
             'previous_address' => '',
             'has_family_in_region' => 0,
             'family_contact' => '',
@@ -604,7 +622,7 @@ final class PersonController
             'is_homeless' => isset($post['is_homeless']) ? 1 : 0,
             'homeless_time' => trim((string) ($post['homeless_time'] ?? '')),
             'stay_location' => trim((string) ($post['stay_location'] ?? '')),
-            'phone' => FamilyDataSupport::sanitizePhone((string) ($post['phone'] ?? '')),
+            'phones' => FamilyDataSupport::sanitizePhoneEntries($post['phones'] ?? []),
             'previous_address' => trim((string) ($post['previous_address'] ?? '')),
             'has_family_in_region' => isset($post['has_family_in_region']) ? 1 : 0,
             'family_contact' => trim((string) ($post['family_contact'] ?? '')),
@@ -619,6 +637,7 @@ final class PersonController
             'uses_continuous_medication' => isset($post['uses_continuous_medication']) ? 1 : 0,
             'continuous_medication_details' => trim((string) ($post['continuous_medication_details'] ?? '')),
             'social_benefit' => trim((string) ($post['social_benefit'] ?? '')),
+            'phone' => '',
         ];
     }
 
@@ -678,6 +697,9 @@ final class PersonController
 
     private function toPersistenceData(array $input): array
     {
+        $input['phones'] = FamilyDataSupport::sanitizePhoneEntries($input['phones'] ?? []);
+        $input['phone'] = FamilyDataSupport::primaryPhoneFromEntries($input['phones']);
+
         if ((int) ($input['has_physical_disability'] ?? 0) !== 1) {
             $input['physical_disability_details'] = '';
         }

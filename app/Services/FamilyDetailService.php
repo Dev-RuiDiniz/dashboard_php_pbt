@@ -27,6 +27,12 @@ final class FamilyDetailService
     public function build(int $familyId, array $query, array $flashState): array
     {
         $family = $this->familyModel->findById($familyId);
+        if (is_array($family)) {
+            $family['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+                $this->familyModel->getPhones($familyId),
+                (string) ($family['phone'] ?? '')
+            );
+        }
         $members = $this->familyModel->getMembersByFamilyId($familyId);
         $children = $this->childModel->findByFamilyId($familyId);
         $deliveries = $this->deliveryModel->listByFamilyId($familyId, 20);

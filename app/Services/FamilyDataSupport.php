@@ -69,6 +69,96 @@ final class FamilyDataSupport
         return '(' . substr($digits, 0, 2) . ') ' . substr($digits, 2, 5) . '-' . substr($digits, 7);
     }
 
+    public static function sanitizePhoneEntries(mixed $value): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $entries = [];
+        $primaryIndex = null;
+
+        foreach ($value as $index => $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+
+            $number = self::sanitizePhone((string) ($entry['number'] ?? ''));
+            $label = trim((string) ($entry['label'] ?? ''));
+            if ($number === '') {
+                continue;
+            }
+
+            $isPrimary = self::isTruthy($entry['is_primary'] ?? null);
+            if ($isPrimary && $primaryIndex === null) {
+                $primaryIndex = count($entries);
+            }
+
+            $entries[] = [
+                'number' => $number,
+                'label' => $label,
+                'is_primary' => $isPrimary ? 1 : 0,
+            ];
+        }
+
+        if ($entries === []) {
+            return [];
+        }
+
+        if ($primaryIndex === null) {
+            $primaryIndex = 0;
+        }
+
+        foreach ($entries as $index => &$entry) {
+            $entry['sort_order'] = $index + 1;
+            $entry['is_primary'] = $index === $primaryIndex ? 1 : 0;
+        }
+        unset($entry);
+
+        return $entries;
+    }
+
+    public static function fallbackPhoneEntries(array $phones, ?string $legacyPhone): array
+    {
+        if ($phones !== []) {
+            return $phones;
+        }
+
+        $number = self::sanitizePhone((string) ($legacyPhone ?? ''));
+        if ($number === '') {
+            return [[
+                'number' => '',
+                'label' => '',
+                'is_primary' => 1,
+                'sort_order' => 1,
+            ]];
+        }
+
+        return [[
+            'number' => $number,
+            'label' => '',
+            'is_primary' => 1,
+            'sort_order' => 1,
+        ]];
+    }
+
+    public static function primaryPhoneFromEntries(array $phones): string
+    {
+        foreach ($phones as $phone) {
+            if ((int) ($phone['is_primary'] ?? 0) === 1 && trim((string) ($phone['number'] ?? '')) !== '') {
+                return (string) $phone['number'];
+            }
+        }
+
+        foreach ($phones as $phone) {
+            if (trim((string) ($phone['number'] ?? '')) !== '') {
+                return (string) $phone['number'];
+            }
+        }
+
+        return '';
+    }
+
     public static function sanitizeMoney(string $value): string
     {
         $value = trim($value);
@@ -148,5 +238,19 @@ final class FamilyDataSupport
         }
 
         return 'CPF ja cadastrado no sistema.';
+    }
+
+    private static function isTruthy(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (int) $value === 1;
+        }
+
+        $normalized = strtolower(trim((string) $value));
+        return in_array($normalized, ['1', 'true', 'on', 'sim', 'yes'], true);
     }
 }
