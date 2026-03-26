@@ -270,7 +270,7 @@ $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['n
                         </div>
                         <div class="col-12"><hr><h3 class="h6 text-uppercase text-secondary mb-0">Saude e beneficios do responsavel</h3></div>
                         <div class="col-12 col-md-4">
-                            <label class="form-label">Doenca cronica</label>
+                            <label class="form-label">Possui alguma Doenca Cronica?</label>
                             <select class="form-select" name="chronic_disease">
                                 <option value="">Nao informado</option>
                                 <?php foreach ($chronicDiseaseOptions as $value => $label) : ?>
@@ -280,28 +280,30 @@ $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['n
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-12 col-md-4 d-flex align-items-end">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="family_has_physical_disability" name="has_physical_disability" value="1" <?= ((int) ($familyData['has_physical_disability'] ?? 0) === 1) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="family_has_physical_disability">Possui deficiencia fisica</label>
-                            </div>
-                        </div>
                         <div class="col-12 col-md-4">
-                            <label class="form-label">Qual deficiencia</label>
+                            <label class="form-label">Possui alguma Deficiencia Fisica?</label>
+                            <select class="form-select" name="has_physical_disability" data-conditional-toggle="family-disability-details">
+                                <option value="0" <?= ((int) ($familyData['has_physical_disability'] ?? 0) !== 1) ? 'selected' : '' ?>>Nao</option>
+                                <option value="1" <?= ((int) ($familyData['has_physical_disability'] ?? 0) === 1) ? 'selected' : '' ?>>Sim</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 <?= ((int) ($familyData['has_physical_disability'] ?? 0) === 1) ? '' : 'd-none' ?>" data-conditional-group="family-disability-details">
+                            <label class="form-label">Qual deficiencia?</label>
                             <input class="form-control" name="physical_disability_details" value="<?= htmlspecialchars((string) ($familyData['physical_disability_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
-                        <div class="col-12 col-md-4 d-flex align-items-end">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="family_uses_continuous_medication" name="uses_continuous_medication" value="1" <?= ((int) ($familyData['uses_continuous_medication'] ?? 0) === 1) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="family_uses_continuous_medication">Faz uso de medicacao continua</label>
-                            </div>
-                        </div>
                         <div class="col-12 col-md-4">
-                            <label class="form-label">Qual medicacao</label>
+                            <label class="form-label">Faz Uso de Medicacao Continua?</label>
+                            <select class="form-select" name="uses_continuous_medication" data-conditional-toggle="family-medication-details">
+                                <option value="0" <?= ((int) ($familyData['uses_continuous_medication'] ?? 0) !== 1) ? 'selected' : '' ?>>Nao</option>
+                                <option value="1" <?= ((int) ($familyData['uses_continuous_medication'] ?? 0) === 1) ? 'selected' : '' ?>>Sim</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 <?= ((int) ($familyData['uses_continuous_medication'] ?? 0) === 1) ? '' : 'd-none' ?>" data-conditional-group="family-medication-details">
+                            <label class="form-label">Qual(is) medicacao(oes)?</label>
                             <input class="form-control" name="continuous_medication_details" value="<?= htmlspecialchars((string) ($familyData['continuous_medication_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-4">
-                            <label class="form-label">Beneficio social</label>
+                            <label class="form-label">Recebe Beneficio Social?</label>
                             <select class="form-select" name="social_benefit">
                                 <option value="">Nao informado</option>
                                 <?php foreach ($socialBenefitOptions as $value => $label) : ?>
@@ -431,6 +433,24 @@ document.addEventListener('DOMContentLoaded', function () {
         housingType.addEventListener('change', syncRent);
         syncRent();
     }
+
+    document.querySelectorAll('[data-conditional-toggle]').forEach(function (select) {
+        const target = select.getAttribute('data-conditional-toggle');
+        const group = document.querySelector('[data-conditional-group="' + target + '"]');
+        if (!group) {
+            return;
+        }
+        const input = group.querySelector('input, textarea, select');
+        const sync = function () {
+            const visible = select.value === '1';
+            group.classList.toggle('d-none', !visible);
+            if (!visible && input) {
+                input.value = '';
+            }
+        };
+        select.addEventListener('change', sync);
+        sync();
+    });
 });
 </script>
 

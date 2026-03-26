@@ -632,9 +632,9 @@ final class PersonController
             'work_interest' => isset($post['work_interest']) ? 1 : 0,
             'work_interest_detail' => trim((string) ($post['work_interest_detail'] ?? '')),
             'chronic_disease' => trim((string) ($post['chronic_disease'] ?? '')),
-            'has_physical_disability' => isset($post['has_physical_disability']) ? 1 : 0,
+            'has_physical_disability' => FamilyDataSupport::sanitizeBooleanFlag($post['has_physical_disability'] ?? 0),
             'physical_disability_details' => trim((string) ($post['physical_disability_details'] ?? '')),
-            'uses_continuous_medication' => isset($post['uses_continuous_medication']) ? 1 : 0,
+            'uses_continuous_medication' => FamilyDataSupport::sanitizeBooleanFlag($post['uses_continuous_medication'] ?? 0),
             'continuous_medication_details' => trim((string) ($post['continuous_medication_details'] ?? '')),
             'social_benefit' => trim((string) ($post['social_benefit'] ?? '')),
             'phone' => '',
@@ -664,12 +664,37 @@ final class PersonController
             }
         }
 
-        if (($input['chronic_disease'] ?? '') !== '' && !array_key_exists((string) $input['chronic_disease'], FamilyDataSupport::CHRONIC_DISEASE_OPTIONS)) {
-            return 'Doenca cronica invalida.';
+        $existingPerson = null;
+        if ($excludeId !== null && $excludeId > 0) {
+            try {
+                $existingPerson = $this->personModel()->findById($excludeId);
+            } catch (Throwable $exception) {
+                return 'Falha ao validar cadastro existente.';
+            }
         }
 
-        if (($input['social_benefit'] ?? '') !== '' && !array_key_exists((string) $input['social_benefit'], FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS)) {
-            return 'Beneficio social invalido.';
+        $fieldConfig = [
+            'chronic_disease' => ['options' => array_keys(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS), 'label' => 'Doenca cronica'],
+            'social_benefit' => ['options' => array_keys(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS), 'label' => 'Beneficio social'],
+        ];
+
+        foreach ($fieldConfig as $field => $config) {
+            $value = trim((string) ($input[$field] ?? ''));
+            if ($value === '') {
+                continue;
+            }
+
+            $options = is_array($config['options'] ?? null) ? $config['options'] : [];
+            if (in_array($value, $options, true)) {
+                continue;
+            }
+
+            $legacyValue = trim((string) ($existingPerson[$field] ?? ''));
+            if ($legacyValue !== '' && $legacyValue === $value) {
+                continue;
+            }
+
+            return (string) ($config['label'] ?? 'Campo') . ' invalido.';
         }
 
         return null;

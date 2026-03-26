@@ -15,7 +15,8 @@ final class FamilyDataSupport
         'doencas_cardiovasculares' => 'Doencas cardiovasculares',
         'obesidade' => 'Obesidade',
         'doenca_osteomuscular' => 'Doenca osteomuscular',
-        'depressao_transtornos_mentais' => 'Depressao e Transtornos Mentais',
+        'depressao' => 'Depressao',
+        'transtornos_mentais' => 'Transtornos mentais',
     ];
 
     public const SOCIAL_BENEFIT_OPTIONS = [
@@ -157,6 +158,11 @@ final class FamilyDataSupport
         }
 
         return '';
+    }
+
+    public static function sanitizeBooleanFlag(mixed $value): int
+    {
+        return self::isTruthy($value) ? 1 : 0;
     }
 
     public static function sanitizeMoney(string $value): string
