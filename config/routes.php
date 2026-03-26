@@ -512,6 +512,12 @@ return static function (Router $router, Container $container): void {
         });
     });
 
+    $router->post('/equipment-loans/maintenance-complete', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentLoanController($container))->completeMaintenance();
+        });
+    });
+
     $router->post('/equipment-loans/delete', static function () use ($container, $equipmentManage): void {
         $equipmentManage(static function () use ($container): void {
             (new EquipmentLoanController($container))->delete();

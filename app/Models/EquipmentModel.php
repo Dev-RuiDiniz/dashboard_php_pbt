@@ -14,7 +14,7 @@ final class EquipmentModel
 
     public function search(array $filters): array
     {
-        $sql = 'SELECT id, code, type, condition_state, status, notes, created_at, updated_at
+        $sql = 'SELECT id, code, type, condition_state, status, notes, maintenance_notes, maintenance_completed_at, created_at, updated_at
                 FROM equipment
                 WHERE 1=1';
         $params = [];
@@ -68,8 +68,8 @@ final class EquipmentModel
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO equipment (code, type, condition_state, status, notes)
-             VALUES (:code, :type, :condition_state, :status, :notes)'
+            'INSERT INTO equipment (code, type, condition_state, status, notes, maintenance_notes, maintenance_completed_at)
+             VALUES (:code, :type, :condition_state, :status, :notes, :maintenance_notes, :maintenance_completed_at)'
         );
         $stmt->execute($data);
         return (int) $this->pdo->lastInsertId();
@@ -83,7 +83,9 @@ final class EquipmentModel
              SET type = :type,
                  condition_state = :condition_state,
                  status = :status,
-                 notes = :notes
+                 notes = :notes,
+                 maintenance_notes = :maintenance_notes,
+                 maintenance_completed_at = :maintenance_completed_at
              WHERE id = :id'
         );
         $stmt->execute($data);
@@ -120,6 +122,30 @@ final class EquipmentModel
             'id' => $id,
             'status' => $status,
             'condition_state' => $conditionState,
+        ]);
+    }
+
+    public function updateStatusConditionAndMaintenance(
+        int $id,
+        string $status,
+        ?string $conditionState,
+        ?string $maintenanceNotes,
+        ?string $maintenanceCompletedAt = null
+    ): void {
+        $stmt = $this->pdo->prepare(
+            'UPDATE equipment
+             SET status = :status,
+                 condition_state = :condition_state,
+                 maintenance_notes = :maintenance_notes,
+                 maintenance_completed_at = :maintenance_completed_at
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'status' => $status,
+            'condition_state' => $conditionState,
+            'maintenance_notes' => $maintenanceNotes,
+            'maintenance_completed_at' => $maintenanceCompletedAt,
         ]);
     }
 
