@@ -58,6 +58,8 @@ final class FamilyCompositionService
             'birth_date' => '',
             'studies' => 0,
             'works' => 0,
+            'receives_social_benefit' => 0,
+            'purpose' => '',
             'income' => '0.00',
             'person_type' => 'member',
         ];
@@ -110,6 +112,8 @@ final class FamilyCompositionService
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
             'studies' => isset($post['studies']) ? 1 : 0,
             'works' => isset($post['works']) ? 1 : 0,
+            'receives_social_benefit' => isset($post['receives_social_benefit']) ? 1 : 0,
+            'purpose' => trim((string) ($post['purpose'] ?? '')),
             'income' => FamilyDataSupport::sanitizeMoney((string) ($post['income'] ?? '0')),
             'person_type' => $this->sanitizePersonType((string) ($post['person_type'] ?? ''), 'member'),
         ];
@@ -177,35 +181,33 @@ final class FamilyCompositionService
             return 'Nome do membro e obrigatorio.';
         }
 
-        if (trim((string) ($input['cpf'] ?? '')) === '') {
-            return 'CPF do membro familiar e obrigatorio.';
-        }
-
         $rg = trim((string) ($input['rg'] ?? ''));
         if ($rg !== '' && !FamilyDataSupport::isRgValid($rg)) {
             return 'RG invalido. Use o formato 00.000.000-0.';
-        }
-
-        if (!CpfService::isValid((string) ($input['cpf'] ?? ''))) {
-            return 'CPF invalido.';
         }
 
         if (!is_numeric((string) ($input['income'] ?? '0'))) {
             return 'Renda do membro invalida.';
         }
 
-        $input['cpf'] = (string) CpfService::format((string) $input['cpf']);
+        if (trim((string) ($input['cpf'] ?? '')) !== '') {
+            if (!CpfService::isValid((string) ($input['cpf'] ?? ''))) {
+                return 'CPF invalido.';
+            }
 
-        try {
-            $conflict = $this->familyModel->findCpfConflict((string) $input['cpf'], [
-                'member_id' => $memberId ?? 0,
-            ]);
-        } catch (Throwable) {
-            return 'Falha ao validar duplicidade de CPF.';
-        }
+            $input['cpf'] = (string) CpfService::format((string) $input['cpf']);
 
-        if ($conflict !== null) {
-            return FamilyDataSupport::buildCpfConflictMessage($conflict);
+            try {
+                $conflict = $this->familyModel->findCpfConflict((string) $input['cpf'], [
+                    'member_id' => $memberId ?? 0,
+                ]);
+            } catch (Throwable) {
+                return 'Falha ao validar duplicidade de CPF.';
+            }
+
+            if ($conflict !== null) {
+                return FamilyDataSupport::buildCpfConflictMessage($conflict);
+            }
         }
 
         return null;
@@ -325,6 +327,8 @@ final class FamilyCompositionService
             'birth_date' => $input['birth_date'] !== '' ? $input['birth_date'] : null,
             'studies' => (int) ($input['studies'] ?? 0),
             'works' => (int) $input['works'],
+            'receives_social_benefit' => (int) ($input['receives_social_benefit'] ?? 0),
+            'purpose' => trim((string) ($input['purpose'] ?? '')) !== '' ? trim((string) ($input['purpose'] ?? '')) : null,
             'income' => $input['income'],
         ];
     }

@@ -203,6 +203,8 @@ final class PersonController
                 $this->personModel()->getPhones($id),
                 (string) ($person['phone'] ?? '')
             );
+            $person['chronic_disease_list'] = FamilyDataSupport::parseChronicDiseases($person['chronic_disease'] ?? []);
+            $person['chronic_disease_labels'] = FamilyDataSupport::chronicDiseaseLabels($person['chronic_disease_list']);
 
             $timeline = $this->socialRecordModel()->findByPersonId($id);
             $families = $this->familyModel()->search([]);
@@ -568,7 +570,10 @@ final class PersonController
             'authUser' => Session::get('auth_user', []),
             'mode' => $mode,
             'person' => $person,
-            'chronicDiseaseOptions' => $this->withLegacyOption(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS, (string) ($person['chronic_disease'] ?? '')),
+            'chronicDiseaseOptions' => FamilyDataSupport::withLegacyOptions(
+                FamilyDataSupport::CHRONIC_DISEASE_OPTIONS,
+                FamilyDataSupport::parseChronicDiseases($person['chronic_disease'] ?? [])
+            ),
             'socialBenefitOptions' => $this->withLegacyOption(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS, (string) ($person['social_benefit'] ?? '')),
             'error' => Session::consumeFlash('error'),
         ]);
@@ -597,11 +602,14 @@ final class PersonController
             'formal_work_history' => 0,
             'work_interest' => 0,
             'work_interest_detail' => '',
-            'chronic_disease' => '',
+            'chronic_disease' => [],
+            'chronic_disease_other_details' => '',
             'has_physical_disability' => 0,
             'physical_disability_details' => '',
             'uses_continuous_medication' => 0,
             'continuous_medication_details' => '',
+            'has_addiction' => 0,
+            'addiction_details' => '',
             'social_benefit' => '',
         ];
     }
@@ -631,11 +639,14 @@ final class PersonController
             'formal_work_history' => isset($post['formal_work_history']) ? 1 : 0,
             'work_interest' => isset($post['work_interest']) ? 1 : 0,
             'work_interest_detail' => trim((string) ($post['work_interest_detail'] ?? '')),
-            'chronic_disease' => trim((string) ($post['chronic_disease'] ?? '')),
+            'chronic_disease' => FamilyDataSupport::sanitizeChronicDiseases($post['chronic_disease'] ?? []),
+            'chronic_disease_other_details' => trim((string) ($post['chronic_disease_other_details'] ?? '')),
             'has_physical_disability' => FamilyDataSupport::sanitizeBooleanFlag($post['has_physical_disability'] ?? 0),
             'physical_disability_details' => trim((string) ($post['physical_disability_details'] ?? '')),
             'uses_continuous_medication' => FamilyDataSupport::sanitizeBooleanFlag($post['uses_continuous_medication'] ?? 0),
             'continuous_medication_details' => trim((string) ($post['continuous_medication_details'] ?? '')),
+            'has_addiction' => FamilyDataSupport::sanitizeBooleanFlag($post['has_addiction'] ?? 0),
+            'addiction_details' => trim((string) ($post['addiction_details'] ?? '')),
             'social_benefit' => trim((string) ($post['social_benefit'] ?? '')),
             'phone' => '',
         ];
@@ -674,7 +685,6 @@ final class PersonController
         }
 
         $fieldConfig = [
-            'chronic_disease' => ['options' => array_keys(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS), 'label' => 'Doenca cronica'],
             'social_benefit' => ['options' => array_keys(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS), 'label' => 'Beneficio social'],
         ];
 
@@ -695,6 +705,28 @@ final class PersonController
             }
 
             return (string) ($config['label'] ?? 'Campo') . ' invalido.';
+        }
+
+        foreach (($input['chronic_disease'] ?? []) as $disease) {
+            if (isset(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS[$disease])) {
+                continue;
+            }
+
+            $legacyValues = FamilyDataSupport::parseChronicDiseases($existingPerson['chronic_disease'] ?? []);
+            if (in_array($disease, $legacyValues, true)) {
+                continue;
+            }
+
+            return 'Doenca cronica invalida.';
+        }
+
+        if (FamilyDataSupport::chronicDiseaseOtherDetailsRequired($input['chronic_disease'] ?? [])
+            && trim((string) ($input['chronic_disease_other_details'] ?? '')) === '') {
+            return 'Informe qual doenca cronica em "Outra".';
+        }
+
+        if ((int) ($input['has_addiction'] ?? 0) === 1 && trim((string) ($input['addiction_details'] ?? '')) === '') {
+            return 'Informe qual vicio quando selecionar "Tem algum vicio?".';
         }
 
         return null;
@@ -731,6 +763,12 @@ final class PersonController
         if ((int) ($input['uses_continuous_medication'] ?? 0) !== 1) {
             $input['continuous_medication_details'] = '';
         }
+        if ((int) ($input['has_addiction'] ?? 0) !== 1) {
+            $input['addiction_details'] = '';
+        }
+        if (!FamilyDataSupport::chronicDiseaseOtherDetailsRequired($input['chronic_disease'] ?? [])) {
+            $input['chronic_disease_other_details'] = '';
+        }
 
         return [
             'full_name' => $input['full_name'] !== '' ? $input['full_name'] : null,
@@ -752,11 +790,14 @@ final class PersonController
             'formal_work_history' => (int) $input['formal_work_history'],
             'work_interest' => (int) $input['work_interest'],
             'work_interest_detail' => $input['work_interest_detail'] !== '' ? $input['work_interest_detail'] : null,
-            'chronic_disease' => $input['chronic_disease'] !== '' ? $input['chronic_disease'] : null,
+            'chronic_disease' => FamilyDataSupport::encodeChronicDiseases($input['chronic_disease'] ?? []),
+            'chronic_disease_other_details' => $input['chronic_disease_other_details'] !== '' ? $input['chronic_disease_other_details'] : null,
             'has_physical_disability' => (int) ($input['has_physical_disability'] ?? 0),
             'physical_disability_details' => $input['physical_disability_details'] !== '' ? $input['physical_disability_details'] : null,
             'uses_continuous_medication' => (int) ($input['uses_continuous_medication'] ?? 0),
             'continuous_medication_details' => $input['continuous_medication_details'] !== '' ? $input['continuous_medication_details'] : null,
+            'has_addiction' => (int) ($input['has_addiction'] ?? 0),
+            'addiction_details' => $input['addiction_details'] !== '' ? $input['addiction_details'] : null,
             'social_benefit' => $input['social_benefit'] !== '' ? $input['social_benefit'] : null,
         ];
     }

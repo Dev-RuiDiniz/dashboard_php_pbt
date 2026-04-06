@@ -6,6 +6,7 @@ $person = is_array($person ?? null) ? $person : [];
 $chronicDiseaseOptions = is_array($chronicDiseaseOptions ?? null) ? $chronicDiseaseOptions : [];
 $socialBenefitOptions = is_array($socialBenefitOptions ?? null) ? $socialBenefitOptions : [];
 $phones = is_array($person['phones'] ?? null) ? $person['phones'] : [['number' => '', 'label' => '', 'is_primary' => 1]];
+$selectedChronicDiseases = \App\Services\FamilyDataSupport::parseChronicDiseases($person['chronic_disease'] ?? []);
 ?>
 <div class="row justify-content-center">
     <div class="col-12">
@@ -38,6 +39,7 @@ $phones = is_array($person['phones'] ?? null) ? $person['phones'] : [['number' =
                         <div class="col-12 col-md-3">
                             <label class="form-label">CPF</label>
                             <input class="form-control" name="cpf" placeholder="opcional" value="<?= htmlspecialchars((string) ($person['cpf'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <div class="form-text">Se informado, o sistema valida duplicidade automaticamente.</div>
                         </div>
                         <div class="col-12 col-md-3">
                             <label class="form-label">RG</label>
@@ -172,16 +174,24 @@ $phones = is_array($person['phones'] ?? null) ? $person['phones'] : [['number' =
                         </div>
 
                         <div class="col-12"><hr><h3 class="h6 text-uppercase text-secondary mb-0">Saude e beneficios</h3></div>
-                        <div class="col-12 col-md-4">
-                            <label class="form-label">Possui alguma Doenca Cronica?</label>
-                            <select class="form-select" name="chronic_disease">
-                                <option value="">Nao informado</option>
+                        <div class="col-12">
+                            <label class="form-label">Doenca cronica</label>
+                            <div class="row g-2">
                                 <?php foreach ($chronicDiseaseOptions as $value => $label) : ?>
-                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($person['chronic_disease'] ?? '') === (string) $value) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
-                                    </option>
+                                    <div class="col-12 col-md-6 col-xl-4">
+                                        <div class="form-check border rounded p-2 h-100">
+                                            <input class="form-check-input" type="checkbox" id="person_chronic_disease_<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" name="chronic_disease[]" value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= in_array((string) $value, $selectedChronicDiseases, true) ? 'checked' : '' ?> data-chronic-disease-option>
+                                            <label class="form-check-label" for="person_chronic_disease_<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>">
+                                                <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                            </label>
+                                        </div>
+                                    </div>
                                 <?php endforeach; ?>
-                            </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 <?= in_array('outra', $selectedChronicDiseases, true) ? '' : 'd-none' ?>" data-chronic-other-group>
+                            <label class="form-label">Qual?</label>
+                            <input class="form-control" name="chronic_disease_other_details" value="<?= htmlspecialchars((string) ($person['chronic_disease_other_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Possui alguma Deficiencia Fisica?</label>
@@ -204,6 +214,17 @@ $phones = is_array($person['phones'] ?? null) ? $person['phones'] : [['number' =
                         <div class="col-12 col-md-4 <?= ((int) ($person['uses_continuous_medication'] ?? 0) === 1) ? '' : 'd-none' ?>" data-conditional-group="person-medication-details">
                             <label class="form-label">Qual(is) medicacao(oes)?</label>
                             <input class="form-control" name="continuous_medication_details" value="<?= htmlspecialchars((string) ($person['continuous_medication_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Tem algum vicio?</label>
+                            <select class="form-select" name="has_addiction" data-conditional-toggle="person-addiction-details">
+                                <option value="0" <?= ((int) ($person['has_addiction'] ?? 0) !== 1) ? 'selected' : '' ?>>Nao</option>
+                                <option value="1" <?= ((int) ($person['has_addiction'] ?? 0) === 1) ? 'selected' : '' ?>>Sim</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 <?= ((int) ($person['has_addiction'] ?? 0) === 1) ? '' : 'd-none' ?>" data-conditional-group="person-addiction-details">
+                            <label class="form-label">Qual?</label>
+                            <input class="form-control" name="addiction_details" value="<?= htmlspecialchars((string) ($person['addiction_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Recebe Beneficio Social?</label>
@@ -303,6 +324,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         addButton.addEventListener('click', function () {
             container.appendChild(template.content.cloneNode(true));
+            if (window.DashboardFormEnhancements) {
+                window.DashboardFormEnhancements.initMasks(container);
+            }
             sync();
         });
 
@@ -328,6 +352,26 @@ document.addEventListener('DOMContentLoaded', function () {
         select.addEventListener('change', sync);
         sync();
     });
+
+    const chronicOtherGroup = document.querySelector('[data-chronic-other-group]');
+    const chronicOtherInput = chronicOtherGroup ? chronicOtherGroup.querySelector('input[name="chronic_disease_other_details"]') : null;
+    const chronicDiseaseCheckboxes = Array.from(document.querySelectorAll('[data-chronic-disease-option]'));
+    const syncChronicOther = function () {
+        const otherChecked = chronicDiseaseCheckboxes.some(function (checkbox) {
+            return checkbox.value === 'outra' && checkbox.checked;
+        });
+        if (!chronicOtherGroup) {
+            return;
+        }
+        chronicOtherGroup.classList.toggle('d-none', !otherChecked);
+        if (!otherChecked && chronicOtherInput) {
+            chronicOtherInput.value = '';
+        }
+    };
+    chronicDiseaseCheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', syncChronicOther);
+    });
+    syncChronicOther();
 });
 </script>
 

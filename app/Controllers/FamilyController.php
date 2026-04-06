@@ -269,7 +269,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, 'composition', 'principal'));
         }
 
-        Session::flash('success', 'Responsavel principal atualizado com sucesso.');
+        Session::flash('success', 'Responsavel principal atualizado com sucesso. A renda informada foi salva.');
         Response::redirect($this->familyShowUrl($familyId, 'composition', 'principal'));
     }
 
@@ -303,7 +303,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
         }
 
-        Session::flash('success', 'Membro adicionado com sucesso.');
+        Session::flash('success', 'Membro adicionado com sucesso. A renda informada foi salva.');
         Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
     }
 
@@ -341,7 +341,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, 'composition', $personType, ['member_edit' => $memberId]));
         }
 
-        Session::flash('success', 'Membro atualizado com sucesso.');
+        Session::flash('success', 'Membro atualizado com sucesso. A renda informada foi salva.');
         Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
     }
 
@@ -483,7 +483,10 @@ final class FamilyController
             'maritalStatuses' => $registration->withLegacyOption(FamilyRegistrationService::MARITAL_STATUSES, (string) ($family['marital_status'] ?? '')),
             'educationLevels' => $registration->withLegacyOption(FamilyRegistrationService::EDUCATION_LEVELS, (string) ($family['education_level'] ?? '')),
             'professionalStatuses' => $registration->withLegacyOption(FamilyRegistrationService::PROFESSIONAL_STATUSES, (string) ($family['professional_status'] ?? '')),
-            'chronicDiseaseOptions' => $registration->withLegacyOption(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS, (string) ($family['chronic_disease'] ?? '')),
+            'chronicDiseaseOptions' => FamilyDataSupport::withLegacyOptions(
+                FamilyDataSupport::CHRONIC_DISEASE_OPTIONS,
+                FamilyDataSupport::parseChronicDiseases($family['chronic_disease'] ?? [])
+            ),
             'socialBenefitOptions' => $registration->withLegacyOption(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS, (string) ($family['social_benefit'] ?? '')),
             'error' => Session::consumeFlash('error'),
         ]);

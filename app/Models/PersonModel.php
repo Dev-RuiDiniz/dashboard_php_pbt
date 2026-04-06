@@ -24,17 +24,27 @@ final class PersonModel
 
         $q = trim((string) ($filters['q'] ?? ''));
         if ($q !== '') {
+            $cpfDigits = \App\Services\CpfService::digits($q);
             $sql .= ' AND (
                 full_name LIKE :q_full_name
                 OR social_name LIKE :q_social_name
                 OR cpf LIKE :q_cpf
                 OR rg LIKE :q_rg
                 OR stay_location LIKE :q_stay
+            ';
+            if ($cpfDigits !== '') {
+                $sql .= '
+                OR REPLACE(REPLACE(REPLACE(COALESCE(cpf, \'\'), \'.\', \'\'), \'-\', \'\'), \' \', \'\') LIKE :q_cpf_digits';
+            }
+            $sql .= '
             )';
             $like = '%' . $q . '%';
             $params['q_full_name'] = $like;
             $params['q_social_name'] = $like;
             $params['q_cpf'] = $like;
+            if ($cpfDigits !== '') {
+                $params['q_cpf_digits'] = '%' . $cpfDigits . '%';
+            }
             $params['q_rg'] = $like;
             $params['q_stay'] = $like;
         }
@@ -129,14 +139,14 @@ final class PersonModel
                 full_name, social_name, cpf, rg, birth_date, approx_age, gender,
                 is_homeless, homeless_time, stay_location, phone, previous_address, has_family_in_region, family_contact,
                 education_level, profession_skills, formal_work_history, work_interest, work_interest_detail
-                , chronic_disease, has_physical_disability, physical_disability_details,
-                uses_continuous_medication, continuous_medication_details, social_benefit
+                , chronic_disease, chronic_disease_other_details, has_physical_disability, physical_disability_details,
+                uses_continuous_medication, continuous_medication_details, has_addiction, addiction_details, social_benefit
             ) VALUES (
                 :full_name, :social_name, :cpf, :rg, :birth_date, :approx_age, :gender,
                 :is_homeless, :homeless_time, :stay_location, :phone, :previous_address, :has_family_in_region, :family_contact,
                 :education_level, :profession_skills, :formal_work_history, :work_interest, :work_interest_detail
-                , :chronic_disease, :has_physical_disability, :physical_disability_details,
-                :uses_continuous_medication, :continuous_medication_details, :social_benefit
+                , :chronic_disease, :chronic_disease_other_details, :has_physical_disability, :physical_disability_details,
+                :uses_continuous_medication, :continuous_medication_details, :has_addiction, :addiction_details, :social_benefit
             )'
         );
         $stmt->execute($data);
@@ -168,10 +178,13 @@ final class PersonModel
                 work_interest = :work_interest,
                 work_interest_detail = :work_interest_detail,
                 chronic_disease = :chronic_disease,
+                chronic_disease_other_details = :chronic_disease_other_details,
                 has_physical_disability = :has_physical_disability,
                 physical_disability_details = :physical_disability_details,
                 uses_continuous_medication = :uses_continuous_medication,
                 continuous_medication_details = :continuous_medication_details,
+                has_addiction = :has_addiction,
+                addiction_details = :addiction_details,
                 social_benefit = :social_benefit
              WHERE id = :id'
         );

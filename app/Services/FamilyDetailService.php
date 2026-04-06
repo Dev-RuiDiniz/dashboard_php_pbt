@@ -32,6 +32,11 @@ final class FamilyDetailService
                 $this->familyModel->getPhones($familyId),
                 (string) ($family['phone'] ?? '')
             );
+            $family['chronic_disease_list'] = FamilyDataSupport::parseChronicDiseases($family['chronic_disease'] ?? []);
+            $family['chronic_disease_labels'] = FamilyDataSupport::chronicDiseaseLabels(
+                $family['chronic_disease'] ?? [],
+                (string) ($family['chronic_disease_other_details'] ?? '')
+            );
         }
         $members = $this->familyModel->getMembersByFamilyId($familyId);
         $children = $this->childModel->findByFamilyId($familyId);
@@ -136,6 +141,10 @@ final class FamilyDetailService
         }
         if ($memberRelationshipCurrent !== '' && !in_array($memberRelationshipCurrent, $relationshipOptions, true)) {
             $relationshipOptions[] = $memberRelationshipCurrent;
+        }
+        $childRelationshipCurrent = trim((string) ($childForm['relationship'] ?? ''));
+        if ($childRelationshipCurrent !== '' && !in_array($childRelationshipCurrent, $relationshipOptions, true)) {
+            $relationshipOptions[] = $childRelationshipCurrent;
         }
 
         $addressLine = implode(' / ', array_filter([

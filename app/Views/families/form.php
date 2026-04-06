@@ -11,6 +11,7 @@ $professionalStatuses = is_array($professionalStatuses ?? null) ? $professionalS
 $chronicDiseaseOptions = is_array($chronicDiseaseOptions ?? null) ? $chronicDiseaseOptions : [];
 $socialBenefitOptions = is_array($socialBenefitOptions ?? null) ? $socialBenefitOptions : [];
 $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['number' => '', 'label' => '', 'is_primary' => 1]];
+$selectedChronicDiseases = \App\Services\FamilyDataSupport::parseChronicDiseases($familyData['chronic_disease'] ?? []);
 ?>
 <div class="row justify-content-center">
     <div class="col-12">
@@ -56,7 +57,8 @@ $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['n
                         </div>
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label">CPF</label>
-                            <input class="form-control" name="cpf_responsible" required placeholder="000.000.000-00" value="<?= htmlspecialchars((string) ($familyData['cpf_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <input class="form-control" name="cpf_responsible" placeholder="Opcional - 000.000.000-00" value="<?= htmlspecialchars((string) ($familyData['cpf_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <div class="form-text">Se informado, o sistema valida duplicidade automaticamente.</div>
                         </div>
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label">RG</label>
@@ -138,6 +140,10 @@ $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['n
                                 <?php endforeach; ?>
                             </select>
                         </div>
+                        <div class="col-12 col-md-4 <?= ((string) ($familyData['housing_type'] ?? '') === 'outro') ? '' : 'd-none' ?>" data-housing-other-group>
+                            <label class="form-label">Qual tipo de moradia?</label>
+                            <input class="form-control" name="housing_type_other_details" value="<?= htmlspecialchars((string) ($familyData['housing_type_other_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
                         <div class="col-12 col-md-4 <?= ((string) ($familyData['housing_type'] ?? '') === 'alugada') ? '' : 'd-none' ?>" data-rent-amount-group>
                             <label class="form-label">Valor do aluguel</label>
                             <input class="form-control" name="rent_amount" placeholder="0,00" value="<?= htmlspecialchars((string) ($familyData['rent_amount'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
@@ -149,6 +155,13 @@ $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['n
                             <label class="form-label">CEP</label>
                             <input class="form-control" name="cep" placeholder="00000-000" value="<?= htmlspecialchars((string) ($familyData['cep'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             <div class="form-text text-muted" data-cep-feedback></div>
+                            <div class="small mt-2 d-flex flex-wrap gap-2">
+                                <a href="https://www.ruacep.com.br/" target="_blank" rel="noopener noreferrer">ruacep.com.br</a>
+                                <a href="https://www.guiacep.com/" target="_blank" rel="noopener noreferrer">guiacep.com</a>
+                                <a href="https://www.consultacep.com.br/" target="_blank" rel="noopener noreferrer">consultacep.com.br</a>
+                                <a href="https://cep.guiamais.com.br/" target="_blank" rel="noopener noreferrer">cep.guiamais.com.br</a>
+                                <a href="https://cepsbrasil.com.br/" target="_blank" rel="noopener noreferrer">cepsbrasil.com.br</a>
+                            </div>
                         </div>
                         <div class="col-12 col-md-7">
                             <label class="form-label">Logradouro</label>
@@ -269,16 +282,24 @@ $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['n
                             </div>
                         </div>
                         <div class="col-12"><hr><h3 class="h6 text-uppercase text-secondary mb-0">Saude e beneficios do responsavel</h3></div>
-                        <div class="col-12 col-md-4">
-                            <label class="form-label">Possui alguma Doenca Cronica?</label>
-                            <select class="form-select" name="chronic_disease">
-                                <option value="">Nao informado</option>
+                        <div class="col-12">
+                            <label class="form-label">Doenca cronica</label>
+                            <div class="row g-2">
                                 <?php foreach ($chronicDiseaseOptions as $value => $label) : ?>
-                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($familyData['chronic_disease'] ?? '') === (string) $value) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
-                                    </option>
+                                    <div class="col-12 col-md-6 col-xl-4">
+                                        <div class="form-check border rounded p-2 h-100">
+                                            <input class="form-check-input" type="checkbox" id="family_chronic_disease_<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" name="chronic_disease[]" value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>" <?= in_array((string) $value, $selectedChronicDiseases, true) ? 'checked' : '' ?> data-chronic-disease-option>
+                                            <label class="form-check-label" for="family_chronic_disease_<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>">
+                                                <?= htmlspecialchars((string) $label, ENT_QUOTES, 'UTF-8') ?>
+                                            </label>
+                                        </div>
+                                    </div>
                                 <?php endforeach; ?>
-                            </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 <?= in_array('outra', $selectedChronicDiseases, true) ? '' : 'd-none' ?>" data-chronic-other-group>
+                            <label class="form-label">Qual?</label>
+                            <input class="form-control" name="chronic_disease_other_details" value="<?= htmlspecialchars((string) ($familyData['chronic_disease_other_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Possui alguma Deficiencia Fisica?</label>
@@ -301,6 +322,17 @@ $phones = is_array($familyData['phones'] ?? null) ? $familyData['phones'] : [['n
                         <div class="col-12 col-md-4 <?= ((int) ($familyData['uses_continuous_medication'] ?? 0) === 1) ? '' : 'd-none' ?>" data-conditional-group="family-medication-details">
                             <label class="form-label">Qual(is) medicacao(oes)?</label>
                             <input class="form-control" name="continuous_medication_details" value="<?= htmlspecialchars((string) ($familyData['continuous_medication_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Tem algum vicio?</label>
+                            <select class="form-select" name="has_addiction" data-conditional-toggle="family-addiction-details">
+                                <option value="0" <?= ((int) ($familyData['has_addiction'] ?? 0) !== 1) ? 'selected' : '' ?>>Nao</option>
+                                <option value="1" <?= ((int) ($familyData['has_addiction'] ?? 0) === 1) ? 'selected' : '' ?>>Sim</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 <?= ((int) ($familyData['has_addiction'] ?? 0) === 1) ? '' : 'd-none' ?>" data-conditional-group="family-addiction-details">
+                            <label class="form-label">Qual?</label>
+                            <input class="form-control" name="addiction_details" value="<?= htmlspecialchars((string) ($familyData['addiction_details'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Recebe Beneficio Social?</label>
@@ -345,8 +377,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const sync = function () {
-            const rows = Array.from(container.querySelectorAll('[data-phone-row]'));
+            const sync = function () {
+                const rows = Array.from(container.querySelectorAll('[data-phone-row]'));
             rows.forEach(function (row, index) {
                 const number = row.querySelector('[name*="[number]"], [data-phone-number]');
                 const label = row.querySelector('[name*="[label]"], [data-phone-label]');
@@ -411,6 +443,9 @@ document.addEventListener('DOMContentLoaded', function () {
         addButton.addEventListener('click', function () {
             const fragment = template.content.cloneNode(true);
             container.appendChild(fragment);
+            if (window.DashboardFormEnhancements) {
+                window.DashboardFormEnhancements.initMasks(container);
+            }
             sync();
         });
 
@@ -423,16 +458,45 @@ document.addEventListener('DOMContentLoaded', function () {
     const rentGroup = document.querySelector('[data-rent-amount-group]');
     if (housingType && rentGroup) {
         const rentInput = rentGroup.querySelector('input[name="rent_amount"]');
+        const housingOtherGroup = document.querySelector('[data-housing-other-group]');
+        const housingOtherInput = housingOtherGroup ? housingOtherGroup.querySelector('input[name="housing_type_other_details"]') : null;
         const syncRent = function () {
-            const visible = housingType.value === 'alugada';
-            rentGroup.classList.toggle('d-none', !visible);
-            if (!visible && rentInput) {
+            const isRentVisible = housingType.value === 'alugada';
+            rentGroup.classList.toggle('d-none', !isRentVisible);
+            if (!isRentVisible && rentInput) {
                 rentInput.value = '';
+            }
+            if (housingOtherGroup) {
+                const isOtherVisible = housingType.value === 'outro';
+                housingOtherGroup.classList.toggle('d-none', !isOtherVisible);
+                if (!isOtherVisible && housingOtherInput) {
+                    housingOtherInput.value = '';
+                }
             }
         };
         housingType.addEventListener('change', syncRent);
         syncRent();
     }
+
+    const chronicOtherGroup = document.querySelector('[data-chronic-other-group]');
+    const chronicOtherInput = chronicOtherGroup ? chronicOtherGroup.querySelector('input[name="chronic_disease_other_details"]') : null;
+    const chronicDiseaseCheckboxes = Array.from(document.querySelectorAll('[data-chronic-disease-option]'));
+    const syncChronicOther = function () {
+        const otherChecked = chronicDiseaseCheckboxes.some(function (checkbox) {
+            return checkbox.value === 'outra' && checkbox.checked;
+        });
+        if (!chronicOtherGroup) {
+            return;
+        }
+        chronicOtherGroup.classList.toggle('d-none', !otherChecked);
+        if (!otherChecked && chronicOtherInput) {
+            chronicOtherInput.value = '';
+        }
+    };
+    chronicDiseaseCheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', syncChronicOther);
+    });
+    syncChronicOther();
 
     document.querySelectorAll('[data-conditional-toggle]').forEach(function (select) {
         const target = select.getAttribute('data-conditional-toggle');

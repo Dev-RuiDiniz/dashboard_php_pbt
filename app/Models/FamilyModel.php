@@ -119,8 +119,9 @@ final class FamilyModel
                 cep, address, address_number, address_complement, neighborhood, city, state,
                 location_reference, housing_type, rent_amount, documentation_status,
                 documentation_notes, needs_visit, general_notes, is_active,
-                chronic_disease, has_physical_disability, physical_disability_details,
-                uses_continuous_medication, continuous_medication_details, social_benefit
+                chronic_disease, chronic_disease_other_details, has_physical_disability, physical_disability_details,
+                uses_continuous_medication, continuous_medication_details, has_addiction, addiction_details, social_benefit,
+                housing_type_other_details
             ) VALUES (
                 :responsible_name, :cpf_responsible, :rg_responsible, :birth_date, :phone,
                 :responsible_works, :responsible_income,
@@ -128,8 +129,9 @@ final class FamilyModel
                 :cep, :address, :address_number, :address_complement, :neighborhood, :city, :state,
                 :location_reference, :housing_type, :rent_amount, :documentation_status,
                 :documentation_notes, :needs_visit, :general_notes, :is_active,
-                :chronic_disease, :has_physical_disability, :physical_disability_details,
-                :uses_continuous_medication, :continuous_medication_details, :social_benefit
+                :chronic_disease, :chronic_disease_other_details, :has_physical_disability, :physical_disability_details,
+                :uses_continuous_medication, :continuous_medication_details, :has_addiction, :addiction_details, :social_benefit,
+                :housing_type_other_details
             )'
         );
         $stmt->execute($data);
@@ -169,11 +171,15 @@ final class FamilyModel
                 general_notes = :general_notes,
                 is_active = :is_active,
                 chronic_disease = :chronic_disease,
+                chronic_disease_other_details = :chronic_disease_other_details,
                 has_physical_disability = :has_physical_disability,
                 physical_disability_details = :physical_disability_details,
                 uses_continuous_medication = :uses_continuous_medication,
                 continuous_medication_details = :continuous_medication_details,
-                social_benefit = :social_benefit
+                has_addiction = :has_addiction,
+                addiction_details = :addiction_details,
+                social_benefit = :social_benefit,
+                housing_type_other_details = :housing_type_other_details
             WHERE id = :id'
         );
 
@@ -208,7 +214,7 @@ final class FamilyModel
     public function getMembersByFamilyId(int $familyId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, studies, works, income, created_at, updated_at
+            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, studies, works, receives_social_benefit, purpose, income, created_at, updated_at
              FROM family_members
              WHERE family_id = :family_id
              ORDER BY name ASC, id ASC'
@@ -221,7 +227,7 @@ final class FamilyModel
     public function findMemberById(int $memberId): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, studies, works, income
+            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, studies, works, receives_social_benefit, purpose, income
              FROM family_members
              WHERE id = :id
              LIMIT 1'
@@ -234,8 +240,8 @@ final class FamilyModel
     public function createMember(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO family_members (family_id, name, relationship, cpf, rg, birth_date, studies, works, income)
-             VALUES (:family_id, :name, :relationship, :cpf, :rg, :birth_date, :studies, :works, :income)'
+            'INSERT INTO family_members (family_id, name, relationship, cpf, rg, birth_date, studies, works, receives_social_benefit, purpose, income)
+             VALUES (:family_id, :name, :relationship, :cpf, :rg, :birth_date, :studies, :works, :receives_social_benefit, :purpose, :income)'
         );
         $stmt->execute($data);
         return (int) $this->pdo->lastInsertId();
@@ -253,6 +259,8 @@ final class FamilyModel
                  birth_date = :birth_date,
                  studies = :studies,
                  works = :works,
+                 receives_social_benefit = :receives_social_benefit,
+                 purpose = :purpose,
                  income = :income
              WHERE id = :id AND family_id = :family_id'
         );
@@ -429,7 +437,7 @@ final class FamilyModel
     public function listFamilyMembersSummary(int $familyId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, name, relationship, birth_date, studies, works, income
+            'SELECT id, name, relationship, birth_date, studies, works, receives_social_benefit, purpose, income
              FROM family_members
              WHERE family_id = :family_id
              ORDER BY name ASC, id ASC'
@@ -445,15 +453,25 @@ final class FamilyModel
 
         $q = trim((string) ($filters['q'] ?? ''));
         if ($q !== '') {
+            $cpfDigits = \App\Services\CpfService::digits($q);
             $sql .= ' AND (
                 responsible_name LIKE :q_responsible
                 OR cpf_responsible LIKE :q_cpf
                 OR neighborhood LIKE :q_neighborhood
                 OR city LIKE :q_city
+            ';
+            if ($cpfDigits !== '') {
+                $sql .= '
+                OR REPLACE(REPLACE(REPLACE(COALESCE(cpf_responsible, \'\'), \'.\', \'\'), \'-\', \'\'), \' \', \'\') LIKE :q_cpf_digits';
+            }
+            $sql .= '
             )';
             $like = '%' . $q . '%';
             $params['q_responsible'] = $like;
             $params['q_cpf'] = $like;
+            if ($cpfDigits !== '') {
+                $params['q_cpf_digits'] = '%' . $cpfDigits . '%';
+            }
             $params['q_neighborhood'] = $like;
             $params['q_city'] = $like;
         }

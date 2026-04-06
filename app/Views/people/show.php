@@ -98,7 +98,18 @@ $phones = is_array($person['phones'] ?? null) ? $person['phones'] : [];
                     <dd class="col-7"><?= htmlspecialchars((string) (($person['approx_age'] ?? null) !== null ? (string) $person['approx_age'] . ' anos' : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
 
                     <dt class="col-5 text-secondary">Doenca cronica</dt>
-                    <dd class="col-7"><?= htmlspecialchars((string) (($person['chronic_disease'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+                    <dd class="col-7">
+                        <?php
+                        $chronicDiseaseSummary = !empty($person['chronic_disease_labels'])
+                            ? implode(', ', (array) $person['chronic_disease_labels'])
+                            : '-';
+                        if (in_array('outra', (array) ($person['chronic_disease_list'] ?? []), true)
+                            && trim((string) ($person['chronic_disease_other_details'] ?? '')) !== '') {
+                            $chronicDiseaseSummary .= ' (' . (string) $person['chronic_disease_other_details'] . ')';
+                        }
+                        ?>
+                        <?= htmlspecialchars($chronicDiseaseSummary, ENT_QUOTES, 'UTF-8') ?>
+                    </dd>
 
                     <dt class="col-5 text-secondary">Deficiencia fisica</dt>
                     <dd class="col-7">
@@ -111,6 +122,13 @@ $phones = is_array($person['phones'] ?? null) ? $person['phones'] : [];
                     <dd class="col-7">
                         <?= ((int) ($person['uses_continuous_medication'] ?? 0) === 1)
                             ? htmlspecialchars((string) (($person['continuous_medication_details'] ?? '') ?: 'Sim'), ENT_QUOTES, 'UTF-8')
+                            : 'Nao' ?>
+                    </dd>
+
+                    <dt class="col-5 text-secondary">Vicio</dt>
+                    <dd class="col-7">
+                        <?= ((int) ($person['has_addiction'] ?? 0) === 1)
+                            ? htmlspecialchars((string) (($person['addiction_details'] ?? '') ?: 'Sim'), ENT_QUOTES, 'UTF-8')
                             : 'Nao' ?>
                     </dd>
 

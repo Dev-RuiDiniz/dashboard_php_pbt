@@ -380,6 +380,12 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                             </div>
                             <div class="col-12 col-md-3 d-flex align-items-end">
                                 <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="member_social_benefit" name="receives_social_benefit" value="1" <?= ((int) ($memberForm['receives_social_benefit'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="member_social_benefit">Recebe beneficio social</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" id="member_studies" name="studies" value="1" <?= ((int) ($memberForm['studies'] ?? 0) === 1) ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="member_studies">Estuda</label>
                                 </div>
@@ -389,6 +395,10 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                                     <input class="form-check-input" type="checkbox" id="works" name="works" value="1" <?= ((int) ($memberForm['works'] ?? 0) === 1) ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="works">Trabalha</label>
                                 </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Objetivo</label>
+                                <input class="form-control" name="purpose" value="<?= htmlspecialchars((string) ($memberForm['purpose'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
                             <div class="col-12">
                                 <div class="form-text">Para maiores de idade: informe se estuda e se trabalha. Para menores, apenas estudo.</div>
@@ -437,7 +447,14 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">Parentesco</label>
-                                <input class="form-control" name="relationship" value="<?= htmlspecialchars((string) ($childForm['relationship'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                <select class="form-select" name="relationship">
+                                    <option value="">Selecione</option>
+                                    <?php foreach ($relationshipOptions as $relationshipOption) : ?>
+                                        <option value="<?= htmlspecialchars($relationshipOption, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($childForm['relationship'] ?? '') === $relationshipOption) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($relationshipOption, ENT_QUOTES, 'UTF-8') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <div class="col-12 col-md-3 d-flex align-items-end">
                                 <div class="form-check mb-2">
@@ -497,6 +514,10 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                                             <div class="fw-semibold"><?= htmlspecialchars((string) ($member['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                                             <div class="small text-secondary"><?= htmlspecialchars((string) ($member['relationship'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                             <div class="small text-secondary">idade: <?= htmlspecialchars($renderAge($member['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
+                                            <div class="small text-secondary">beneficio social: <?= ((int) ($member['receives_social_benefit'] ?? 0) === 1) ? 'Sim' : 'Nao' ?></div>
+                                            <?php if (trim((string) ($member['purpose'] ?? '')) !== '') : ?>
+                                                <div class="small text-secondary">objetivo: <?= htmlspecialchars((string) $member['purpose'], ENT_QUOTES, 'UTF-8') ?></div>
+                                            <?php endif; ?>
                                         </td>
                                         <td class="small">
                                             <div>CPF: <?= htmlspecialchars((string) ($member['cpf'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
@@ -621,7 +642,12 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                         <dt class="col-5 text-secondary">Nascimento principal</dt>
                         <dd class="col-7"><?= htmlspecialchars((string) ($family['birth_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?> (<?= htmlspecialchars($renderAge($family['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>)</dd>
                         <dt class="col-5 text-secondary">Moradia</dt>
-                        <dd class="col-7"><?= htmlspecialchars((string) (($family['housing_type'] ?? '') !== '' ? $family['housing_type'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+                        <dd class="col-7">
+                            <?= htmlspecialchars((string) (($family['housing_type'] ?? '') !== '' ? $family['housing_type'] : '-'), ENT_QUOTES, 'UTF-8') ?>
+                            <?php if ((string) ($family['housing_type'] ?? '') === 'outro' && trim((string) ($family['housing_type_other_details'] ?? '')) !== '') : ?>
+                                · <?= htmlspecialchars((string) $family['housing_type_other_details'], ENT_QUOTES, 'UTF-8') ?>
+                            <?php endif; ?>
+                        </dd>
                         <?php if ((string) ($family['housing_type'] ?? '') === 'alugada') : ?>
                             <dt class="col-5 text-secondary">Valor do aluguel</dt>
                             <dd class="col-7">R$ <?= number_format((float) ($family['rent_amount'] ?? 0), 2, ',', '.') ?></dd>
@@ -635,7 +661,9 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                         <dt class="col-5 text-secondary">Renda principal</dt>
                         <dd class="col-7">R$ <?= number_format((float) ($family['responsible_income'] ?? 0), 2, ',', '.') ?> / <?= ((int) ($family['responsible_works'] ?? 0) === 1) ? 'Trabalha' : 'Nao trabalha' ?></dd>
                         <dt class="col-5 text-secondary">Doenca cronica</dt>
-                        <dd class="col-7"><?= htmlspecialchars((string) (($family['chronic_disease'] ?? '') !== '' ? $family['chronic_disease'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+                        <dd class="col-7">
+                            <?= htmlspecialchars(!empty($family['chronic_disease_labels']) ? implode(', ', $family['chronic_disease_labels']) : '-', ENT_QUOTES, 'UTF-8') ?>
+                        </dd>
                         <dt class="col-5 text-secondary">Deficiencia fisica</dt>
                         <dd class="col-7">
                             <?= ((int) ($family['has_physical_disability'] ?? 0) === 1)
@@ -646,6 +674,12 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                         <dd class="col-7">
                             <?= ((int) ($family['uses_continuous_medication'] ?? 0) === 1)
                                 ? htmlspecialchars((string) (($family['continuous_medication_details'] ?? '') !== '' ? $family['continuous_medication_details'] : 'Sim'), ENT_QUOTES, 'UTF-8')
+                                : 'Nao' ?>
+                        </dd>
+                        <dt class="col-5 text-secondary">Vicio</dt>
+                        <dd class="col-7">
+                            <?= ((int) ($family['has_addiction'] ?? 0) === 1)
+                                ? htmlspecialchars((string) (($family['addiction_details'] ?? '') !== '' ? $family['addiction_details'] : 'Sim'), ENT_QUOTES, 'UTF-8')
                                 : 'Nao' ?>
                         </dd>
                         <dt class="col-5 text-secondary">Beneficio social</dt>

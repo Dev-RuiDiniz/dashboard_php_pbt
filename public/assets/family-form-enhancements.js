@@ -56,10 +56,11 @@
     }
 
     function bindMask(input, formatter) {
-        if (!input || typeof formatter !== 'function') {
+        if (!input || typeof formatter !== 'function' || input.dataset.maskBound === '1') {
             return;
         }
 
+        input.dataset.maskBound = '1';
         input.addEventListener('input', function () {
             input.value = formatter(input.value);
         });
@@ -94,9 +95,34 @@
         return String(age);
     }
 
+    function initMasks(scope) {
+        var root = scope || document;
+        Array.prototype.slice.call(root.querySelectorAll('input[name="cpf_responsible"], input[name="cpf"]')).forEach(function (input) {
+            input.setAttribute('inputmode', 'numeric');
+            input.setAttribute('maxlength', '14');
+            bindMask(input, formatCpf);
+        });
+
+        Array.prototype.slice.call(root.querySelectorAll('input[name="rg_responsible"], input[name="rg"]')).forEach(function (input) {
+            input.setAttribute('maxlength', '12');
+            bindMask(input, formatRg);
+        });
+
+        Array.prototype.slice.call(root.querySelectorAll('input[name="phone"], input[name$="[number]"], input[data-phone-number]')).forEach(function (input) {
+            input.setAttribute('inputmode', 'numeric');
+            input.setAttribute('maxlength', '15');
+            bindMask(input, formatPhone);
+        });
+
+        Array.prototype.slice.call(root.querySelectorAll('input[name="income"], input[name="responsible_income"]')).forEach(function (input) {
+            input.setAttribute('inputmode', 'decimal');
+        });
+    }
+
     function bindAgeCalculation(form) {
         var birthDateInput = form.querySelector('input[name="birth_date"]');
         var ageDisplayInput = form.querySelector('[data-family-age-display]');
+        var hiddenAgeInput = form.querySelector('input[name="approx_age"]');
 
         if (!birthDateInput || !ageDisplayInput) {
             return;
@@ -105,6 +131,9 @@
         function updateAge() {
             var age = calculateAgeYears(birthDateInput.value);
             ageDisplayInput.value = age !== '' ? age + ' anos' : '';
+            if (hiddenAgeInput) {
+                hiddenAgeInput.value = age;
+            }
         }
 
         birthDateInput.addEventListener('input', updateAge);
@@ -136,35 +165,11 @@
         updateRules();
     }
 
-    function initFamilyFormMasks(form) {
-        var cpfInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="cpf_responsible"], input[name="cpf"]'));
-        var rgInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="rg_responsible"], input[name="rg"]'));
-        var phoneInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="phone"]'));
-        var moneyInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="income"], input[name="responsible_income"]'));
-
-        cpfInputs.forEach(function (cpfInput) {
-            cpfInput.setAttribute('inputmode', 'numeric');
-            cpfInput.setAttribute('maxlength', '14');
-            bindMask(cpfInput, formatCpf);
+    function initFormBehaviors(scope) {
+        Array.prototype.slice.call((scope || document).querySelectorAll('form')).forEach(function (form) {
+            bindAgeCalculation(form);
+            bindMemberAdultRules(form);
         });
-
-        rgInputs.forEach(function (rgInput) {
-            rgInput.setAttribute('maxlength', '12');
-            bindMask(rgInput, formatRg);
-        });
-
-        phoneInputs.forEach(function (phoneInput) {
-            phoneInput.setAttribute('inputmode', 'numeric');
-            phoneInput.setAttribute('maxlength', '15');
-            bindMask(phoneInput, formatPhone);
-        });
-
-        moneyInputs.forEach(function (moneyInput) {
-            moneyInput.setAttribute('inputmode', 'decimal');
-        });
-
-        bindAgeCalculation(form);
-        bindMemberAdultRules(form);
     }
 
     function initFamilyPersonHub() {
@@ -182,8 +187,6 @@
         var memberSubmitLabel = hub.querySelector('[data-member-submit-label]');
         var memberSection = hub.querySelector('[data-person-section="member"]');
         var isMemberEditMode = memberSection && memberSection.getAttribute('data-member-edit-mode') === '1';
-        var relationshipGroup = hub.querySelector('[data-member-relationship-group]');
-        var relationshipSelect = relationshipGroup ? relationshipGroup.querySelector('select[name="relationship"]') : null;
         if (!toggleButton || !panel || typeButtons.length === 0 || sections.length === 0) {
             return;
         }
@@ -206,29 +209,16 @@
         }
 
         function updateMemberLabels(personType) {
-            if (!memberTitle || !memberSubmitLabel) {
-                return;
-            }
-
-            if (personType === 'principal' || personType === 'child') {
+            if (!memberTitle || !memberSubmitLabel || personType === 'principal' || personType === 'child') {
                 return;
             }
 
             memberTitle.textContent = isMemberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar';
             memberSubmitLabel.textContent = isMemberEditMode ? 'Salvar membro' : 'Adicionar membro';
-            if (relationshipGroup) {
-                relationshipGroup.classList.remove('d-none');
-            }
-            if (relationshipSelect) {
-                relationshipSelect.disabled = false;
-            }
         }
 
         function setPersonType(type) {
-            var personType = 'member';
-            if (type === 'principal' || type === 'child') {
-                personType = type;
-            }
+            var personType = type === 'principal' || type === 'child' ? type : 'member';
 
             typeButtons.forEach(function (button) {
                 var active = button.getAttribute('data-person-type-btn') === personType;
@@ -238,16 +228,7 @@
             });
 
             sections.forEach(function (section) {
-                var key = section.getAttribute('data-person-section');
-                var visible = false;
-                if (personType === 'principal') {
-                    visible = key === 'principal';
-                } else if (personType === 'child') {
-                    visible = key === 'child';
-                } else {
-                    visible = key === 'member';
-                }
-                section.classList.toggle('d-none', !visible);
+                section.classList.toggle('d-none', section.getAttribute('data-person-section') !== personType);
             });
 
             if (memberTypeInput) {
@@ -256,12 +237,11 @@
 
             updateMemberLabels(personType);
             setPanelOpen(true);
-            focusFirstInput(hub.querySelector('[data-person-section="' + (personType === 'principal' ? 'principal' : (personType === 'child' ? 'child' : 'member')) + '"]'));
+            focusFirstInput(hub.querySelector('[data-person-section="' + personType + '"]'));
         }
 
         toggleButton.addEventListener('click', function () {
-            var isOpen = panel.getAttribute('data-person-open') === '1';
-            setPanelOpen(!isOpen);
+            setPanelOpen(panel.getAttribute('data-person-open') !== '1');
         });
 
         typeButtons.forEach(function (button) {
@@ -273,18 +253,23 @@
         var activeButton = typeButtons.find(function (button) {
             return button.classList.contains('btn-teal');
         });
-        var initialType = activeButton ? activeButton.getAttribute('data-person-type-btn') : 'member';
-        setPersonType(initialType || 'member');
+        setPersonType(activeButton ? activeButton.getAttribute('data-person-type-btn') : 'member');
         if (panel.getAttribute('data-person-open') !== '1') {
             setPanelOpen(false);
         }
     }
 
+    window.DashboardFormEnhancements = {
+        formatCpf: formatCpf,
+        formatPhone: formatPhone,
+        formatRg: formatRg,
+        initMasks: initMasks,
+        initFormBehaviors: initFormBehaviors
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
-        var forms = document.querySelectorAll('form');
-        forms.forEach(function (form) {
-            initFamilyFormMasks(form);
-        });
+        initMasks(document);
+        initFormBehaviors(document);
         initFamilyPersonHub();
     });
 })();

@@ -76,6 +76,7 @@ final class FamilyRegistrationService
             'state' => '',
             'location_reference' => '',
             'housing_type' => '',
+            'housing_type_other_details' => '',
             'rent_amount' => '',
             'adults_count' => 0,
             'workers_count' => 0,
@@ -87,11 +88,14 @@ final class FamilyRegistrationService
             'needs_visit' => 0,
             'general_notes' => '',
             'is_active' => 1,
-            'chronic_disease' => '',
+            'chronic_disease' => [],
+            'chronic_disease_other_details' => '',
             'has_physical_disability' => 0,
             'physical_disability_details' => '',
             'uses_continuous_medication' => 0,
             'continuous_medication_details' => '',
+            'has_addiction' => 0,
+            'addiction_details' => '',
             'social_benefit' => '',
         ];
     }
@@ -119,17 +123,21 @@ final class FamilyRegistrationService
             'state' => strtoupper(substr(trim((string) ($post['state'] ?? '')), 0, 2)),
             'location_reference' => trim((string) ($post['location_reference'] ?? '')),
             'housing_type' => trim((string) ($post['housing_type'] ?? '')),
+            'housing_type_other_details' => trim((string) ($post['housing_type_other_details'] ?? '')),
             'rent_amount' => trim((string) ($post['rent_amount'] ?? '')),
             'documentation_status' => trim((string) ($post['documentation_status'] ?? 'ok')),
             'documentation_notes' => trim((string) ($post['documentation_notes'] ?? '')),
             'needs_visit' => isset($post['needs_visit']) ? 1 : 0,
             'general_notes' => trim((string) ($post['general_notes'] ?? '')),
             'is_active' => isset($post['is_active']) ? 1 : 0,
-            'chronic_disease' => trim((string) ($post['chronic_disease'] ?? '')),
+            'chronic_disease' => FamilyDataSupport::sanitizeChronicDiseases($post['chronic_disease'] ?? []),
+            'chronic_disease_other_details' => trim((string) ($post['chronic_disease_other_details'] ?? '')),
             'has_physical_disability' => FamilyDataSupport::sanitizeBooleanFlag($post['has_physical_disability'] ?? 0),
             'physical_disability_details' => trim((string) ($post['physical_disability_details'] ?? '')),
             'uses_continuous_medication' => FamilyDataSupport::sanitizeBooleanFlag($post['uses_continuous_medication'] ?? 0),
             'continuous_medication_details' => trim((string) ($post['continuous_medication_details'] ?? '')),
+            'has_addiction' => FamilyDataSupport::sanitizeBooleanFlag($post['has_addiction'] ?? 0),
+            'addiction_details' => trim((string) ($post['addiction_details'] ?? '')),
             'social_benefit' => trim((string) ($post['social_benefit'] ?? '')),
             'phone' => '',
         ];
@@ -139,10 +147,6 @@ final class FamilyRegistrationService
     {
         if (trim((string) ($input['responsible_name'] ?? '')) === '') {
             return 'Nome do responsavel principal e obrigatorio.';
-        }
-
-        if (trim((string) ($input['cpf_responsible'] ?? '')) === '') {
-            return 'CPF do responsavel principal e obrigatorio.';
         }
 
         $rg = trim((string) ($input['rg_responsible'] ?? ''));
@@ -155,7 +159,6 @@ final class FamilyRegistrationService
             'marital_status' => ['options' => array_keys(self::MARITAL_STATUSES), 'label' => 'Estado civil'],
             'education_level' => ['options' => array_keys(self::EDUCATION_LEVELS), 'label' => 'Escolaridade'],
             'professional_status' => ['options' => array_keys(self::PROFESSIONAL_STATUSES), 'label' => 'Situacao profissional'],
-            'chronic_disease' => ['options' => array_keys(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS), 'label' => 'Doenca cronica'],
             'social_benefit' => ['options' => array_keys(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS), 'label' => 'Beneficio social'],
         ];
 
@@ -178,6 +181,19 @@ final class FamilyRegistrationService
             return (string) ($config['label'] ?? 'Campo') . ' invalido.';
         }
 
+        foreach (($input['chronic_disease'] ?? []) as $disease) {
+            if (isset(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS[$disease])) {
+                continue;
+            }
+
+            $legacyValues = FamilyDataSupport::parseChronicDiseases($existingFamily['chronic_disease'] ?? []);
+            if (in_array($disease, $legacyValues, true)) {
+                continue;
+            }
+
+            return 'Doenca cronica invalida.';
+        }
+
         if (!is_numeric((string) ($input['responsible_income'] ?? '0'))) {
             return 'Renda do responsavel principal invalida.';
         }
@@ -186,22 +202,37 @@ final class FamilyRegistrationService
             return 'Valor do aluguel invalido.';
         }
 
-        if (!\App\Services\CpfService::isValid((string) ($input['cpf_responsible'] ?? ''))) {
-            return 'CPF invalido.';
+        if (trim((string) ($input['cpf_responsible'] ?? '')) !== '') {
+            if (!\App\Services\CpfService::isValid((string) ($input['cpf_responsible'] ?? ''))) {
+                return 'CPF invalido.';
+            }
+
+            $input['cpf_responsible'] = (string) \App\Services\CpfService::format((string) $input['cpf_responsible']);
+
+            try {
+                $conflict = $this->familyModel->findCpfConflict((string) $input['cpf_responsible'], [
+                    'family_id' => $excludeId ?? 0,
+                ]);
+            } catch (Throwable) {
+                return 'Falha ao validar duplicidade de CPF.';
+            }
+
+            if ($conflict !== null) {
+                return FamilyDataSupport::buildCpfConflictMessage($conflict);
+            }
         }
 
-        $input['cpf_responsible'] = (string) \App\Services\CpfService::format((string) $input['cpf_responsible']);
-
-        try {
-            $conflict = $this->familyModel->findCpfConflict((string) $input['cpf_responsible'], [
-                'family_id' => $excludeId ?? 0,
-            ]);
-        } catch (Throwable) {
-            return 'Falha ao validar duplicidade de CPF.';
+        if (FamilyDataSupport::chronicDiseaseOtherDetailsRequired($input['chronic_disease'] ?? [])
+            && trim((string) ($input['chronic_disease_other_details'] ?? '')) === '') {
+            return 'Informe qual doenca cronica em "Outra".';
         }
 
-        if ($conflict !== null) {
-            return FamilyDataSupport::buildCpfConflictMessage($conflict);
+        if (($input['housing_type'] ?? '') === 'outro' && trim((string) ($input['housing_type_other_details'] ?? '')) === '') {
+            return 'Informe qual o tipo de moradia quando selecionar "Outro".';
+        }
+
+        if ((int) ($input['has_addiction'] ?? 0) === 1 && trim((string) ($input['addiction_details'] ?? '')) === '') {
+            return 'Informe qual vicio quando selecionar "Tem algum vicio?".';
         }
 
         return null;
@@ -249,11 +280,23 @@ final class FamilyRegistrationService
             $input['continuous_medication_details'] = '';
         }
 
+        if ((int) ($input['has_addiction'] ?? 0) !== 1) {
+            $input['addiction_details'] = '';
+        }
+
+        if (!FamilyDataSupport::chronicDiseaseOtherDetailsRequired($input['chronic_disease'] ?? [])) {
+            $input['chronic_disease_other_details'] = '';
+        }
+
         if (($input['housing_type'] ?? '') === 'alugada') {
             $sanitizedRent = FamilyDataSupport::sanitizeMoney((string) ($input['rent_amount'] ?? ''));
             $input['rent_amount'] = $sanitizedRent !== '0.00' || trim((string) ($input['rent_amount'] ?? '')) !== '' ? $sanitizedRent : null;
         } else {
             $input['rent_amount'] = null;
+        }
+
+        if (($input['housing_type'] ?? '') !== 'outro') {
+            $input['housing_type_other_details'] = '';
         }
 
         return [
@@ -277,17 +320,21 @@ final class FamilyRegistrationService
             'state' => $input['state'] !== '' ? $input['state'] : null,
             'location_reference' => $input['location_reference'] !== '' ? $input['location_reference'] : null,
             'housing_type' => $input['housing_type'] !== '' ? $input['housing_type'] : null,
+            'housing_type_other_details' => $input['housing_type_other_details'] !== '' ? $input['housing_type_other_details'] : null,
             'rent_amount' => $input['rent_amount'],
             'documentation_status' => $input['documentation_status'],
             'documentation_notes' => $input['documentation_notes'] !== '' ? $input['documentation_notes'] : null,
             'needs_visit' => (int) $input['needs_visit'],
             'general_notes' => $input['general_notes'] !== '' ? $input['general_notes'] : null,
             'is_active' => (int) $input['is_active'],
-            'chronic_disease' => $input['chronic_disease'] !== '' ? $input['chronic_disease'] : null,
+            'chronic_disease' => FamilyDataSupport::encodeChronicDiseases($input['chronic_disease'] ?? []),
+            'chronic_disease_other_details' => $input['chronic_disease_other_details'] !== '' ? $input['chronic_disease_other_details'] : null,
             'has_physical_disability' => (int) ($input['has_physical_disability'] ?? 0),
             'physical_disability_details' => $input['physical_disability_details'] !== '' ? $input['physical_disability_details'] : null,
             'uses_continuous_medication' => (int) ($input['uses_continuous_medication'] ?? 0),
             'continuous_medication_details' => $input['continuous_medication_details'] !== '' ? $input['continuous_medication_details'] : null,
+            'has_addiction' => (int) ($input['has_addiction'] ?? 0),
+            'addiction_details' => $input['addiction_details'] !== '' ? $input['addiction_details'] : null,
             'social_benefit' => $input['social_benefit'] !== '' ? $input['social_benefit'] : null,
         ];
     }
