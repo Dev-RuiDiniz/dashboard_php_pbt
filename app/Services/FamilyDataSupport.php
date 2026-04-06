@@ -17,6 +17,13 @@ final class FamilyDataSupport
         'doenca_osteomuscular' => 'Doenca osteomuscular',
         'depressao' => 'Depressao',
         'transtornos_mentais' => 'Transtornos mentais',
+        'problemas_tireoide' => 'Problemas com tireoide',
+        'problemas_varizes' => 'Problemas de varizes',
+        'colesterol_alto' => 'Colesterol alto',
+        'coluna_vertebral' => 'Coluna vertebral',
+        'nervo_ciatico' => 'Nervo ciatico',
+        'problemas_visao' => 'Problemas com visao',
+        'outra' => 'Outra',
     ];
 
     public const SOCIAL_BENEFIT_OPTIONS = [
@@ -188,6 +195,108 @@ final class FamilyDataSupport
         }
 
         return number_format((float) $filtered, 2, '.', '');
+    }
+
+    public static function normalizeTextarea(string $value): string
+    {
+        $value = trim(str_replace(["\r\n", "\r"], "\n", $value));
+        return preg_replace("/\n{3,}/", "\n\n", $value) ?? $value;
+    }
+
+    public static function parseChronicDiseases(mixed $value): array
+    {
+        if (is_array($value)) {
+            $items = $value;
+        } else {
+            $raw = trim((string) $value);
+            if ($raw === '') {
+                return [];
+            }
+
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $items = $decoded;
+            } elseif (str_contains($raw, ',')) {
+                $items = explode(',', $raw);
+            } else {
+                $items = [$raw];
+            }
+        }
+
+        $normalized = [];
+        foreach ($items as $item) {
+            $candidate = strtolower(trim((string) $item));
+            if ($candidate === '') {
+                continue;
+            }
+
+            if (!isset(self::CHRONIC_DISEASE_OPTIONS[$candidate])) {
+                $normalized[$candidate] = $candidate;
+                continue;
+            }
+
+            $normalized[$candidate] = $candidate;
+        }
+
+        return array_values($normalized);
+    }
+
+    public static function sanitizeChronicDiseases(mixed $value): array
+    {
+        $items = self::parseChronicDiseases($value);
+        $valid = [];
+        foreach ($items as $item) {
+            if (isset(self::CHRONIC_DISEASE_OPTIONS[$item])) {
+                $valid[$item] = $item;
+            }
+        }
+
+        return array_values($valid);
+    }
+
+    public static function encodeChronicDiseases(array $values): ?string
+    {
+        $normalized = self::sanitizeChronicDiseases($values);
+        if ($normalized === []) {
+            return null;
+        }
+
+        return json_encode(array_values($normalized), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: null;
+    }
+
+    public static function chronicDiseaseOtherDetailsRequired(array $values): bool
+    {
+        return in_array('outra', $values, true);
+    }
+
+    public static function withLegacyOptions(array $baseOptions, array $selectedValues): array
+    {
+        foreach ($selectedValues as $selectedValue) {
+            if ($selectedValue === '' || isset($baseOptions[$selectedValue])) {
+                continue;
+            }
+
+            $baseOptions[$selectedValue] = 'Legado: ' . $selectedValue;
+        }
+
+        return $baseOptions;
+    }
+
+    public static function chronicDiseaseLabels(mixed $value, ?string $otherDetails = null): array
+    {
+        $items = self::parseChronicDiseases($value);
+        $labels = [];
+
+        foreach ($items as $item) {
+            if ($item === 'outra' && trim((string) $otherDetails) !== '') {
+                $labels[] = 'Outra: ' . trim((string) $otherDetails);
+                continue;
+            }
+
+            $labels[] = self::CHRONIC_DISEASE_OPTIONS[$item] ?? ('Legado: ' . $item);
+        }
+
+        return $labels;
     }
 
     public static function calculateAgeFromBirthDate(?string $birthDate): ?int

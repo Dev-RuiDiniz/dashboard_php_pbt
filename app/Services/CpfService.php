@@ -6,15 +6,21 @@ namespace App\Services;
 
 final class CpfService
 {
-    public static function normalize(?string $value): ?string
+    public static function digits(?string $value): string
     {
         $value = trim((string) $value);
         if ($value === '') {
-            return null;
+            return '';
         }
 
         $digits = preg_replace('/\D+/', '', $value);
-        if (!is_string($digits) || $digits === '') {
+        return is_string($digits) ? $digits : '';
+    }
+
+    public static function normalize(?string $value): ?string
+    {
+        $digits = self::digits($value);
+        if ($digits === '') {
             return null;
         }
 

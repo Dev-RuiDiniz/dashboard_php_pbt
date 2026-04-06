@@ -13,6 +13,12 @@ require $basePath . '/vendor/autoload.php';
 
 Env::load($basePath);
 
+$appConfig = require $basePath . '/config/app.php';
+$appTimezone = trim((string) ($appConfig['timezone'] ?? 'America/Sao_Paulo'));
+if ($appTimezone !== '') {
+    date_default_timezone_set($appTimezone);
+}
+
 $isHttps = (
     (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || (($_SERVER['SERVER_PORT'] ?? null) === '443')
@@ -44,8 +50,11 @@ header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-in
 $container = new Container();
 
 $container->set('config', [
-    'app' => require $basePath . '/config/app.php',
-    'database' => require $basePath . '/config/database.php',
+    'app' => $appConfig,
+    'database' => array_merge(
+        require $basePath . '/config/database.php',
+        ['timezone' => $appTimezone]
+    ),
 ]);
 
 $container->set('db', static function (Container $container) {

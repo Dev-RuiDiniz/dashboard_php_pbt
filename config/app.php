@@ -7,6 +7,7 @@ return [
     'env' => $_ENV['APP_ENV'] ?? 'production',
     'debug' => filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOL),
     'url' => $_ENV['APP_URL'] ?? 'http://localhost',
+    'timezone' => trim((string) ($_ENV['APP_TIMEZONE'] ?? 'America/Sao_Paulo')),
     'auth' => [
         'max_login_attempts' => max(1, (int) ($_ENV['AUTH_MAX_LOGIN_ATTEMPTS'] ?? 5)),
         'lock_minutes' => max(1, (int) ($_ENV['AUTH_LOCK_MINUTES'] ?? 15)),
