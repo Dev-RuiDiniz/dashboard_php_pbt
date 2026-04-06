@@ -17,7 +17,7 @@ final class FamilyModel
         $sql = 'SELECT
                     id, responsible_name, cpf_responsible, phone,
                     neighborhood, city, state, family_income_total, family_income_average,
-                    children_count, documentation_status, needs_visit, is_active, updated_at
+                    children_count, documentation_status, needs_visit, is_active, created_at, updated_at
                 FROM families
                 WHERE 1=1';
         $params = [];
@@ -53,6 +53,44 @@ final class FamilyModel
         return is_array($row) ? $row : null;
     }
 
+    public function getPhones(int $familyId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, family_id, number, label, sort_order, is_primary, created_at, updated_at
+             FROM family_phones
+             WHERE family_id = :family_id
+             ORDER BY is_primary DESC, sort_order ASC, id ASC'
+        );
+        $stmt->execute(['family_id' => $familyId]);
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
+
+    public function replacePhones(int $familyId, array $phones): void
+    {
+        $delete = $this->pdo->prepare('DELETE FROM family_phones WHERE family_id = :family_id');
+        $delete->execute(['family_id' => $familyId]);
+
+        if ($phones === []) {
+            return;
+        }
+
+        $insert = $this->pdo->prepare(
+            'INSERT INTO family_phones (family_id, number, label, sort_order, is_primary)
+             VALUES (:family_id, :number, :label, :sort_order, :is_primary)'
+        );
+
+        foreach ($phones as $phone) {
+            $insert->execute([
+                'family_id' => $familyId,
+                'number' => $phone['number'],
+                'label' => ($phone['label'] ?? '') !== '' ? $phone['label'] : null,
+                'sort_order' => (int) ($phone['sort_order'] ?? 0),
+                'is_primary' => (int) ($phone['is_primary'] ?? 0),
+            ]);
+        }
+    }
+
     public function findByCpfExcludingId(string $cpfFormatted, ?int $excludeId = null): ?array
     {
         $sql = 'SELECT id, cpf_responsible, responsible_name FROM families WHERE cpf_responsible = :cpf';
@@ -79,15 +117,19 @@ final class FamilyModel
                 responsible_works, responsible_income,
                 marital_status, education_level, professional_status, profession_detail,
                 cep, address, address_number, address_complement, neighborhood, city, state,
-                location_reference, housing_type, documentation_status,
-                documentation_notes, needs_visit, general_notes, is_active
+                location_reference, housing_type, rent_amount, documentation_status,
+                documentation_notes, needs_visit, general_notes, is_active,
+                chronic_disease, has_physical_disability, physical_disability_details,
+                uses_continuous_medication, continuous_medication_details, social_benefit
             ) VALUES (
                 :responsible_name, :cpf_responsible, :rg_responsible, :birth_date, :phone,
                 :responsible_works, :responsible_income,
                 :marital_status, :education_level, :professional_status, :profession_detail,
                 :cep, :address, :address_number, :address_complement, :neighborhood, :city, :state,
-                :location_reference, :housing_type, :documentation_status,
-                :documentation_notes, :needs_visit, :general_notes, :is_active
+                :location_reference, :housing_type, :rent_amount, :documentation_status,
+                :documentation_notes, :needs_visit, :general_notes, :is_active,
+                :chronic_disease, :has_physical_disability, :physical_disability_details,
+                :uses_continuous_medication, :continuous_medication_details, :social_benefit
             )'
         );
         $stmt->execute($data);
@@ -120,11 +162,18 @@ final class FamilyModel
                 state = :state,
                 location_reference = :location_reference,
                 housing_type = :housing_type,
+                rent_amount = :rent_amount,
                 documentation_status = :documentation_status,
                 documentation_notes = :documentation_notes,
                 needs_visit = :needs_visit,
                 general_notes = :general_notes,
-                is_active = :is_active
+                is_active = :is_active,
+                chronic_disease = :chronic_disease,
+                has_physical_disability = :has_physical_disability,
+                physical_disability_details = :physical_disability_details,
+                uses_continuous_medication = :uses_continuous_medication,
+                continuous_medication_details = :continuous_medication_details,
+                social_benefit = :social_benefit
             WHERE id = :id'
         );
 
@@ -159,7 +208,7 @@ final class FamilyModel
     public function getMembersByFamilyId(int $familyId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, works, income, created_at, updated_at
+            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, studies, works, income, created_at, updated_at
              FROM family_members
              WHERE family_id = :family_id
              ORDER BY name ASC, id ASC'
@@ -172,7 +221,7 @@ final class FamilyModel
     public function findMemberById(int $memberId): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, works, income
+            'SELECT id, family_id, name, relationship, cpf, rg, birth_date, studies, works, income
              FROM family_members
              WHERE id = :id
              LIMIT 1'
@@ -185,8 +234,8 @@ final class FamilyModel
     public function createMember(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO family_members (family_id, name, relationship, cpf, rg, birth_date, works, income)
-             VALUES (:family_id, :name, :relationship, :cpf, :rg, :birth_date, :works, :income)'
+            'INSERT INTO family_members (family_id, name, relationship, cpf, rg, birth_date, studies, works, income)
+             VALUES (:family_id, :name, :relationship, :cpf, :rg, :birth_date, :studies, :works, :income)'
         );
         $stmt->execute($data);
         return (int) $this->pdo->lastInsertId();
@@ -202,6 +251,7 @@ final class FamilyModel
                  cpf = :cpf,
                  rg = :rg,
                  birth_date = :birth_date,
+                 studies = :studies,
                  works = :works,
                  income = :income
              WHERE id = :id AND family_id = :family_id'
@@ -379,7 +429,7 @@ final class FamilyModel
     public function listFamilyMembersSummary(int $familyId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, name, relationship, birth_date, works, income
+            'SELECT id, name, relationship, birth_date, studies, works, income
              FROM family_members
              WHERE family_id = :family_id
              ORDER BY name ASC, id ASC'

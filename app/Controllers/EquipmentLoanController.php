@@ -18,6 +18,7 @@ use Throwable;
 final class EquipmentLoanController
 {
     private const RETURN_CONDITIONS = ['bom', 'regular', 'ruim'];
+    private const MAINTENANCE_RETURN_CONDITIONS = ['bom', 'regular'];
 
     public function __construct(private readonly Container $container)
     {
@@ -52,6 +53,11 @@ final class EquipmentLoanController
             'target_type' => 'family',
             'family_id' => $preselectedFamilyId > 0 ? $preselectedFamilyId : 0,
             'person_id' => 0,
+            'borrower_name' => '',
+            'borrower_phone' => '',
+            'borrower_cpf' => '',
+            'borrower_address' => '',
+            'equipment_user_name' => '',
             'loan_date' => date('Y-m-d'),
             'due_date' => date('Y-m-d', strtotime('+30 days')),
             'notes' => '',
@@ -74,6 +80,7 @@ final class EquipmentLoanController
             'families' => $families,
             'people' => $people,
             'returnConditions' => self::RETURN_CONDITIONS,
+            'maintenanceReturnConditions' => self::MAINTENANCE_RETURN_CONDITIONS,
             'overdueCount' => $overdueCount,
             'overdueLoans' => $overdueLoans,
             'success' => Session::consumeFlash('success'),
@@ -135,6 +142,12 @@ final class EquipmentLoanController
                 'return_date' => null,
                 'return_condition' => null,
                 'notes' => $input['notes'] !== '' ? $input['notes'] : null,
+                'maintenance_notes' => null,
+                'borrower_name' => $input['borrower_name'],
+                'borrower_phone' => $input['borrower_phone'],
+                'borrower_cpf' => $input['borrower_cpf'],
+                'borrower_address' => $input['borrower_address'],
+                'equipment_user_name' => $input['equipment_user_name'],
                 'created_by' => $createdBy,
             ]);
             $this->equipmentModel()->updateStatus((int) $input['equipment_id'], 'emprestado');
@@ -188,18 +201,46 @@ final class EquipmentLoanController
                 Session::flash('error', 'Data de devolucao nao pode ser anterior ao emprestimo.');
                 Response::redirect('/equipment-loans');
             }
+            if ($returnCondition === 'ruim' && $returnNotes === '') {
+                Session::flash('error', 'Descreva o que precisa ser feito na manutencao quando o estado for ruim.');
+                Response::redirect('/equipment-loans');
+            }
 
             $pdo->beginTransaction();
             $newNotes = trim((string) ($loan['notes'] ?? ''));
             if ($returnNotes !== '') {
                 $newNotes = $newNotes !== '' ? ($newNotes . PHP_EOL . 'Devolucao: ' . $returnNotes) : ('Devolucao: ' . $returnNotes);
             }
+            $maintenanceNotes = trim((string) ($loan['maintenance_notes'] ?? ''));
+            if ($returnCondition === 'ruim' && $returnNotes !== '') {
+                $maintenanceNotes = $maintenanceNotes !== ''
+                    ? ($maintenanceNotes . PHP_EOL . 'Pendencia de manutencao: ' . $returnNotes)
+                    : ('Pendencia de manutencao: ' . $returnNotes);
+            }
             $this->loanModel()->returnLoan($loanId, [
                 'return_date' => $returnDate,
                 'return_condition' => $returnCondition,
                 'notes' => $newNotes !== '' ? $newNotes : null,
+                'maintenance_notes' => $maintenanceNotes !== '' ? $maintenanceNotes : null,
             ]);
-            $this->equipmentModel()->updateStatusAndCondition((int) $loan['equipment_id'], 'disponivel', $returnCondition);
+
+            if ($returnCondition === 'ruim') {
+                $this->equipmentModel()->updateStatusConditionAndMaintenance(
+                    (int) $loan['equipment_id'],
+                    'inativo',
+                    'ruim',
+                    $maintenanceNotes !== '' ? $maintenanceNotes : null,
+                    null
+                );
+            } else {
+                $this->equipmentModel()->updateStatusConditionAndMaintenance(
+                    (int) $loan['equipment_id'],
+                    'disponivel',
+                    $returnCondition,
+                    null,
+                    date('Y-m-d H:i:s')
+                );
+            }
             $pdo->commit();
         } catch (Throwable $exception) {
             if ($pdo->inTransaction()) {
@@ -209,7 +250,78 @@ final class EquipmentLoanController
             Response::redirect('/equipment-loans');
         }
 
-        Session::flash('success', 'Devolucao registrada e equipamento atualizado para disponivel.');
+        if ($returnCondition === 'ruim') {
+            Session::flash('success', 'Devolucao registrada. Equipamento marcado como inativo e aguardando manutencao.');
+        } else {
+            Session::flash('success', 'Devolucao registrada e equipamento atualizado para disponivel.');
+        }
+        Response::redirect('/equipment-loans');
+    }
+
+    public function completeMaintenance(): void
+    {
+        $loanId = (int) ($_GET['id'] ?? 0);
+        $finalCondition = trim((string) ($_POST['final_condition'] ?? 'bom'));
+        $completionNotes = trim((string) ($_POST['completion_notes'] ?? ''));
+
+        if ($loanId <= 0) {
+            Session::flash('error', 'Emprestimo invalido para manutencao.');
+            Response::redirect('/equipment-loans');
+        }
+        if (!in_array($finalCondition, self::MAINTENANCE_RETURN_CONDITIONS, true)) {
+            Session::flash('error', 'Estado final invalido para retorno da manutencao.');
+            Response::redirect('/equipment-loans');
+        }
+
+        /** @var PDO $pdo */
+        $pdo = $this->container->get('db');
+        try {
+            $loan = $this->loanModel()->findById($loanId);
+            if ($loan === null) {
+                Session::flash('error', 'Emprestimo nao encontrado.');
+                Response::redirect('/equipment-loans');
+            }
+            if (($loan['return_condition'] ?? null) !== 'ruim' || ($loan['return_date'] ?? null) === null) {
+                Session::flash('error', 'Somente devolucoes ruins podem seguir para retorno apos manutencao.');
+                Response::redirect('/equipment-loans');
+            }
+
+            $equipment = $this->equipmentModel()->findById((int) ($loan['equipment_id'] ?? 0));
+            if ($equipment === null) {
+                Session::flash('error', 'Equipamento nao encontrado.');
+                Response::redirect('/equipment-loans');
+            }
+            if ((string) ($equipment['status'] ?? '') !== 'inativo') {
+                Session::flash('error', 'O equipamento precisa estar inativo para concluir a manutencao.');
+                Response::redirect('/equipment-loans');
+            }
+
+            $maintenanceNotes = trim((string) ($loan['maintenance_notes'] ?? ''));
+            if ($completionNotes !== '') {
+                $maintenanceNotes = $maintenanceNotes !== ''
+                    ? ($maintenanceNotes . PHP_EOL . 'Retorno da manutencao: ' . $completionNotes)
+                    : ('Retorno da manutencao: ' . $completionNotes);
+            }
+
+            $pdo->beginTransaction();
+            $this->loanModel()->updateMaintenanceNotes($loanId, $maintenanceNotes !== '' ? $maintenanceNotes : null);
+            $this->equipmentModel()->updateStatusConditionAndMaintenance(
+                (int) $loan['equipment_id'],
+                'disponivel',
+                $finalCondition,
+                null,
+                date('Y-m-d H:i:s')
+            );
+            $pdo->commit();
+        } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            Session::flash('error', 'Falha ao concluir manutencao do equipamento.');
+            Response::redirect('/equipment-loans');
+        }
+
+        Session::flash('success', 'Manutencao concluida e equipamento retornou para disponivel.');
         Response::redirect('/equipment-loans');
     }
 
@@ -257,6 +369,11 @@ final class EquipmentLoanController
             'target_type' => trim((string) ($post['target_type'] ?? 'family')),
             'family_id' => (int) ($post['family_id'] ?? 0),
             'person_id' => (int) ($post['person_id'] ?? 0),
+            'borrower_name' => trim((string) ($post['borrower_name'] ?? '')),
+            'borrower_phone' => trim((string) ($post['borrower_phone'] ?? '')),
+            'borrower_cpf' => trim((string) ($post['borrower_cpf'] ?? '')),
+            'borrower_address' => trim((string) ($post['borrower_address'] ?? '')),
+            'equipment_user_name' => trim((string) ($post['equipment_user_name'] ?? '')),
             'loan_date' => trim((string) ($post['loan_date'] ?? '')),
             'due_date' => trim((string) ($post['due_date'] ?? '')),
             'notes' => trim((string) ($post['notes'] ?? '')),
@@ -276,6 +393,21 @@ final class EquipmentLoanController
         }
         if ($input['target_type'] === 'person' && (int) ($input['person_id'] ?? 0) <= 0) {
             return 'Selecione a pessoa para emprestimo.';
+        }
+        if ((string) ($input['borrower_name'] ?? '') === '') {
+            return 'Informe o nome da pessoa responsavel pela retirada.';
+        }
+        if ((string) ($input['borrower_phone'] ?? '') === '') {
+            return 'Informe o telefone da pessoa responsavel pela retirada.';
+        }
+        if ((string) ($input['borrower_cpf'] ?? '') === '') {
+            return 'Informe o CPF da pessoa responsavel pela retirada.';
+        }
+        if ((string) ($input['borrower_address'] ?? '') === '') {
+            return 'Informe o endereco da pessoa responsavel pela retirada.';
+        }
+        if ((string) ($input['equipment_user_name'] ?? '') === '') {
+            return 'Informe o nome do usuario do equipamento.';
         }
         if ((string) ($input['loan_date'] ?? '') === '') {
             return 'Data de emprestimo obrigatoria.';

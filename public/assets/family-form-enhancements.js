@@ -112,6 +112,30 @@
         updateAge();
     }
 
+    function bindMemberAdultRules(form) {
+        var birthDateInput = form.querySelector('input[name="birth_date"]');
+        var worksGroup = form.querySelector('[data-member-works-group]');
+        var worksInput = worksGroup ? worksGroup.querySelector('input[name="works"]') : null;
+
+        if (!birthDateInput || !worksGroup || !worksInput) {
+            return;
+        }
+
+        function updateRules() {
+            var age = calculateAgeYears(birthDateInput.value);
+            var isAdult = age !== '' && Number(age) >= 18;
+            worksGroup.classList.toggle('d-none', !isAdult);
+            worksInput.disabled = !isAdult;
+            if (!isAdult) {
+                worksInput.checked = false;
+            }
+        }
+
+        birthDateInput.addEventListener('input', updateRules);
+        birthDateInput.addEventListener('change', updateRules);
+        updateRules();
+    }
+
     function initFamilyFormMasks(form) {
         var cpfInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="cpf_responsible"], input[name="cpf"]'));
         var rgInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="rg_responsible"], input[name="rg"]'));
@@ -140,6 +164,7 @@
         });
 
         bindAgeCalculation(form);
+        bindMemberAdultRules(form);
     }
 
     function initFamilyPersonHub() {
@@ -159,8 +184,6 @@
         var isMemberEditMode = memberSection && memberSection.getAttribute('data-member-edit-mode') === '1';
         var relationshipGroup = hub.querySelector('[data-member-relationship-group]');
         var relationshipSelect = relationshipGroup ? relationshipGroup.querySelector('select[name="relationship"]') : null;
-        var dependentHint = hub.querySelector('[data-dependent-hint]');
-
         if (!toggleButton || !panel || typeButtons.length === 0 || sections.length === 0) {
             return;
         }
@@ -191,22 +214,6 @@
                 return;
             }
 
-            if (personType === 'dependent') {
-                memberTitle.textContent = isMemberEditMode ? 'Editar dependente' : 'Adicionar dependente';
-                memberSubmitLabel.textContent = isMemberEditMode ? 'Salvar dependente' : 'Adicionar dependente';
-                if (relationshipGroup) {
-                    relationshipGroup.classList.add('d-none');
-                }
-                if (relationshipSelect) {
-                    relationshipSelect.disabled = true;
-                    relationshipSelect.value = 'Dependente';
-                }
-                if (dependentHint) {
-                    dependentHint.classList.remove('d-none');
-                }
-                return;
-            }
-
             memberTitle.textContent = isMemberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar';
             memberSubmitLabel.textContent = isMemberEditMode ? 'Salvar membro' : 'Adicionar membro';
             if (relationshipGroup) {
@@ -215,14 +222,11 @@
             if (relationshipSelect) {
                 relationshipSelect.disabled = false;
             }
-            if (dependentHint) {
-                dependentHint.classList.add('d-none');
-            }
         }
 
         function setPersonType(type) {
             var personType = 'member';
-            if (type === 'principal' || type === 'child' || type === 'dependent') {
+            if (type === 'principal' || type === 'child') {
                 personType = type;
             }
 
@@ -247,7 +251,7 @@
             });
 
             if (memberTypeInput) {
-                memberTypeInput.value = personType === 'dependent' ? 'dependent' : 'member';
+                memberTypeInput.value = 'member';
             }
 
             updateMemberLabels(personType);

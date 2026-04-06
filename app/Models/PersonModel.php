@@ -16,6 +16,7 @@ final class PersonModel
     {
         $sql = 'SELECT
                     id, full_name, social_name, cpf, rg, birth_date, approx_age, gender,
+                    phone,
                     is_homeless, homeless_time, stay_location, work_interest, created_at, updated_at
                 FROM people
                 WHERE 1=1';
@@ -66,6 +67,44 @@ final class PersonModel
         return is_array($row) ? $row : null;
     }
 
+    public function getPhones(int $personId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, person_id, number, label, sort_order, is_primary, created_at, updated_at
+             FROM person_phones
+             WHERE person_id = :person_id
+             ORDER BY is_primary DESC, sort_order ASC, id ASC'
+        );
+        $stmt->execute(['person_id' => $personId]);
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
+
+    public function replacePhones(int $personId, array $phones): void
+    {
+        $delete = $this->pdo->prepare('DELETE FROM person_phones WHERE person_id = :person_id');
+        $delete->execute(['person_id' => $personId]);
+
+        if ($phones === []) {
+            return;
+        }
+
+        $insert = $this->pdo->prepare(
+            'INSERT INTO person_phones (person_id, number, label, sort_order, is_primary)
+             VALUES (:person_id, :number, :label, :sort_order, :is_primary)'
+        );
+
+        foreach ($phones as $phone) {
+            $insert->execute([
+                'person_id' => $personId,
+                'number' => $phone['number'],
+                'label' => ($phone['label'] ?? '') !== '' ? $phone['label'] : null,
+                'sort_order' => (int) ($phone['sort_order'] ?? 0),
+                'is_primary' => (int) ($phone['is_primary'] ?? 0),
+            ]);
+        }
+    }
+
     public function findByCpfExcludingId(string $cpfFormatted, ?int $excludeId = null): ?array
     {
         $sql = 'SELECT id, cpf, full_name, social_name FROM people WHERE cpf = :cpf';
@@ -88,12 +127,16 @@ final class PersonModel
         $stmt = $this->pdo->prepare(
             'INSERT INTO people (
                 full_name, social_name, cpf, rg, birth_date, approx_age, gender,
-                is_homeless, homeless_time, stay_location, has_family_in_region, family_contact,
+                is_homeless, homeless_time, stay_location, phone, previous_address, has_family_in_region, family_contact,
                 education_level, profession_skills, formal_work_history, work_interest, work_interest_detail
+                , chronic_disease, has_physical_disability, physical_disability_details,
+                uses_continuous_medication, continuous_medication_details, social_benefit
             ) VALUES (
                 :full_name, :social_name, :cpf, :rg, :birth_date, :approx_age, :gender,
-                :is_homeless, :homeless_time, :stay_location, :has_family_in_region, :family_contact,
+                :is_homeless, :homeless_time, :stay_location, :phone, :previous_address, :has_family_in_region, :family_contact,
                 :education_level, :profession_skills, :formal_work_history, :work_interest, :work_interest_detail
+                , :chronic_disease, :has_physical_disability, :physical_disability_details,
+                :uses_continuous_medication, :continuous_medication_details, :social_benefit
             )'
         );
         $stmt->execute($data);
@@ -115,13 +158,21 @@ final class PersonModel
                 is_homeless = :is_homeless,
                 homeless_time = :homeless_time,
                 stay_location = :stay_location,
+                phone = :phone,
+                previous_address = :previous_address,
                 has_family_in_region = :has_family_in_region,
                 family_contact = :family_contact,
                 education_level = :education_level,
                 profession_skills = :profession_skills,
                 formal_work_history = :formal_work_history,
                 work_interest = :work_interest,
-                work_interest_detail = :work_interest_detail
+                work_interest_detail = :work_interest_detail,
+                chronic_disease = :chronic_disease,
+                has_physical_disability = :has_physical_disability,
+                physical_disability_details = :physical_disability_details,
+                uses_continuous_medication = :uses_continuous_medication,
+                continuous_medication_details = :continuous_medication_details,
+                social_benefit = :social_benefit
              WHERE id = :id'
         );
         $stmt->execute($data);

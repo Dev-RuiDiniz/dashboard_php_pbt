@@ -66,6 +66,19 @@ $statuses = is_array($statuses ?? null) ? $statuses : [];
                             <label class="form-label">Observacoes</label>
                             <textarea class="form-control" name="notes" rows="4"><?= htmlspecialchars((string) ($equipment['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
                         </div>
+                        <div class="col-12">
+                            <label class="form-label">Pendencias de manutencao</label>
+                            <textarea class="form-control" name="maintenance_notes" rows="3" placeholder="Use quando o equipamento estiver ruim/inativo."><?= htmlspecialchars((string) ($equipment['maintenance_notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
+                        </div>
+                        <?php if (!empty($equipment['maintenance_completed_at'])) : ?>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Ultima manutencao concluida em</label>
+                                <input class="form-control" value="<?= htmlspecialchars((string) $equipment['maintenance_completed_at'], ENT_QUOTES, 'UTF-8') ?>" disabled>
+                                <input type="hidden" name="maintenance_completed_at" value="<?= htmlspecialchars((string) $equipment['maintenance_completed_at'], ENT_QUOTES, 'UTF-8') ?>">
+                            </div>
+                        <?php else : ?>
+                            <input type="hidden" name="maintenance_completed_at" value="">
+                        <?php endif; ?>
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 mt-4">

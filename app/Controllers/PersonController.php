@@ -14,6 +14,7 @@ use App\Models\ReferralModel;
 use App\Models\SocialRecordModel;
 use App\Models\SpiritualFollowupModel;
 use App\Services\CpfService;
+use App\Services\FamilyDataSupport;
 use PDO;
 use Throwable;
 
@@ -40,7 +41,7 @@ final class PersonController
         View::render('people.index', [
             '_layout' => 'layouts.app',
             'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
-            'pageTitle' => 'Pessoas acompanhadas',
+            'pageTitle' => 'PROJETO AMOR',
             'activeMenu' => 'pessoas',
             'authUser' => Session::get('auth_user', []),
             'people' => $people,
@@ -72,7 +73,8 @@ final class PersonController
         }
 
         try {
-            $this->personModel()->create($this->toPersistenceData($input));
+            $personId = $this->personModel()->create($this->toPersistenceData($input));
+            $this->personModel()->replacePhones($personId, $input['phones'] ?? []);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao cadastrar pessoa acompanhada.');
             Session::flash('form_old', $input);
@@ -93,6 +95,12 @@ final class PersonController
 
         try {
             $person = $this->personModel()->findById($id);
+            if (is_array($person)) {
+                $person['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+                    $this->personModel()->getPhones($id),
+                    (string) ($person['phone'] ?? '')
+                );
+            }
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao carregar cadastro.');
             Response::redirect('/people');
@@ -134,6 +142,7 @@ final class PersonController
             }
 
             $this->personModel()->update($id, $this->toPersistenceData($input));
+            $this->personModel()->replacePhones($id, $input['phones'] ?? []);
         } catch (Throwable $exception) {
             Session::flash('error', 'Falha ao atualizar pessoa acompanhada.');
             Session::flash('form_old', $input);
@@ -190,6 +199,10 @@ final class PersonController
                 Session::flash('error', 'Pessoa nao encontrada.');
                 Response::redirect('/people');
             }
+            $person['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+                $this->personModel()->getPhones($id),
+                (string) ($person['phone'] ?? '')
+            );
 
             $timeline = $this->socialRecordModel()->findByPersonId($id);
             $families = $this->familyModel()->search([]);
@@ -542,6 +555,11 @@ final class PersonController
 
     private function renderForm(string $mode, array $person): void
     {
+        $person['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+            is_array($person['phones'] ?? null) ? $person['phones'] : [],
+            (string) ($person['phone'] ?? '')
+        );
+
         View::render('people.form', [
             '_layout' => 'layouts.app',
             'appName' => (string) ($this->container->get('config')['app']['name'] ?? 'Dashboard PHP PBT'),
@@ -550,6 +568,8 @@ final class PersonController
             'authUser' => Session::get('auth_user', []),
             'mode' => $mode,
             'person' => $person,
+            'chronicDiseaseOptions' => $this->withLegacyOption(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS, (string) ($person['chronic_disease'] ?? '')),
+            'socialBenefitOptions' => $this->withLegacyOption(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS, (string) ($person['social_benefit'] ?? '')),
             'error' => Session::consumeFlash('error'),
         ]);
     }
@@ -567,6 +587,9 @@ final class PersonController
             'is_homeless' => 0,
             'homeless_time' => '',
             'stay_location' => '',
+            'phone' => '',
+            'phones' => FamilyDataSupport::fallbackPhoneEntries([], null),
+            'previous_address' => '',
             'has_family_in_region' => 0,
             'family_contact' => '',
             'education_level' => '',
@@ -574,23 +597,33 @@ final class PersonController
             'formal_work_history' => 0,
             'work_interest' => 0,
             'work_interest_detail' => '',
+            'chronic_disease' => '',
+            'has_physical_disability' => 0,
+            'physical_disability_details' => '',
+            'uses_continuous_medication' => 0,
+            'continuous_medication_details' => '',
+            'social_benefit' => '',
         ];
     }
 
     private function sanitizeInput(array $post): array
     {
         $approxAge = trim((string) ($post['approx_age'] ?? ''));
+        $birthDate = trim((string) ($post['birth_date'] ?? ''));
+        $calculatedAge = FamilyDataSupport::calculateAgeFromBirthDate($birthDate);
         return [
             'full_name' => trim((string) ($post['full_name'] ?? '')),
             'social_name' => trim((string) ($post['social_name'] ?? '')),
             'cpf' => trim((string) ($post['cpf'] ?? '')),
             'rg' => trim((string) ($post['rg'] ?? '')),
-            'birth_date' => trim((string) ($post['birth_date'] ?? '')),
-            'approx_age' => $approxAge === '' ? null : max(0, (int) $approxAge),
+            'birth_date' => $birthDate,
+            'approx_age' => $calculatedAge ?? ($approxAge === '' ? null : max(0, (int) $approxAge)),
             'gender' => trim((string) ($post['gender'] ?? '')),
             'is_homeless' => isset($post['is_homeless']) ? 1 : 0,
             'homeless_time' => trim((string) ($post['homeless_time'] ?? '')),
             'stay_location' => trim((string) ($post['stay_location'] ?? '')),
+            'phones' => FamilyDataSupport::sanitizePhoneEntries($post['phones'] ?? []),
+            'previous_address' => trim((string) ($post['previous_address'] ?? '')),
             'has_family_in_region' => isset($post['has_family_in_region']) ? 1 : 0,
             'family_contact' => trim((string) ($post['family_contact'] ?? '')),
             'education_level' => trim((string) ($post['education_level'] ?? '')),
@@ -598,6 +631,13 @@ final class PersonController
             'formal_work_history' => isset($post['formal_work_history']) ? 1 : 0,
             'work_interest' => isset($post['work_interest']) ? 1 : 0,
             'work_interest_detail' => trim((string) ($post['work_interest_detail'] ?? '')),
+            'chronic_disease' => trim((string) ($post['chronic_disease'] ?? '')),
+            'has_physical_disability' => FamilyDataSupport::sanitizeBooleanFlag($post['has_physical_disability'] ?? 0),
+            'physical_disability_details' => trim((string) ($post['physical_disability_details'] ?? '')),
+            'uses_continuous_medication' => FamilyDataSupport::sanitizeBooleanFlag($post['uses_continuous_medication'] ?? 0),
+            'continuous_medication_details' => trim((string) ($post['continuous_medication_details'] ?? '')),
+            'social_benefit' => trim((string) ($post['social_benefit'] ?? '')),
+            'phone' => '',
         ];
     }
 
@@ -624,6 +664,39 @@ final class PersonController
             }
         }
 
+        $existingPerson = null;
+        if ($excludeId !== null && $excludeId > 0) {
+            try {
+                $existingPerson = $this->personModel()->findById($excludeId);
+            } catch (Throwable $exception) {
+                return 'Falha ao validar cadastro existente.';
+            }
+        }
+
+        $fieldConfig = [
+            'chronic_disease' => ['options' => array_keys(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS), 'label' => 'Doenca cronica'],
+            'social_benefit' => ['options' => array_keys(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS), 'label' => 'Beneficio social'],
+        ];
+
+        foreach ($fieldConfig as $field => $config) {
+            $value = trim((string) ($input[$field] ?? ''));
+            if ($value === '') {
+                continue;
+            }
+
+            $options = is_array($config['options'] ?? null) ? $config['options'] : [];
+            if (in_array($value, $options, true)) {
+                continue;
+            }
+
+            $legacyValue = trim((string) ($existingPerson[$field] ?? ''));
+            if ($legacyValue !== '' && $legacyValue === $value) {
+                continue;
+            }
+
+            return (string) ($config['label'] ?? 'Campo') . ' invalido.';
+        }
+
         return null;
     }
 
@@ -634,7 +707,7 @@ final class PersonController
 
         $target = match ($source) {
             'families' => 'familia',
-            'family_members' => 'membro/dependente',
+            'family_members' => 'membro da familia',
             'children' => 'crianca',
             'people' => 'pessoa',
             default => 'cadastro existente',
@@ -649,6 +722,16 @@ final class PersonController
 
     private function toPersistenceData(array $input): array
     {
+        $input['phones'] = FamilyDataSupport::sanitizePhoneEntries($input['phones'] ?? []);
+        $input['phone'] = FamilyDataSupport::primaryPhoneFromEntries($input['phones']);
+
+        if ((int) ($input['has_physical_disability'] ?? 0) !== 1) {
+            $input['physical_disability_details'] = '';
+        }
+        if ((int) ($input['uses_continuous_medication'] ?? 0) !== 1) {
+            $input['continuous_medication_details'] = '';
+        }
+
         return [
             'full_name' => $input['full_name'] !== '' ? $input['full_name'] : null,
             'social_name' => $input['social_name'] !== '' ? $input['social_name'] : null,
@@ -660,6 +743,8 @@ final class PersonController
             'is_homeless' => (int) $input['is_homeless'],
             'homeless_time' => $input['homeless_time'] !== '' ? $input['homeless_time'] : null,
             'stay_location' => $input['stay_location'] !== '' ? $input['stay_location'] : null,
+            'phone' => $input['phone'] !== '' ? $input['phone'] : null,
+            'previous_address' => $input['previous_address'] !== '' ? $input['previous_address'] : null,
             'has_family_in_region' => (int) $input['has_family_in_region'],
             'family_contact' => $input['family_contact'] !== '' ? $input['family_contact'] : null,
             'education_level' => $input['education_level'] !== '' ? $input['education_level'] : null,
@@ -667,7 +752,23 @@ final class PersonController
             'formal_work_history' => (int) $input['formal_work_history'],
             'work_interest' => (int) $input['work_interest'],
             'work_interest_detail' => $input['work_interest_detail'] !== '' ? $input['work_interest_detail'] : null,
+            'chronic_disease' => $input['chronic_disease'] !== '' ? $input['chronic_disease'] : null,
+            'has_physical_disability' => (int) ($input['has_physical_disability'] ?? 0),
+            'physical_disability_details' => $input['physical_disability_details'] !== '' ? $input['physical_disability_details'] : null,
+            'uses_continuous_medication' => (int) ($input['uses_continuous_medication'] ?? 0),
+            'continuous_medication_details' => $input['continuous_medication_details'] !== '' ? $input['continuous_medication_details'] : null,
+            'social_benefit' => $input['social_benefit'] !== '' ? $input['social_benefit'] : null,
         ];
+    }
+
+    private function withLegacyOption(array $baseOptions, string $selectedValue): array
+    {
+        if ($selectedValue === '' || isset($baseOptions[$selectedValue])) {
+            return $baseOptions;
+        }
+
+        $baseOptions[$selectedValue] = 'Legado: ' . $selectedValue;
+        return $baseOptions;
     }
 
     private function personModel(): PersonModel

@@ -7,6 +7,7 @@ $availableEquipment = is_array($availableEquipment ?? null) ? $availableEquipmen
 $families = is_array($families ?? null) ? $families : [];
 $people = is_array($people ?? null) ? $people : [];
 $returnConditions = is_array($returnConditions ?? null) ? $returnConditions : [];
+$maintenanceReturnConditions = is_array($maintenanceReturnConditions ?? null) ? $maintenanceReturnConditions : [];
 $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
 ?>
 <?php if (!empty($success)) : ?>
@@ -34,7 +35,7 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
         <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
             <div>
                 <h2 class="h5 mb-1">Novo emprestimo</h2>
-                <p class="text-secondary mb-0">Ao emprestar, o equipamento passa automaticamente para status emprestado.</p>
+                <p class="text-secondary mb-0">Ao emprestar, o equipamento passa automaticamente para status emprestado e o sistema registra quem retirou e quem vai usar.</p>
             </div>
             <a class="btn btn-outline-secondary" href="/equipment">Voltar ao estoque</a>
         </div>
@@ -82,6 +83,26 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
                         </option>
                     <?php endforeach; ?>
                 </select>
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label">Responsavel pela retirada</label>
+                <input class="form-control" name="borrower_name" value="<?= htmlspecialchars((string) ($loanForm['borrower_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label">Telefone do responsavel</label>
+                <input class="form-control" name="borrower_phone" value="<?= htmlspecialchars((string) ($loanForm['borrower_phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label">CPF do responsavel</label>
+                <input class="form-control" name="borrower_cpf" value="<?= htmlspecialchars((string) ($loanForm['borrower_cpf'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label">Endereco do responsavel</label>
+                <input class="form-control" name="borrower_address" value="<?= htmlspecialchars((string) ($loanForm['borrower_address'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label">Usuario do equipamento</label>
+                <input class="form-control" name="equipment_user_name" value="<?= htmlspecialchars((string) ($loanForm['equipment_user_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
             </div>
             <div class="col-12 col-md-3">
                 <label class="form-label">Data emprestimo</label>
@@ -148,24 +169,44 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
                     $loanId = (int) ($loan['id'] ?? 0);
                     $isReturned = !empty($loan['return_date']);
                     $isOverdue = !$isReturned && !empty($loan['due_date']) && (string) $loan['due_date'] < date('Y-m-d');
+                    $needsMaintenance = $isReturned
+                        && (string) ($loan['return_condition'] ?? '') === 'ruim'
+                        && (string) ($loan['equipment_status'] ?? '') === 'inativo';
                     $dest = (string) (($loan['family_name'] ?? '') !== '' ? $loan['family_name'] : (($loan['person_full_name'] ?? '') !== '' ? $loan['person_full_name'] : ($loan['person_social_name'] ?? '-')));
                     ?>
-                    <tr class="<?= $isOverdue ? 'table-danger' : '' ?>">
+                    <tr class="<?= $needsMaintenance || $isOverdue ? 'table-danger' : '' ?>">
                         <td>
                             <div class="fw-semibold"><?= htmlspecialchars((string) ($loan['equipment_code'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                             <div class="small text-secondary"><?= htmlspecialchars(ucwords(str_replace('_', ' ', (string) ($loan['equipment_type'] ?? ''))), ENT_QUOTES, 'UTF-8') ?></div>
+                            <?php if ($needsMaintenance) : ?>
+                                <div class="small text-danger fw-semibold mt-1">Inativo ate concluir manutencao</div>
+                            <?php endif; ?>
                         </td>
-                        <td><?= htmlspecialchars($dest, ENT_QUOTES, 'UTF-8') ?></td>
+                        <td>
+                            <div><?= htmlspecialchars($dest, ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="small text-secondary mt-1">Retirante: <?= htmlspecialchars((string) (($loan['borrower_name'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="small text-secondary">Usuario: <?= htmlspecialchars((string) (($loan['equipment_user_name'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="small text-secondary">Telefone: <?= htmlspecialchars((string) (($loan['borrower_phone'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="small text-secondary">CPF: <?= htmlspecialchars((string) (($loan['borrower_cpf'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="small text-secondary">Endereco: <?= htmlspecialchars((string) (($loan['borrower_address'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                        </td>
                         <td><?= htmlspecialchars((string) ($loan['loan_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars((string) ($loan['due_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars((string) ($loan['return_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
-                            <?php if ($isReturned) : ?>
+                            <?php if ($needsMaintenance) : ?>
+                                <span class="badge text-bg-danger">Inativo</span>
+                            <?php elseif ($isReturned) : ?>
                                 <span class="badge text-bg-success">Devolvido</span>
                             <?php elseif ($isOverdue) : ?>
                                 <span class="badge text-bg-danger">Atrasado</span>
                             <?php else : ?>
                                 <span class="badge text-bg-warning">Aberto</span>
+                            <?php endif; ?>
+                            <?php if (!empty($loan['maintenance_notes'])) : ?>
+                                <div class="small text-danger mt-1">
+                                    Manutencao: <?= htmlspecialchars((string) $loan['maintenance_notes'], ENT_QUOTES, 'UTF-8') ?>
+                                </div>
                             <?php endif; ?>
                         </td>
                         <td>
@@ -182,7 +223,7 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
                                         </select>
                                     </div>
                                     <div class="col-12">
-                                        <input class="form-control form-control-sm" name="return_notes" placeholder="Obs devolucao">
+                                        <input class="form-control form-control-sm" name="return_notes" placeholder="Obs devolucao / manutencao se ruim">
                                     </div>
                                     <div class="col-12 d-grid">
                                         <button type="submit" class="btn btn-sm btn-outline-success">Registrar devolucao</button>
@@ -193,7 +234,28 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
                                 </form>
                             <?php else : ?>
                                 <div class="d-grid gap-2">
-                                    <span class="text-secondary small">Concluido</span>
+                                    <?php if ($needsMaintenance) : ?>
+                                        <div class="alert alert-danger small mb-0">
+                                            Estado ruim = inativo. Registre o que foi feito e libere o equipamento apos a manutencao.
+                                        </div>
+                                        <form method="post" action="/equipment-loans/maintenance-complete?id=<?= $loanId ?>" class="row g-1">
+                                            <div class="col-12">
+                                                <select class="form-select form-select-sm" name="final_condition">
+                                                    <?php foreach ($maintenanceReturnConditions as $condition) : ?>
+                                                        <option value="<?= htmlspecialchars((string) $condition, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(ucwords((string) $condition), ENT_QUOTES, 'UTF-8') ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-12">
+                                                <input class="form-control form-control-sm" name="completion_notes" placeholder="O que foi feito na manutencao">
+                                            </div>
+                                            <div class="col-12 d-grid">
+                                                <button type="submit" class="btn btn-sm btn-warning">Concluir manutencao e liberar</button>
+                                            </div>
+                                        </form>
+                                    <?php else : ?>
+                                        <span class="text-secondary small">Concluido</span>
+                                    <?php endif; ?>
                                     <form method="post" action="/equipment-loans/delete?id=<?= $loanId ?>" onsubmit="return confirm('Remover registro de emprestimo concluido?');">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
                                     </form>

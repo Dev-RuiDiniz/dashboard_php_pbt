@@ -99,6 +99,16 @@ $filterSuffix = $filterQuery !== '' ? '&' . $filterQuery : '';
     </div>
 </div>
 
+<div class="alert alert-info border shadow-sm small mb-3">
+    <strong>Regras operacionais deste evento:</strong>
+    bloqueio mensal <?= ((int) ($event['block_multiple_same_month'] ?? 0) === 1) ? 'ativo' : 'inativo' ?>,
+    considerando apenas quem ja ficou com status <code>retirou</code> em outro evento do mesmo mes.
+    Limite total de cestas:
+    <strong><?= ($event['max_baskets'] ?? null) !== null ? (int) $event['max_baskets'] : 'sem limite' ?></strong>.
+    Status atual:
+    <strong><?= htmlspecialchars((string) ($event['status'] ?? ''), ENT_QUOTES, 'UTF-8') ?></strong>.
+</div>
+
 <div class="row g-3">
     <div class="col-12 col-xl-5">
         <div class="card border-0 shadow-sm">
@@ -157,6 +167,8 @@ $filterSuffix = $filterQuery !== '' ? '&' . $filterQuery : '';
 
                 <div class="alert alert-light border small mt-3 mb-0">
                     A senha (ticket) e gerada automaticamente em sequencia por evento e fica imutavel.
+                    Se a inclusao for recusada, o sistema agora informa se houve duplicidade no evento,
+                    bloqueio mensal por retirada anterior ou excesso no limite de cestas.
                 </div>
             </div>
         </div>

@@ -16,6 +16,7 @@ $referralEditMode = (bool) ($referralEditMode ?? false);
 $spiritualEditMode = (bool) ($spiritualEditMode ?? false);
 $personId = (int) ($person['id'] ?? 0);
 $displayName = (string) (($person['full_name'] ?? '') ?: ($person['social_name'] ?? 'Sem identificacao'));
+$phones = is_array($person['phones'] ?? null) ? $person['phones'] : [];
 ?>
 
 <?php if (!empty($success)) : ?>
@@ -64,12 +65,63 @@ $displayName = (string) (($person['full_name'] ?? '') ?: ($person['social_name']
                     <dt class="col-5 text-secondary">Local</dt>
                     <dd class="col-7"><?= htmlspecialchars((string) (($person['stay_location'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></dd>
 
+                    <dt class="col-5 text-secondary">Telefones</dt>
+                    <dd class="col-7">
+                        <?php if ($phones === []) : ?>
+                            -
+                        <?php else : ?>
+                            <?php foreach ($phones as $phone) : ?>
+                                <div>
+                                    <?= htmlspecialchars((string) ($phone['number'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
+                                    <?php if (trim((string) ($phone['label'] ?? '')) !== '') : ?>
+                                        · <?= htmlspecialchars((string) $phone['label'], ENT_QUOTES, 'UTF-8') ?>
+                                    <?php endif; ?>
+                                    <?php if ((int) ($phone['is_primary'] ?? 0) === 1) : ?>
+                                        <span class="badge text-bg-light border">Principal</span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </dd>
+
+                    <dt class="col-5 text-secondary">Endereco anterior</dt>
+                    <dd class="col-7"><?= htmlspecialchars((string) (($person['previous_address'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+
                     <dt class="col-5 text-secondary">Interesse trabalho</dt>
                     <dd class="col-7">
                         <?= ((int) ($person['work_interest'] ?? 0) === 1)
                             ? '<span class="badge text-bg-success">Sim</span>'
                             : '<span class="badge text-bg-light border">Nao/sem info</span>' ?>
                     </dd>
+
+                    <dt class="col-5 text-secondary">Idade calculada</dt>
+                    <dd class="col-7"><?= htmlspecialchars((string) (($person['approx_age'] ?? null) !== null ? (string) $person['approx_age'] . ' anos' : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+
+                    <dt class="col-5 text-secondary">Doenca cronica</dt>
+                    <dd class="col-7"><?= htmlspecialchars((string) (($person['chronic_disease'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+
+                    <dt class="col-5 text-secondary">Deficiencia fisica</dt>
+                    <dd class="col-7">
+                        <?= ((int) ($person['has_physical_disability'] ?? 0) === 1)
+                            ? htmlspecialchars((string) (($person['physical_disability_details'] ?? '') ?: 'Sim'), ENT_QUOTES, 'UTF-8')
+                            : 'Nao' ?>
+                    </dd>
+
+                    <dt class="col-5 text-secondary">Medicacao continua</dt>
+                    <dd class="col-7">
+                        <?= ((int) ($person['uses_continuous_medication'] ?? 0) === 1)
+                            ? htmlspecialchars((string) (($person['continuous_medication_details'] ?? '') ?: 'Sim'), ENT_QUOTES, 'UTF-8')
+                            : 'Nao' ?>
+                    </dd>
+
+                    <dt class="col-5 text-secondary">Beneficio social</dt>
+                    <dd class="col-7"><?= htmlspecialchars((string) (($person['social_benefit'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+
+                    <dt class="col-5 text-secondary">Data de cadastro</dt>
+                    <dd class="col-7"><?= htmlspecialchars((string) (($person['created_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+
+                    <dt class="col-5 text-secondary">Ultima atualizacao</dt>
+                    <dd class="col-7"><?= htmlspecialchars((string) (($person['updated_at'] ?? '') ?: ($person['created_at'] ?? '-')), ENT_QUOTES, 'UTF-8') ?></dd>
                 </dl>
             </div>
         </div>

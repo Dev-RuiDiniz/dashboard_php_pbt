@@ -16,7 +16,18 @@ final class EquipmentController
 {
     private const STATUSES = ['disponivel', 'emprestado', 'manutencao', 'inativo'];
     private const CONDITIONS = ['bom', 'regular', 'ruim'];
-    private const TYPES = ['cadeira_rodas', 'muleta', 'andador', 'cama_hospitalar', 'outro'];
+    private const TYPES = [
+        'cadeira_rodas',
+        'muleta',
+        'andador',
+        'cama_hospitalar',
+        'cadeira_banho',
+        'equipamentos_enfermaria',
+        'bengala_quatro_pes',
+        'bota_ortopedica_dortler',
+        'tipoia',
+        'outro',
+    ];
 
     public function __construct(private readonly Container $container)
     {
@@ -59,6 +70,8 @@ final class EquipmentController
             'condition_state' => 'bom',
             'status' => 'disponivel',
             'notes' => '',
+            'maintenance_notes' => '',
+            'maintenance_completed_at' => null,
         ];
         if (is_array($old)) {
             $equipment = array_merge($equipment, $old);
@@ -202,6 +215,8 @@ final class EquipmentController
             'condition_state' => trim((string) ($post['condition_state'] ?? 'bom')),
             'status' => trim((string) ($post['status'] ?? 'disponivel')),
             'notes' => trim((string) ($post['notes'] ?? '')),
+            'maintenance_notes' => trim((string) ($post['maintenance_notes'] ?? '')),
+            'maintenance_completed_at' => trim((string) ($post['maintenance_completed_at'] ?? '')),
         ];
     }
 
@@ -226,6 +241,8 @@ final class EquipmentController
             'condition_state' => $input['condition_state'],
             'status' => $input['status'],
             'notes' => ($input['notes'] ?? '') !== '' ? $input['notes'] : null,
+            'maintenance_notes' => ($input['maintenance_notes'] ?? '') !== '' ? $input['maintenance_notes'] : null,
+            'maintenance_completed_at' => ($input['maintenance_completed_at'] ?? '') !== '' ? $input['maintenance_completed_at'] : null,
         ];
         if ($code !== null) {
             $data['code'] = $code;

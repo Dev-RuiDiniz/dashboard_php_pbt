@@ -16,17 +16,21 @@ $relationshipOptions = is_array($relationshipOptions ?? null) ? $relationshipOpt
 $familyId = (int) ($family['id'] ?? 0);
 $activeTab = (string) ($activeTab ?? 'composition');
 $personType = (string) ($personType ?? 'member');
-$allowedPersonTypes = ['principal', 'member', 'dependent', 'child'];
+$auth = is_array($authUser ?? null) ? $authUser : [];
+$canDeleteFamily = (string) ($auth['role'] ?? '') === 'admin';
+$allowedPersonTypes = ['principal', 'member', 'child'];
 if (!in_array($personType, $allowedPersonTypes, true)) {
     $personType = 'member';
 }
+$familyPhones = is_array($family['phones'] ?? null) ? $family['phones'] : [];
+$principalPhones = is_array($principalForm['phones'] ?? null) ? $principalForm['phones'] : [['number' => '', 'label' => '', 'is_primary' => 1]];
 $memberFormPersonType = (string) ($memberForm['person_type'] ?? $personType);
-if (!in_array($memberFormPersonType, ['member', 'dependent'], true)) {
-    $memberFormPersonType = in_array($personType, ['member', 'dependent'], true) ? $personType : 'member';
+if ($memberFormPersonType !== 'member') {
+    $memberFormPersonType = $personType === 'member' ? $personType : 'member';
 }
 $openPersonForm = (bool) ($openPersonForm ?? false);
 $principalSectionVisible = $personType === 'principal';
-$memberSectionVisible = in_array($personType, ['member', 'dependent'], true);
+$memberSectionVisible = $personType === 'member';
 $childSectionVisible = $personType === 'child';
 $addressLine = (string) ($addressLine ?? '');
 $principalFormAction = '/families/principal/update?family_id=' . $familyId;
@@ -87,6 +91,9 @@ $deliveryStatusClass = static function (string $status): string {
         default => 'text-bg-light border',
     };
 };
+
+$hasDocumentationPending = in_array((string) ($family['documentation_status'] ?? ''), ['pendente', 'parcial'], true)
+    || trim((string) ($family['documentation_notes'] ?? '')) !== '';
 ?>
 
 <?php if (!empty($success)) : ?>
@@ -100,9 +107,12 @@ $deliveryStatusClass = static function (string $status): string {
     <a class="btn btn-outline-secondary" href="/families">Voltar para lista</a>
     <a class="btn btn-outline-primary" href="/families/edit?id=<?= $familyId ?>">Editar familia</a>
     <a class="btn btn-outline-success" href="<?= htmlspecialchars($personUrl('principal'), ENT_QUOTES, 'UTF-8') ?>">Abrir composicao</a>
-    <form method="post" action="/families/delete?id=<?= $familyId ?>" class="m-0" onsubmit="return confirm('Remover familia? Esta acao exclui membros e criancas vinculados.');">
-        <button type="submit" class="btn btn-outline-danger">Remover familia</button>
-    </form>
+    <?php if ($canDeleteFamily) : ?>
+        <form method="post" action="/families/delete?id=<?= $familyId ?>" class="m-0" onsubmit="return confirm('Confirmar exclusao da familia? Esta acao exclui membros e criancas vinculados.');">
+            <input type="hidden" name="confirm_delete" value="1">
+            <button type="submit" class="btn btn-outline-danger">Remover familia</button>
+        </form>
+    <?php endif; ?>
 </div>
 
 <div class="card border-0 shadow-sm mb-3">
@@ -113,12 +123,36 @@ $deliveryStatusClass = static function (string $status): string {
                 <h2 class="h4 mb-1"><?= htmlspecialchars((string) ($family['responsible_name'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></h2>
                 <div class="text-secondary mb-2">
                     CPF <?= htmlspecialchars((string) ($family['cpf_responsible'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
-                    · Telefone <?= htmlspecialchars((string) ($family['phone'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
+                    · Telefone <?= htmlspecialchars((string) (($familyPhones[0]['number'] ?? '') !== '' ? (string) $familyPhones[0]['number'] : '-'), ENT_QUOTES, 'UTF-8') ?>
                 </div>
+                <?php if ($familyPhones !== []) : ?>
+                    <div class="small text-secondary">
+                        <?php foreach ($familyPhones as $phone) : ?>
+                            <div>
+                                <?= htmlspecialchars((string) ($phone['number'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
+                                <?php if (trim((string) ($phone['label'] ?? '')) !== '') : ?>
+                                    · <?= htmlspecialchars((string) $phone['label'], ENT_QUOTES, 'UTF-8') ?>
+                                <?php endif; ?>
+                                <?php if ((int) ($phone['is_primary'] ?? 0) === 1) : ?>
+                                    <span class="badge text-bg-light border">Principal</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
                 <div class="small text-secondary"><?= htmlspecialchars($addressLine !== '' ? $addressLine : '-', ENT_QUOTES, 'UTF-8') ?></div>
+                <div class="small text-secondary mt-2">
+                    Cadastro: <?= htmlspecialchars((string) (($family['created_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?>
+                    · Ultima atualizacao: <?= htmlspecialchars((string) (($family['updated_at'] ?? '') ?: ($family['created_at'] ?? '-')), ENT_QUOTES, 'UTF-8') ?>
+                </div>
             </div>
             <div class="d-flex flex-wrap gap-2 align-content-start">
                 <span class="badge text-bg-light border">Docs: <?= htmlspecialchars((string) ($family['documentation_status'] ?? 'ok'), ENT_QUOTES, 'UTF-8') ?></span>
+                <?php if ($hasDocumentationPending) : ?>
+                    <span class="badge text-bg-danger">Documentacao pendente</span>
+                <?php else : ?>
+                    <span class="badge text-bg-success">Documentacao em dia</span>
+                <?php endif; ?>
                 <?php if ((int) ($family['needs_visit'] ?? 0) === 1) : ?>
                     <span class="badge text-bg-warning">Visita pendente</span>
                 <?php else : ?>
@@ -182,7 +216,7 @@ $deliveryStatusClass = static function (string $status): string {
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
                 <div>
                     <h3 class="h5 mb-1">Cadastro de pessoas da familia</h3>
-                    <p class="text-secondary mb-0">A primeira aba concentra o fluxo completo de principal, membro, dependente e crianca.</p>
+                    <p class="text-secondary mb-0">A primeira aba concentra o fluxo completo de principal, membro da familia e crianca.</p>
                 </div>
                 <button type="button" class="btn btn-teal text-white" data-person-toggle>
                     <?= $openPersonForm ? 'Fechar cadastro' : 'Adicionar pessoa' ?>
@@ -193,7 +227,6 @@ $deliveryStatusClass = static function (string $status): string {
                 <div class="btn-group mb-3 w-100" role="group" aria-label="Tipo de cadastro">
                     <button type="button" class="btn <?= $personType === 'principal' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="principal">Principal</button>
                     <button type="button" class="btn <?= $personType === 'member' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="member">Membro</button>
-                    <button type="button" class="btn <?= $personType === 'dependent' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="dependent">Dependente</button>
                     <button type="button" class="btn <?= $personType === 'child' ? 'btn-teal text-white' : 'btn-outline-secondary' ?>" data-person-type-btn="child">Crianca</button>
                 </div>
 
@@ -215,7 +248,7 @@ $deliveryStatusClass = static function (string $status): string {
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">RG</label>
-                                <input class="form-control" name="rg_responsible" required placeholder="00.000.000-0" value="<?= htmlspecialchars((string) ($principalForm['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                <input class="form-control" name="rg_responsible" placeholder="opcional" value="<?= htmlspecialchars((string) ($principalForm['rg_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label">Nascimento</label>
@@ -225,9 +258,61 @@ $deliveryStatusClass = static function (string $status): string {
                                 <label class="form-label">Idade</label>
                                 <input type="text" class="form-control" data-family-age-display readonly tabindex="-1" placeholder="Automatica">
                             </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label">Telefone</label>
-                                <input class="form-control" name="phone" value="<?= htmlspecialchars((string) ($principalForm['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label d-flex justify-content-between align-items-center">
+                                    <span>Telefones</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-phone-add data-phone-target="principal-phones">Adicionar telefone</button>
+                                </label>
+                                <div class="vstack gap-2" id="principal-phones">
+                                    <?php foreach ($principalPhones as $index => $phoneEntry) : ?>
+                                        <div class="border rounded p-2" data-phone-row>
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-12 col-md-5">
+                                                    <label class="form-label small">Numero</label>
+                                                    <input class="form-control" name="phones[<?= $index ?>][number]" value="<?= htmlspecialchars((string) ($phoneEntry['number'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                                </div>
+                                                <div class="col-12 col-md-5">
+                                                    <label class="form-label small">Identificacao / observacao</label>
+                                                    <input class="form-control" name="phones[<?= $index ?>][label]" value="<?= htmlspecialchars((string) ($phoneEntry['label'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                                </div>
+                                                <div class="col-6 col-md-1">
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="radio" name="phone_primary" value="<?= $index ?>" <?= ((int) ($phoneEntry['is_primary'] ?? 0) === 1) ? 'checked' : '' ?> data-phone-primary>
+                                                        <label class="form-check-label small">Principal</label>
+                                                    </div>
+                                                    <input type="hidden" name="phones[<?= $index ?>][is_primary]" value="<?= ((int) ($phoneEntry['is_primary'] ?? 0) === 1) ? '1' : '0' ?>" data-phone-primary-hidden>
+                                                </div>
+                                                <div class="col-6 col-md-1 d-grid">
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-phone-remove>Remover</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <template id="principal-phones-template">
+                                    <div class="border rounded p-2" data-phone-row>
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-12 col-md-5">
+                                                <label class="form-label small">Numero</label>
+                                                <input class="form-control" data-phone-number>
+                                            </div>
+                                            <div class="col-12 col-md-5">
+                                                <label class="form-label small">Identificacao / observacao</label>
+                                                <input class="form-control" data-phone-label>
+                                            </div>
+                                            <div class="col-6 col-md-1">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="radio" data-phone-primary>
+                                                    <label class="form-check-label small">Principal</label>
+                                                </div>
+                                                <input type="hidden" value="0" data-phone-primary-hidden>
+                                            </div>
+                                            <div class="col-6 col-md-1 d-grid">
+                                                <button type="button" class="btn btn-outline-danger btn-sm" data-phone-remove>Remover</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">Renda</label>
@@ -249,7 +334,7 @@ $deliveryStatusClass = static function (string $status): string {
 
                 <div data-person-section="member" class="<?= $memberSectionVisible ? '' : 'd-none' ?>" data-member-edit-mode="<?= $memberEditMode ? '1' : '0' ?>">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h3 class="h5 mb-0" data-member-form-title><?= $memberFormPersonType === 'dependent' ? ($memberEditMode ? 'Editar dependente' : 'Adicionar dependente') : ($memberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar') ?></h3>
+                        <h3 class="h5 mb-0" data-member-form-title><?= $memberEditMode ? 'Editar membro familiar' : 'Adicionar membro familiar' ?></h3>
                         <?php if ($memberEditMode) : ?>
                             <a class="btn btn-sm btn-outline-secondary" href="<?= htmlspecialchars($personUrl($memberFormPersonType), ENT_QUOTES, 'UTF-8') ?>">Cancelar edicao</a>
                         <?php endif; ?>
@@ -268,11 +353,11 @@ $deliveryStatusClass = static function (string $status): string {
                             </div>
                             <div class="col-12 col-md-2">
                                 <label class="form-label">RG</label>
-                                <input class="form-control" name="rg" required placeholder="00.000.000-0" value="<?= htmlspecialchars((string) ($memberForm['rg'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                <input class="form-control" name="rg" placeholder="opcional" value="<?= htmlspecialchars((string) ($memberForm['rg'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
                             <div class="col-12 col-md-2" data-member-relationship-group>
                                 <label class="form-label">Parentesco</label>
-                                <select class="form-select" name="relationship" <?= $memberFormPersonType === 'dependent' ? 'disabled' : '' ?>>
+                                <select class="form-select" name="relationship">
                                     <option value="">Selecione</option>
                                     <?php foreach ($relationshipOptions as $relationshipOption) : ?>
                                         <option value="<?= htmlspecialchars($relationshipOption, ENT_QUOTES, 'UTF-8') ?>" <?= ((string) ($memberForm['relationship'] ?? '') === $relationshipOption) ? 'selected' : '' ?>>
@@ -280,9 +365,6 @@ $deliveryStatusClass = static function (string $status): string {
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                            </div>
-                            <div class="col-12 <?= $memberFormPersonType === 'dependent' ? '' : 'd-none' ?>" data-dependent-hint>
-                                <div class="alert alert-light border mb-0">Dependente e registrado em membros familiares com parentesco fixo `Dependente`.</div>
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">Nascimento</label>
@@ -296,16 +378,25 @@ $deliveryStatusClass = static function (string $status): string {
                                 <label class="form-label">Renda</label>
                                 <input class="form-control" name="income" value="<?= htmlspecialchars((string) ($memberForm['income'] ?? '0.00'), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
-                            <div class="col-12 col-md-4 d-flex align-items-end">
+                            <div class="col-12 col-md-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="member_studies" name="studies" value="1" <?= ((int) ($memberForm['studies'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="member_studies">Estuda</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-3 d-flex align-items-end" data-member-works-group>
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" id="works" name="works" value="1" <?= ((int) ($memberForm['works'] ?? 0) === 1) ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="works">Trabalha</label>
                                 </div>
                             </div>
+                            <div class="col-12">
+                                <div class="form-text">Para maiores de idade: informe se estuda e se trabalha. Para menores, apenas estudo.</div>
+                            </div>
                         </div>
 
                         <div class="mt-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-teal text-white" data-member-submit-label><?= $memberFormPersonType === 'dependent' ? ($memberEditMode ? 'Salvar dependente' : 'Adicionar dependente') : ($memberEditMode ? 'Salvar membro' : 'Adicionar membro') ?></button>
+                            <button type="submit" class="btn btn-teal text-white" data-member-submit-label><?= $memberEditMode ? 'Salvar membro' : 'Adicionar membro' ?></button>
                             <?php if ($memberEditMode) : ?>
                                 <a class="btn btn-outline-secondary" href="<?= htmlspecialchars($personUrl($memberFormPersonType), ENT_QUOTES, 'UTF-8') ?>">Cancelar</a>
                             <?php endif; ?>
@@ -348,6 +439,12 @@ $deliveryStatusClass = static function (string $status): string {
                                 <label class="form-label">Parentesco</label>
                                 <input class="form-control" name="relationship" value="<?= htmlspecialchars((string) ($childForm['relationship'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
+                            <div class="col-12 col-md-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="child_studies" name="studies" value="1" <?= ((int) ($childForm['studies'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="child_studies">Estuda</label>
+                                </div>
+                            </div>
                             <div class="col-12">
                                 <label class="form-label">Observacoes</label>
                                 <input class="form-control" name="notes" value="<?= htmlspecialchars((string) ($childForm['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
@@ -372,7 +469,7 @@ $deliveryStatusClass = static function (string $status): string {
         <div class="col-12 col-xl-7">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <h3 class="h6 text-uppercase text-secondary mb-3">Membros e dependentes cadastrados</h3>
+                    <h3 class="h6 text-uppercase text-secondary mb-3">Membros da familia cadastrados</h3>
                     <div class="table-responsive">
                         <table class="table align-middle mb-0">
                             <thead>
@@ -380,6 +477,7 @@ $deliveryStatusClass = static function (string $status): string {
                                     <th>Tipo</th>
                                     <th>Nome</th>
                                     <th>Documentos</th>
+                                    <th>Estuda</th>
                                     <th>Trabalha</th>
                                     <th>Renda</th>
                                     <th>Acoes</th>
@@ -388,7 +486,7 @@ $deliveryStatusClass = static function (string $status): string {
                             <tbody>
                             <?php if (empty($members)) : ?>
                                 <tr>
-                                    <td colspan="6" class="text-secondary">Nenhum registro cadastrado.</td>
+                                    <td colspan="7" class="text-secondary">Nenhum registro cadastrado.</td>
                                 </tr>
                             <?php else : ?>
                                 <?php foreach ($members as $member) : ?>
@@ -403,6 +501,11 @@ $deliveryStatusClass = static function (string $status): string {
                                         <td class="small">
                                             <div>CPF: <?= htmlspecialchars((string) ($member['cpf'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                             <div>RG: <?= htmlspecialchars((string) ($member['rg'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                                        </td>
+                                        <td>
+                                            <?= ((int) ($member['studies'] ?? 0) === 1)
+                                                ? '<span class="badge text-bg-success">Sim</span>'
+                                                : '<span class="badge text-bg-light border">Nao</span>' ?>
                                         </td>
                                         <td>
                                             <?= ((int) ($member['works'] ?? 0) === 1)
@@ -438,6 +541,7 @@ $deliveryStatusClass = static function (string $status): string {
                                 <tr>
                                     <th>Nome</th>
                                     <th>Nascimento / Idade</th>
+                                    <th>Estuda</th>
                                     <th>Documentos</th>
                                     <th>Acoes</th>
                                 </tr>
@@ -445,7 +549,7 @@ $deliveryStatusClass = static function (string $status): string {
                             <tbody>
                             <?php if (empty($children)) : ?>
                                 <tr>
-                                    <td colspan="4" class="text-secondary">Nenhuma crianca vinculada.</td>
+                                    <td colspan="5" class="text-secondary">Nenhuma crianca vinculada.</td>
                                 </tr>
                             <?php else : ?>
                                 <?php foreach ($children as $child) : ?>
@@ -459,6 +563,11 @@ $deliveryStatusClass = static function (string $status): string {
                                             <div><?= htmlspecialchars((string) ($child['birth_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                             <div class="small text-secondary">idade: <?= htmlspecialchars(((string) ($child['age_years'] ?? '')) !== '' ? ((string) $child['age_years'] . ' anos') : $renderAge($child['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                                         </td>
+                                        <td>
+                                            <?= ((int) ($child['studies'] ?? 0) === 1)
+                                                ? '<span class="badge text-bg-success">Sim</span>'
+                                                : '<span class="badge text-bg-light border">Nao</span>' ?>
+                                        </td>
                                         <td class="small">
                                             <div>CPF: <?= htmlspecialchars((string) ($child['cpf'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                             <div>RG: <?= htmlspecialchars((string) ($child['rg'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
@@ -470,6 +579,7 @@ $deliveryStatusClass = static function (string $status): string {
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
                                                 </form>
                                             </div>
+                                            <div class="small text-secondary mt-1">Se o cadastro estiver errado como crianca, remova e recadastre em Membro.</div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -490,12 +600,32 @@ $deliveryStatusClass = static function (string $status): string {
                     <dl class="row mb-0">
                         <dt class="col-5 text-secondary">Endereco</dt>
                         <dd class="col-7"><?= htmlspecialchars($addressLine !== '' ? $addressLine : '-', ENT_QUOTES, 'UTF-8') ?></dd>
-                        <dt class="col-5 text-secondary">Telefone</dt>
-                        <dd class="col-7"><?= htmlspecialchars((string) ($family['phone'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+                        <dt class="col-5 text-secondary">Telefones</dt>
+                        <dd class="col-7">
+                            <?php if ($familyPhones === []) : ?>
+                                -
+                            <?php else : ?>
+                                <?php foreach ($familyPhones as $phone) : ?>
+                                    <div>
+                                        <?= htmlspecialchars((string) ($phone['number'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
+                                        <?php if (trim((string) ($phone['label'] ?? '')) !== '') : ?>
+                                            · <?= htmlspecialchars((string) $phone['label'], ENT_QUOTES, 'UTF-8') ?>
+                                        <?php endif; ?>
+                                        <?php if ((int) ($phone['is_primary'] ?? 0) === 1) : ?>
+                                            <span class="badge text-bg-light border">Principal</span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </dd>
                         <dt class="col-5 text-secondary">Nascimento principal</dt>
                         <dd class="col-7"><?= htmlspecialchars((string) ($family['birth_date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?> (<?= htmlspecialchars($renderAge($family['birth_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>)</dd>
                         <dt class="col-5 text-secondary">Moradia</dt>
                         <dd class="col-7"><?= htmlspecialchars((string) (($family['housing_type'] ?? '') !== '' ? $family['housing_type'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+                        <?php if ((string) ($family['housing_type'] ?? '') === 'alugada') : ?>
+                            <dt class="col-5 text-secondary">Valor do aluguel</dt>
+                            <dd class="col-7">R$ <?= number_format((float) ($family['rent_amount'] ?? 0), 2, ',', '.') ?></dd>
+                        <?php endif; ?>
                         <dt class="col-5 text-secondary">Estado civil</dt>
                         <dd class="col-7"><?= htmlspecialchars((string) (($family['marital_status'] ?? '') !== '' ? $family['marital_status'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
                         <dt class="col-5 text-secondary">Escolaridade</dt>
@@ -504,6 +634,22 @@ $deliveryStatusClass = static function (string $status): string {
                         <dd class="col-7"><?= htmlspecialchars((string) (($family['professional_status'] ?? '') !== '' ? $family['professional_status'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
                         <dt class="col-5 text-secondary">Renda principal</dt>
                         <dd class="col-7">R$ <?= number_format((float) ($family['responsible_income'] ?? 0), 2, ',', '.') ?> / <?= ((int) ($family['responsible_works'] ?? 0) === 1) ? 'Trabalha' : 'Nao trabalha' ?></dd>
+                        <dt class="col-5 text-secondary">Doenca cronica</dt>
+                        <dd class="col-7"><?= htmlspecialchars((string) (($family['chronic_disease'] ?? '') !== '' ? $family['chronic_disease'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
+                        <dt class="col-5 text-secondary">Deficiencia fisica</dt>
+                        <dd class="col-7">
+                            <?= ((int) ($family['has_physical_disability'] ?? 0) === 1)
+                                ? htmlspecialchars((string) (($family['physical_disability_details'] ?? '') !== '' ? $family['physical_disability_details'] : 'Sim'), ENT_QUOTES, 'UTF-8')
+                                : 'Nao' ?>
+                        </dd>
+                        <dt class="col-5 text-secondary">Medicacao continua</dt>
+                        <dd class="col-7">
+                            <?= ((int) ($family['uses_continuous_medication'] ?? 0) === 1)
+                                ? htmlspecialchars((string) (($family['continuous_medication_details'] ?? '') !== '' ? $family['continuous_medication_details'] : 'Sim'), ENT_QUOTES, 'UTF-8')
+                                : 'Nao' ?>
+                        </dd>
+                        <dt class="col-5 text-secondary">Beneficio social</dt>
+                        <dd class="col-7"><?= htmlspecialchars((string) (($family['social_benefit'] ?? '') !== '' ? $family['social_benefit'] : '-'), ENT_QUOTES, 'UTF-8') ?></dd>
                     </dl>
                 </div>
             </div>
@@ -642,6 +788,91 @@ $deliveryStatusClass = static function (string $status): string {
     </div>
 <?php endif; ?>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const setupPhoneCollection = function (targetId) {
+        const container = document.getElementById(targetId);
+        const template = document.getElementById(targetId + '-template');
+        const addButton = document.querySelector('[data-phone-add][data-phone-target="' + targetId + '"]');
+        if (!container || !template || !addButton) {
+            return;
+        }
+
+        const sync = function () {
+            const rows = Array.from(container.querySelectorAll('[data-phone-row]'));
+            rows.forEach(function (row, index) {
+                const number = row.querySelector('[name*="[number]"], [data-phone-number]');
+                const label = row.querySelector('[name*="[label]"], [data-phone-label]');
+                const radio = row.querySelector('[data-phone-primary]');
+                const hidden = row.querySelector('[data-phone-primary-hidden]');
+                if (number) {
+                    number.name = 'phones[' + index + '][number]';
+                }
+                if (label) {
+                    label.name = 'phones[' + index + '][label]';
+                }
+                if (radio) {
+                    radio.name = 'phone_primary';
+                    radio.value = String(index);
+                }
+                if (hidden) {
+                    hidden.name = 'phones[' + index + '][is_primary]';
+                    hidden.value = radio && radio.checked ? '1' : '0';
+                }
+            });
+
+            if (!rows.some(function (row) {
+                const radio = row.querySelector('[data-phone-primary]');
+                return radio && radio.checked;
+            }) && rows[0]) {
+                const radio = rows[0].querySelector('[data-phone-primary]');
+                if (radio) {
+                    radio.checked = true;
+                }
+            }
+
+            rows.forEach(function (row) {
+                const hidden = row.querySelector('[data-phone-primary-hidden]');
+                const radio = row.querySelector('[data-phone-primary]');
+                if (hidden) {
+                    hidden.value = radio && radio.checked ? '1' : '0';
+                }
+            });
+        };
+
+        container.addEventListener('change', function (event) {
+            if (event.target.matches('[data-phone-primary]')) {
+                sync();
+            }
+        });
+
+        container.addEventListener('click', function (event) {
+            const removeButton = event.target.closest('[data-phone-remove]');
+            if (!removeButton) {
+                return;
+            }
+            const row = removeButton.closest('[data-phone-row]');
+            if (row) {
+                row.remove();
+                if (!container.querySelector('[data-phone-row]')) {
+                    addButton.click();
+                }
+                sync();
+            }
+        });
+
+        addButton.addEventListener('click', function () {
+            container.appendChild(template.content.cloneNode(true));
+            sync();
+        });
+
+        sync();
+    };
+
+    setupPhoneCollection('principal-phones');
+});
+</script>
+
 <?php if ($activeTab === 'visits') : ?>
     <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -703,6 +934,10 @@ $deliveryStatusClass = static function (string $status): string {
                     <div class="mb-3">
                         <div class="small text-secondary text-uppercase">Documentacao</div>
                         <div class="fw-semibold"><?= htmlspecialchars((string) ($family['documentation_status'] ?? 'ok'), ENT_QUOTES, 'UTF-8') ?></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="small text-secondary text-uppercase">Alerta documental</div>
+                        <div class="fw-semibold"><?= $hasDocumentationPending ? 'Documentacao pendente' : 'Sem pendencias' ?></div>
                     </div>
                     <div class="mb-3">
                         <div class="small text-secondary text-uppercase">Necessita visita</div>

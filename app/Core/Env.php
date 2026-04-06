@@ -8,8 +8,14 @@ final class Env
 {
     public static function load(string $basePath): void
     {
-        $envPath = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '.env';
+        $basePath = rtrim($basePath, DIRECTORY_SEPARATOR);
 
+        self::loadFile($basePath . DIRECTORY_SEPARATOR . '.env');
+        self::loadFile($basePath . DIRECTORY_SEPARATOR . '.env.local');
+    }
+
+    private static function loadFile(string $envPath): void
+    {
         if (!is_file($envPath)) {
             return;
         }

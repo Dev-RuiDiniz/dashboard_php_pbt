@@ -14,6 +14,7 @@ use App\Models\EquipmentLoanModel;
 use App\Models\FamilyModel;
 use App\Models\VisitModel;
 use App\Services\FamilyCompositionService;
+use App\Services\FamilyDataSupport;
 use App\Services\FamilyDetailService;
 use App\Services\FamilyIndicatorsService;
 use App\Services\FamilyRegistrationService;
@@ -103,6 +104,12 @@ final class FamilyController
 
         try {
             $family = $this->familyModel()->findById($id);
+            if (is_array($family)) {
+                $family['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+                    $this->familyModel()->getPhones($id),
+                    (string) ($family['phone'] ?? '')
+                );
+            }
         } catch (Throwable) {
             Session::flash('error', 'Falha ao carregar familia.');
             Response::redirect('/families');
@@ -168,6 +175,11 @@ final class FamilyController
         if ($id <= 0) {
             Session::flash('error', 'Familia invalida.');
             Response::redirect('/families');
+        }
+
+        if ((string) ($_POST['confirm_delete'] ?? '') !== '1') {
+            Session::flash('error', 'Confirmacao de exclusao nao informada.');
+            Response::redirect('/families/show?id=' . $id);
         }
 
         try {
@@ -291,7 +303,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
         }
 
-        Session::flash('success', $personType === 'dependent' ? 'Dependente adicionado com sucesso.' : 'Membro adicionado com sucesso.');
+        Session::flash('success', 'Membro adicionado com sucesso.');
         Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
     }
 
@@ -329,7 +341,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, 'composition', $personType, ['member_edit' => $memberId]));
         }
 
-        Session::flash('success', $personType === 'dependent' ? 'Dependente atualizado com sucesso.' : 'Membro atualizado com sucesso.');
+        Session::flash('success', 'Membro atualizado com sucesso.');
         Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
     }
 
@@ -350,7 +362,7 @@ final class FamilyController
             Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
         }
 
-        Session::flash('success', $personType === 'dependent' ? 'Dependente removido com sucesso.' : 'Membro removido com sucesso.');
+        Session::flash('success', 'Membro removido com sucesso.');
         Response::redirect($this->familyShowUrl($familyId, 'composition', $personType));
     }
 
@@ -453,6 +465,10 @@ final class FamilyController
     private function renderForm(string $mode, array $family): void
     {
         $registration = $this->registrationService();
+        $family['phones'] = FamilyDataSupport::fallbackPhoneEntries(
+            is_array($family['phones'] ?? null) ? $family['phones'] : [],
+            (string) ($family['phone'] ?? '')
+        );
 
         View::render('families.form', [
             '_layout' => 'layouts.app',
@@ -467,6 +483,8 @@ final class FamilyController
             'maritalStatuses' => $registration->withLegacyOption(FamilyRegistrationService::MARITAL_STATUSES, (string) ($family['marital_status'] ?? '')),
             'educationLevels' => $registration->withLegacyOption(FamilyRegistrationService::EDUCATION_LEVELS, (string) ($family['education_level'] ?? '')),
             'professionalStatuses' => $registration->withLegacyOption(FamilyRegistrationService::PROFESSIONAL_STATUSES, (string) ($family['professional_status'] ?? '')),
+            'chronicDiseaseOptions' => $registration->withLegacyOption(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS, (string) ($family['chronic_disease'] ?? '')),
+            'socialBenefitOptions' => $registration->withLegacyOption(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS, (string) ($family['social_benefit'] ?? '')),
             'error' => Session::consumeFlash('error'),
         ]);
     }

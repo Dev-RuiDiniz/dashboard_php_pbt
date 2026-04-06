@@ -1,4 +1,4 @@
--- Sprint 5 - Schema MVP (MySQL/MariaDB)
+-- Schema consolidado (MySQL/MariaDB)
 -- Sistema Igreja Social - Dashboard PHP PBT
 -- Recomendado: InnoDB + utf8mb4
 
@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS families (
   state CHAR(2) NULL,
   location_reference VARCHAR(200) NULL,
   housing_type VARCHAR(60) NULL,
+  rent_amount DECIMAL(10,2) NULL,
   adults_count INT NOT NULL DEFAULT 0,
   workers_count INT NOT NULL DEFAULT 0,
   family_income_total DECIMAL(10,2) NOT NULL DEFAULT 0,
@@ -56,6 +57,12 @@ CREATE TABLE IF NOT EXISTS families (
   needs_visit TINYINT(1) NOT NULL DEFAULT 0,
   general_notes TEXT NULL,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
+  chronic_disease VARCHAR(80) NULL,
+  has_physical_disability TINYINT(1) NOT NULL DEFAULT 0,
+  physical_disability_details VARCHAR(200) NULL,
+  uses_continuous_medication TINYINT(1) NOT NULL DEFAULT 0,
+  continuous_medication_details VARCHAR(200) NULL,
+  social_benefit VARCHAR(80) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_families_responsible_name (responsible_name),
@@ -74,6 +81,7 @@ CREATE TABLE IF NOT EXISTS family_members (
   cpf VARCHAR(14) NULL,
   rg VARCHAR(20) NULL,
   birth_date DATE NULL,
+  studies TINYINT(1) NOT NULL DEFAULT 0,
   works TINYINT(1) NOT NULL DEFAULT 0,
   income DECIMAL(10,2) NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -86,6 +94,21 @@ CREATE TABLE IF NOT EXISTS family_members (
   INDEX idx_family_members_rg (rg)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS family_phones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  family_id INT NOT NULL,
+  number VARCHAR(20) NOT NULL,
+  label VARCHAR(120) NULL,
+  sort_order INT NOT NULL DEFAULT 1,
+  is_primary TINYINT(1) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_family_phones_family FOREIGN KEY (family_id) REFERENCES families(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX idx_family_phones_family_id (family_id),
+  INDEX idx_family_phones_primary (family_id, is_primary, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS children (
   id INT AUTO_INCREMENT PRIMARY KEY,
   family_id INT NOT NULL,
@@ -95,6 +118,7 @@ CREATE TABLE IF NOT EXISTS children (
   birth_date DATE NULL,
   age_years INT NULL,
   relationship VARCHAR(40) NULL,
+  studies TINYINT(1) NOT NULL DEFAULT 0,
   notes TEXT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -118,6 +142,8 @@ CREATE TABLE IF NOT EXISTS people (
   is_homeless TINYINT(1) NOT NULL DEFAULT 0,
   homeless_time VARCHAR(20) NULL,
   stay_location VARCHAR(200) NULL,
+  phone VARCHAR(20) NULL,
+  previous_address VARCHAR(200) NULL,
   has_family_in_region TINYINT(1) NOT NULL DEFAULT 0,
   family_contact VARCHAR(200) NULL,
   education_level VARCHAR(40) NULL,
@@ -125,6 +151,12 @@ CREATE TABLE IF NOT EXISTS people (
   formal_work_history TINYINT(1) NOT NULL DEFAULT 0,
   work_interest TINYINT(1) NOT NULL DEFAULT 0,
   work_interest_detail VARCHAR(200) NULL,
+  chronic_disease VARCHAR(80) NULL,
+  has_physical_disability TINYINT(1) NOT NULL DEFAULT 0,
+  physical_disability_details VARCHAR(200) NULL,
+  uses_continuous_medication TINYINT(1) NOT NULL DEFAULT 0,
+  continuous_medication_details VARCHAR(200) NULL,
+  social_benefit VARCHAR(80) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_people_full_name (full_name),
@@ -164,6 +196,21 @@ CREATE TABLE IF NOT EXISTS social_records (
   INDEX idx_social_records_created_by (created_by),
   INDEX idx_social_records_consent_at (consent_at),
   INDEX idx_social_records_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS person_phones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  person_id INT NOT NULL,
+  number VARCHAR(20) NOT NULL,
+  label VARCHAR(120) NULL,
+  sort_order INT NOT NULL DEFAULT 1,
+  is_primary TINYINT(1) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_person_phones_person FOREIGN KEY (person_id) REFERENCES people(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX idx_person_phones_person_id (person_id),
+  INDEX idx_person_phones_primary (person_id, is_primary, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS referrals (
@@ -257,6 +304,8 @@ CREATE TABLE IF NOT EXISTS equipment (
   condition_state VARCHAR(20) NOT NULL DEFAULT 'bom',
   status VARCHAR(20) NOT NULL DEFAULT 'disponivel',
   notes TEXT NULL,
+  maintenance_notes TEXT NULL,
+  maintenance_completed_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_equipment_type (type),
@@ -269,11 +318,17 @@ CREATE TABLE IF NOT EXISTS equipment_loans (
   equipment_id INT NOT NULL,
   family_id INT NULL,
   person_id INT NULL,
+  borrower_name VARCHAR(160) NULL,
+  borrower_phone VARCHAR(20) NULL,
+  borrower_cpf VARCHAR(14) NULL,
+  borrower_address VARCHAR(200) NULL,
+  equipment_user_name VARCHAR(160) NULL,
   loan_date DATE NOT NULL,
   due_date DATE NOT NULL,
   return_date DATE NULL,
   return_condition VARCHAR(20) NULL,
   notes TEXT NULL,
+  maintenance_notes TEXT NULL,
   created_by INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,

@@ -4,6 +4,8 @@ declare(strict_types=1);
 $filters = is_array($filters ?? null) ? $filters : [];
 $filteredTotal = (int) ($filteredTotal ?? 0);
 $overallTotal = (int) ($overallTotal ?? 0);
+$auth = is_array($authUser ?? null) ? $authUser : [];
+$canDeleteFamily = (string) ($auth['role'] ?? '') === 'admin';
 ?>
 <?php if (!empty($success)) : ?>
     <div class="alert alert-success shadow-sm border-0"><?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?></div>
@@ -65,6 +67,8 @@ $overallTotal = (int) ($overallTotal ?? 0);
                     <th>Endereco</th>
                     <th>Renda</th>
                     <th>Media</th>
+                    <th>Cadastro</th>
+                    <th>Atualizacao</th>
                     <th>Docs</th>
                     <th>Visita</th>
                     <th>Status</th>
@@ -74,7 +78,7 @@ $overallTotal = (int) ($overallTotal ?? 0);
             <tbody>
             <?php if (empty($families)) : ?>
                 <tr>
-                    <td colspan="10" class="text-secondary p-4">Nenhuma familia encontrada.</td>
+                    <td colspan="12" class="text-secondary p-4">Nenhuma familia encontrada.</td>
                 </tr>
             <?php else : ?>
                 <?php foreach ($families as $family) : ?>
@@ -96,6 +100,8 @@ $overallTotal = (int) ($overallTotal ?? 0);
                         <td><?= htmlspecialchars($parts ? implode(' / ', $parts) : '-', ENT_QUOTES, 'UTF-8') ?></td>
                         <td>R$ <?= number_format((float) ($family['family_income_total'] ?? 0), 2, ',', '.') ?></td>
                         <td>R$ <?= number_format((float) ($family['family_income_average'] ?? 0), 2, ',', '.') ?></td>
+                        <td><?= htmlspecialchars((string) (($family['created_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars((string) (($family['updated_at'] ?? '') ?: ($family['created_at'] ?? '-')), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><span class="badge text-bg-light border"><?= htmlspecialchars((string) ($family['documentation_status'] ?? 'ok'), ENT_QUOTES, 'UTF-8') ?></span></td>
                         <td>
                             <?= ((int) ($family['needs_visit'] ?? 0) === 1)
@@ -111,9 +117,12 @@ $overallTotal = (int) ($overallTotal ?? 0);
                             <div class="d-flex flex-wrap gap-2">
                                 <a class="btn btn-sm btn-outline-primary" href="/families/show?id=<?= $id ?>">Detalhe</a>
                                 <a class="btn btn-sm btn-outline-secondary" href="/families/edit?id=<?= $id ?>">Editar</a>
-                                <form method="post" action="/families/delete?id=<?= $id ?>" class="m-0" onsubmit="return confirm('Remover familia? Esta acao exclui membros e criancas vinculados.');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
-                                </form>
+                                <?php if ($canDeleteFamily) : ?>
+                                    <form method="post" action="/families/delete?id=<?= $id ?>" class="m-0" onsubmit="return confirm('Confirmar exclusao da familia? Esta acao exclui membros e criancas vinculados.');">
+                                        <input type="hidden" name="confirm_delete" value="1">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>

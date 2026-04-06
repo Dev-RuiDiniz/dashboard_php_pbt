@@ -60,6 +60,7 @@ final class FamilyRegistrationService
             'rg_responsible' => '',
             'birth_date' => '',
             'phone' => '',
+            'phones' => FamilyDataSupport::fallbackPhoneEntries([], null),
             'responsible_works' => 0,
             'responsible_income' => '0.00',
             'marital_status' => '',
@@ -75,6 +76,7 @@ final class FamilyRegistrationService
             'state' => '',
             'location_reference' => '',
             'housing_type' => '',
+            'rent_amount' => '',
             'adults_count' => 0,
             'workers_count' => 0,
             'family_income_total' => '0.00',
@@ -85,6 +87,12 @@ final class FamilyRegistrationService
             'needs_visit' => 0,
             'general_notes' => '',
             'is_active' => 1,
+            'chronic_disease' => '',
+            'has_physical_disability' => 0,
+            'physical_disability_details' => '',
+            'uses_continuous_medication' => 0,
+            'continuous_medication_details' => '',
+            'social_benefit' => '',
         ];
     }
 
@@ -95,7 +103,7 @@ final class FamilyRegistrationService
             'cpf_responsible' => trim((string) ($post['cpf_responsible'] ?? '')),
             'rg_responsible' => FamilyDataSupport::sanitizeRg((string) ($post['rg_responsible'] ?? '')),
             'birth_date' => trim((string) ($post['birth_date'] ?? '')),
-            'phone' => FamilyDataSupport::sanitizePhone((string) ($post['phone'] ?? '')),
+            'phones' => FamilyDataSupport::sanitizePhoneEntries($post['phones'] ?? []),
             'responsible_works' => isset($post['responsible_works']) ? 1 : 0,
             'responsible_income' => FamilyDataSupport::sanitizeMoney((string) ($post['responsible_income'] ?? '0')),
             'marital_status' => trim((string) ($post['marital_status'] ?? '')),
@@ -111,11 +119,19 @@ final class FamilyRegistrationService
             'state' => strtoupper(substr(trim((string) ($post['state'] ?? '')), 0, 2)),
             'location_reference' => trim((string) ($post['location_reference'] ?? '')),
             'housing_type' => trim((string) ($post['housing_type'] ?? '')),
+            'rent_amount' => trim((string) ($post['rent_amount'] ?? '')),
             'documentation_status' => trim((string) ($post['documentation_status'] ?? 'ok')),
             'documentation_notes' => trim((string) ($post['documentation_notes'] ?? '')),
             'needs_visit' => isset($post['needs_visit']) ? 1 : 0,
             'general_notes' => trim((string) ($post['general_notes'] ?? '')),
             'is_active' => isset($post['is_active']) ? 1 : 0,
+            'chronic_disease' => trim((string) ($post['chronic_disease'] ?? '')),
+            'has_physical_disability' => FamilyDataSupport::sanitizeBooleanFlag($post['has_physical_disability'] ?? 0),
+            'physical_disability_details' => trim((string) ($post['physical_disability_details'] ?? '')),
+            'uses_continuous_medication' => FamilyDataSupport::sanitizeBooleanFlag($post['uses_continuous_medication'] ?? 0),
+            'continuous_medication_details' => trim((string) ($post['continuous_medication_details'] ?? '')),
+            'social_benefit' => trim((string) ($post['social_benefit'] ?? '')),
+            'phone' => '',
         ];
     }
 
@@ -129,11 +145,8 @@ final class FamilyRegistrationService
             return 'CPF do responsavel principal e obrigatorio.';
         }
 
-        if (trim((string) ($input['rg_responsible'] ?? '')) === '') {
-            return 'RG do responsavel principal e obrigatorio.';
-        }
-
-        if (!FamilyDataSupport::isRgValid((string) ($input['rg_responsible'] ?? ''))) {
+        $rg = trim((string) ($input['rg_responsible'] ?? ''));
+        if ($rg !== '' && !FamilyDataSupport::isRgValid($rg)) {
             return 'RG invalido. Use o formato 00.000.000-0.';
         }
 
@@ -142,6 +155,8 @@ final class FamilyRegistrationService
             'marital_status' => ['options' => array_keys(self::MARITAL_STATUSES), 'label' => 'Estado civil'],
             'education_level' => ['options' => array_keys(self::EDUCATION_LEVELS), 'label' => 'Escolaridade'],
             'professional_status' => ['options' => array_keys(self::PROFESSIONAL_STATUSES), 'label' => 'Situacao profissional'],
+            'chronic_disease' => ['options' => array_keys(FamilyDataSupport::CHRONIC_DISEASE_OPTIONS), 'label' => 'Doenca cronica'],
+            'social_benefit' => ['options' => array_keys(FamilyDataSupport::SOCIAL_BENEFIT_OPTIONS), 'label' => 'Beneficio social'],
         ];
 
         foreach ($fieldConfig as $field => $config) {
@@ -165,6 +180,10 @@ final class FamilyRegistrationService
 
         if (!is_numeric((string) ($input['responsible_income'] ?? '0'))) {
             return 'Renda do responsavel principal invalida.';
+        }
+
+        if (($input['rent_amount'] ?? '') !== '' && !is_numeric(FamilyDataSupport::sanitizeMoney((string) $input['rent_amount']))) {
+            return 'Valor do aluguel invalido.';
         }
 
         if (!\App\Services\CpfService::isValid((string) ($input['cpf_responsible'] ?? ''))) {
@@ -191,6 +210,7 @@ final class FamilyRegistrationService
     public function create(array $input): int
     {
         $familyId = $this->familyModel->create($this->toPersistenceData($input));
+        $this->familyModel->replacePhones($familyId, $input['phones'] ?? []);
         $this->indicatorsService->recalculate($familyId);
         return $familyId;
     }
@@ -198,6 +218,7 @@ final class FamilyRegistrationService
     public function update(int $familyId, array $input): void
     {
         $this->familyModel->update($familyId, $this->toPersistenceData($input));
+        $this->familyModel->replacePhones($familyId, $input['phones'] ?? []);
         $this->indicatorsService->recalculate($familyId);
     }
 
@@ -213,8 +234,26 @@ final class FamilyRegistrationService
 
     private function toPersistenceData(array $input): array
     {
+        $input['phones'] = FamilyDataSupport::sanitizePhoneEntries($input['phones'] ?? []);
+        $input['phone'] = FamilyDataSupport::primaryPhoneFromEntries($input['phones']);
+
         if (!in_array($input['documentation_status'], self::DOC_STATUSES, true)) {
             $input['documentation_status'] = 'ok';
+        }
+
+        if ((int) ($input['has_physical_disability'] ?? 0) !== 1) {
+            $input['physical_disability_details'] = '';
+        }
+
+        if ((int) ($input['uses_continuous_medication'] ?? 0) !== 1) {
+            $input['continuous_medication_details'] = '';
+        }
+
+        if (($input['housing_type'] ?? '') === 'alugada') {
+            $sanitizedRent = FamilyDataSupport::sanitizeMoney((string) ($input['rent_amount'] ?? ''));
+            $input['rent_amount'] = $sanitizedRent !== '0.00' || trim((string) ($input['rent_amount'] ?? '')) !== '' ? $sanitizedRent : null;
+        } else {
+            $input['rent_amount'] = null;
         }
 
         return [
@@ -238,11 +277,18 @@ final class FamilyRegistrationService
             'state' => $input['state'] !== '' ? $input['state'] : null,
             'location_reference' => $input['location_reference'] !== '' ? $input['location_reference'] : null,
             'housing_type' => $input['housing_type'] !== '' ? $input['housing_type'] : null,
+            'rent_amount' => $input['rent_amount'],
             'documentation_status' => $input['documentation_status'],
             'documentation_notes' => $input['documentation_notes'] !== '' ? $input['documentation_notes'] : null,
             'needs_visit' => (int) $input['needs_visit'],
             'general_notes' => $input['general_notes'] !== '' ? $input['general_notes'] : null,
             'is_active' => (int) $input['is_active'],
+            'chronic_disease' => $input['chronic_disease'] !== '' ? $input['chronic_disease'] : null,
+            'has_physical_disability' => (int) ($input['has_physical_disability'] ?? 0),
+            'physical_disability_details' => $input['physical_disability_details'] !== '' ? $input['physical_disability_details'] : null,
+            'uses_continuous_medication' => (int) ($input['uses_continuous_medication'] ?? 0),
+            'continuous_medication_details' => $input['continuous_medication_details'] !== '' ? $input['continuous_medication_details'] : null,
+            'social_benefit' => $input['social_benefit'] !== '' ? $input['social_benefit'] : null,
         ];
     }
 }

@@ -17,8 +17,10 @@ final class EquipmentLoanModel
         $sql = 'SELECT
                     el.id, el.equipment_id, el.family_id, el.person_id,
                     el.loan_date, el.due_date, el.return_date, el.return_condition,
-                    el.notes, el.created_by, el.created_at,
-                    e.code AS equipment_code, e.type AS equipment_type,
+                    el.notes, el.maintenance_notes,
+                    el.borrower_name, el.borrower_phone, el.borrower_cpf, el.borrower_address, el.equipment_user_name,
+                    el.created_by, el.created_at,
+                    e.code AS equipment_code, e.type AS equipment_type, e.status AS equipment_status, e.condition_state AS equipment_condition_state,
                     f.responsible_name AS family_name,
                     p.full_name AS person_full_name, p.social_name AS person_social_name,
                     u.name AS created_by_name
@@ -79,10 +81,14 @@ final class EquipmentLoanModel
         $stmt = $this->pdo->prepare(
             'INSERT INTO equipment_loans (
                 equipment_id, family_id, person_id, loan_date, due_date, return_date,
-                return_condition, notes, created_by
+                return_condition, notes, maintenance_notes,
+                borrower_name, borrower_phone, borrower_cpf, borrower_address, equipment_user_name,
+                created_by
              ) VALUES (
                 :equipment_id, :family_id, :person_id, :loan_date, :due_date, :return_date,
-                :return_condition, :notes, :created_by
+                :return_condition, :notes, :maintenance_notes,
+                :borrower_name, :borrower_phone, :borrower_cpf, :borrower_address, :equipment_user_name,
+                :created_by
              )'
         );
         $stmt->execute($data);
@@ -96,10 +102,24 @@ final class EquipmentLoanModel
             'UPDATE equipment_loans
              SET return_date = :return_date,
                  return_condition = :return_condition,
-                 notes = :notes
+                 notes = :notes,
+                 maintenance_notes = :maintenance_notes
              WHERE id = :id'
         );
         $stmt->execute($data);
+    }
+
+    public function updateMaintenanceNotes(int $id, ?string $maintenanceNotes): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE equipment_loans
+             SET maintenance_notes = :maintenance_notes
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'maintenance_notes' => $maintenanceNotes,
+        ]);
     }
 
     public function delete(int $id): void
@@ -125,6 +145,7 @@ final class EquipmentLoanModel
         $stmt = $this->pdo->prepare(
             'SELECT
                 el.id, el.equipment_id, el.family_id, el.person_id, el.loan_date, el.due_date,
+                el.borrower_name, el.equipment_user_name,
                 e.code AS equipment_code, e.type AS equipment_type,
                 f.responsible_name AS family_name,
                 p.full_name AS person_full_name, p.social_name AS person_social_name
@@ -148,8 +169,10 @@ final class EquipmentLoanModel
         $stmt = $this->pdo->prepare(
             'SELECT
                 el.id, el.equipment_id, el.family_id, el.loan_date, el.due_date, el.return_date,
-                el.return_condition, el.notes, el.created_at,
-                e.code AS equipment_code, e.type AS equipment_type
+                el.return_condition, el.notes, el.maintenance_notes,
+                el.borrower_name, el.borrower_phone, el.borrower_cpf, el.borrower_address, el.equipment_user_name,
+                el.created_at,
+                e.code AS equipment_code, e.type AS equipment_type, e.status AS equipment_status
              FROM equipment_loans el
              INNER JOIN equipment e ON e.id = el.equipment_id
              WHERE el.family_id = :family_id

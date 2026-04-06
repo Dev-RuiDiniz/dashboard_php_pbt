@@ -1,6 +1,6 @@
 # Dashboard PHP PBT - Sistema Igreja Social
 
-Sistema web em PHP + MySQL para operacao social da igreja, com controle de familias, pessoas acompanhadas, entregas, equipamentos, visitas, usuarios e relatorios.
+Sistema web em PHP + MySQL para operacao social da igreja, com controle de familias, PROJETO AMOR, entregas, equipamentos, visitas, usuarios e relatorios.
 
 ## Stack e requisitos
 - PHP `8.2+`
@@ -31,12 +31,24 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 - Familias
   - CRUD de familias
   - detalhe da familia com abas: composicao familiar, resumo, entregas, emprestimos, visitas/anotacoes e pendencias
-  - cadastro unificado de pessoas da familia (principal, membro, dependente e crianca) na primeira aba do detalhe
+  - cadastro unificado de pessoas da familia (principal, membro e crianca) na primeira aba do detalhe
   - indicadores com renda total e media per capita por familia
+  - RG opcional no cadastro do responsavel, membros e criancas
+  - data de cadastro e ultima atualizacao visiveis
+  - alerta de documentacao pendente e alerta de visita
+  - composicao familiar com `Estuda?` para criancas e adultos, e `Trabalha?` para maiores de idade
+  - multiplos telefones com identificacao livre e telefone principal para compatibilidade
+  - `valor do aluguel` quando a moradia for `Alugada`
+  - campos de saude e beneficio social no cadastro base do responsavel
 - Criancas
   - cadastro centralizado na aba de detalhe da familia
-- Pessoas acompanhadas
+- PROJETO AMOR
   - CRUD completo
+  - mantem rota tecnica `/people`
+  - idade calculada automaticamente a partir da data de nascimento
+  - multiplos telefones com identificacao livre e telefone principal para compatibilidade
+  - endereco anterior, data de cadastro e ultima atualizacao visiveis
+  - campos de saude e beneficio social no cadastro base
 - Fichas sociais (dentro de pessoa)
   - CRUD completo
 - Encaminhamentos (dentro de pessoa)
@@ -48,10 +60,16 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
   - CRUD da lista operacional (convidados/entregas)
   - fluxo de status `nao_veio -> presente -> retirou`
   - fechar/reabrir evento, CSV e impressao
+  - bloqueio mensal considerando apenas registros ja baixados como `retirou`
+  - mensagens operacionais mais claras para duplicidade, bloqueio mensal e limite de cestas
 - Equipamentos
   - CRUD completo
 - Emprestimos de equipamentos
   - criar, listar, devolver, excluir
+  - novos tipos: `cadeira_banho`, `equipamentos_enfermaria`, `bengala_quatro_pes`, `bota_ortopedica_dortler`, `tipoia`
+  - snapshot da retirada com responsavel, telefone, CPF, endereco e usuario do equipamento
+  - devolucao ruim gera alerta visivel, registro de manutencao e equipamento `inativo`
+  - retorno apos manutencao libera o equipamento novamente para `disponivel`
 - Visitas
   - CRUD completo + concluir visita
 - Relatorios
@@ -80,6 +98,19 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 - `/users` (admin)
 - `/health`
 
+## Atualizacoes operacionais de 26/03/2026
+- Interface do modulo de moradores de rua renomeada para `PROJETO AMOR`, preservando as rotas internas.
+- `Nova Familia` e `Nova Pessoa` agora exibem datas de cadastro e atualizacao.
+- O sistema aceita salvar familia, membro e crianca sem RG, validando o formato apenas quando o campo for preenchido.
+- Cadastro base de familia e PROJETO AMOR passou a registrar doenca cronica, deficiencia fisica, medicacao continua e beneficio social.
+- Familia e PROJETO AMOR agora aceitam mais de um telefone, com campo de identificacao como `filha`, `neta`, `vizinha` ou `recado`.
+- O telefone principal continua sendo espelhado no campo legado para nao quebrar listagens, buscas e relatorios existentes.
+- Quando a moradia da familia for `Alugada`, o formulario exibe e salva `Valor do aluguel`; se a moradia mudar, esse valor e limpo automaticamente.
+- Os campos `Possui alguma Deficiencia Fisica?` e `Faz Uso de Medicacao Continua?` passaram a usar fluxo explicito `Sim/Não`, com campo complementar exibido apenas quando necessario.
+- `Doenca cronica` foi alinhado para as 7 opcoes operacionais atuais, mantendo compatibilidade de edicao para o valor legado agrupado.
+- Emprestimos de equipamento passaram a distinguir claramente quem retirou o item e quem vai usa-lo.
+- Estado de conservacao `ruim` agora gera inativacao do equipamento ate a conclusao da manutencao.
+
 ## Setup local rapido
 1. Instalar dependencias:
 ```bash
@@ -92,8 +123,11 @@ copy .env.example .env
 3. Ajustar credenciais de banco no `.env`.
 4. Criar schema/dados iniciais:
 ```bash
-# primeiro deploy local:
+# banco novo:
 # importar database/final_mvp.sql no MySQL
+#
+# banco ja existente:
+# php database/migrate.php
 ```
 5. Subir servidor local:
 ```bash
@@ -107,7 +141,8 @@ Checklist completo em:
 Resumo:
 - apontar Document Root para `public/`
 - configurar `.env` de producao (`APP_ENV=production`, `APP_DEBUG=false`)
-- importar `database/final_mvp.sql`
+- banco novo: importar `database/final_mvp.sql`
+- banco existente: rodar `php database/migrate.php` ou aplicar as migrations pendentes
 - validar `/health`
 
 ## Manual do cliente

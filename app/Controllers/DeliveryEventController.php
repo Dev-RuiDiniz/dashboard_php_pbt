@@ -293,7 +293,15 @@ final class DeliveryEventController
                 $currentQty = $this->deliveryModel()->totalQuantityByEvent($eventId);
                 $newQty = (int) (((array) $resolved['data'])['quantity'] ?? 0);
                 if (($currentQty + $newQty) > (int) $event['max_baskets']) {
-                    Session::flash('error', 'Limite de cestas do evento excedido.');
+                    Session::flash(
+                        'error',
+                        sprintf(
+                            'Limite de cestas do evento excedido. Limite: %d | Ja reservado: %d | Tentativa atual: %d.',
+                            (int) $event['max_baskets'],
+                            $currentQty,
+                            $newQty
+                        )
+                    );
                     Session::flash('delivery_form_old', $input);
                     Response::redirect('/delivery-events/show?id=' . $eventId);
                 }
@@ -1015,9 +1023,16 @@ final class DeliveryEventController
             $documentId = (string) (($family['cpf_responsible'] ?? '') ?: ($family['rg_responsible'] ?? ''));
 
             if ((int) ($event['block_multiple_same_month'] ?? 0) === 1) {
-                $already = $this->deliveryModel()->existsFamilyDeliveryInMonth($familyId, (string) $event['event_date'], $eventId);
-                if ($already) {
-                    return ['error' => 'Bloqueio mensal ativo: esta familia ja retirou cesta em outro evento no mesmo mes.', 'data' => null];
+                $withdrawal = $this->deliveryModel()->findFamilyMonthlyWithdrawal(
+                    $familyId,
+                    (string) $event['event_date'],
+                    $eventId
+                );
+                if ($withdrawal !== null) {
+                    return [
+                        'error' => $this->buildMonthlyBlockMessage('Esta familia', $withdrawal),
+                        'data' => null,
+                    ];
                 }
             }
         } else {
@@ -1032,9 +1047,16 @@ final class DeliveryEventController
             $documentId = (string) (($person['cpf'] ?? '') ?: ($person['rg'] ?? ''));
 
             if ((int) ($event['block_multiple_same_month'] ?? 0) === 1) {
-                $already = $this->deliveryModel()->existsPersonDeliveryInMonth($personId, (string) $event['event_date'], $eventId);
-                if ($already) {
-                    return ['error' => 'Bloqueio mensal ativo: esta pessoa ja retirou cesta em outro evento no mesmo mes.', 'data' => null];
+                $withdrawal = $this->deliveryModel()->findPersonMonthlyWithdrawal(
+                    $personId,
+                    (string) $event['event_date'],
+                    $eventId
+                );
+                if ($withdrawal !== null) {
+                    return [
+                        'error' => $this->buildMonthlyBlockMessage('Esta pessoa', $withdrawal),
+                        'data' => null,
+                    ];
                 }
             }
         }
@@ -1074,6 +1096,36 @@ final class DeliveryEventController
         }
 
         return null;
+    }
+
+    private function buildMonthlyBlockMessage(string $targetLabel, array $withdrawal): string
+    {
+        $eventName = trim((string) ($withdrawal['event_name'] ?? 'Outro evento'));
+        $eventDate = trim((string) ($withdrawal['event_date'] ?? ''));
+        $ticketNumber = (int) ($withdrawal['ticket_number'] ?? 0);
+        $quantity = max(1, (int) ($withdrawal['quantity'] ?? 1));
+        $deliveredAt = trim((string) ($withdrawal['delivered_at'] ?? ''));
+
+        $parts = [
+            'Bloqueio mensal ativo: ' . $targetLabel . ' ja retirou cesta neste mes.',
+            'Evento anterior: ' . ($eventName !== '' ? $eventName : 'Outro evento') . '.',
+        ];
+
+        if ($eventDate !== '') {
+            $parts[] = 'Data: ' . $eventDate . '.';
+        }
+
+        if ($ticketNumber > 0) {
+            $parts[] = 'Senha: ' . $ticketNumber . '.';
+        }
+
+        $parts[] = 'Quantidade retirada: ' . $quantity . '.';
+
+        if ($deliveredAt !== '') {
+            $parts[] = 'Baixa registrada em: ' . $deliveredAt . '.';
+        }
+
+        return implode(' ', $parts);
     }
 
     private function logDeliveryOperation(string $action, int $deliveryId, array $details): void

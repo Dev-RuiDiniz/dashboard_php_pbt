@@ -182,8 +182,8 @@ return static function (Router $router, Container $container): void {
         });
     });
 
-    $router->post('/families/delete', static function () use ($container, $familyManage): void {
-        $familyManage(static function () use ($container): void {
+    $router->post('/families/delete', static function () use ($container, $adminOnly): void {
+        $adminOnly(static function () use ($container): void {
             (new FamilyController($container))->delete();
         });
     });
@@ -509,6 +509,12 @@ return static function (Router $router, Container $container): void {
     $router->post('/equipment-loans/return', static function () use ($container, $equipmentManage): void {
         $equipmentManage(static function () use ($container): void {
             (new EquipmentLoanController($container))->returnLoan();
+        });
+    });
+
+    $router->post('/equipment-loans/maintenance-complete', static function () use ($container, $equipmentManage): void {
+        $equipmentManage(static function () use ($container): void {
+            (new EquipmentLoanController($container))->completeMaintenance();
         });
     });
 

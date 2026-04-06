@@ -14,7 +14,7 @@ $filters = is_array($filters ?? null) ? $filters : [];
     <div class="card-body">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
             <div>
-                <h2 class="h5 mb-1">Pessoas acompanhadas</h2>
+                <h2 class="h5 mb-1">PROJETO AMOR</h2>
                 <p class="text-secondary mb-0">Cadastro base para ficha social. Dados incompletos sao permitidos quando necessario.</p>
             </div>
             <a class="btn btn-teal text-white" href="/people/create">Nova pessoa</a>
@@ -54,6 +54,7 @@ $filters = is_array($filters ?? null) ? $filters : [];
                     <th>Documento</th>
                     <th>Situacao</th>
                     <th>Trabalho</th>
+                    <th>Data de cadastro</th>
                     <th>Ultima atualizacao</th>
                     <th>Acoes</th>
                 </tr>
@@ -61,7 +62,7 @@ $filters = is_array($filters ?? null) ? $filters : [];
             <tbody>
             <?php if (empty($people)) : ?>
                 <tr>
-                    <td colspan="6" class="text-secondary p-4">Nenhuma pessoa encontrada.</td>
+                    <td colspan="7" class="text-secondary p-4">Nenhuma pessoa encontrada.</td>
                 </tr>
             <?php else : ?>
                 <?php foreach ($people as $person) : ?>
@@ -71,6 +72,9 @@ $filters = is_array($filters ?? null) ? $filters : [];
                             <div class="fw-semibold"><?= htmlspecialchars((string) (($person['full_name'] ?? '') ?: ($person['social_name'] ?? 'Sem identificacao')), ENT_QUOTES, 'UTF-8') ?></div>
                             <div class="small text-secondary">
                                 nome social: <?= htmlspecialchars((string) (($person['social_name'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?>
+                            </div>
+                            <div class="small text-secondary">
+                                tel.: <?= htmlspecialchars((string) (($person['phone'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?>
                             </div>
                         </td>
                         <td>
@@ -90,6 +94,7 @@ $filters = is_array($filters ?? null) ? $filters : [];
                                 ? '<span class="badge text-bg-success">Interesse</span>'
                                 : '<span class="badge text-bg-light border">Sem info</span>' ?>
                         </td>
+                        <td><?= htmlspecialchars((string) (($person['created_at'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars((string) (($person['updated_at'] ?? '') ?: ($person['created_at'] ?? '-')), ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <div class="d-flex flex-wrap gap-2">

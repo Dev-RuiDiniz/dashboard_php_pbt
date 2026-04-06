@@ -77,12 +77,29 @@ $statuses = is_array($statuses ?? null) ? $statuses : [];
             <?php else : ?>
                 <?php foreach ($equipments as $equipment) : ?>
                     <?php $equipmentId = (int) ($equipment['id'] ?? 0); ?>
-                    <tr>
+                    <tr class="<?= ((string) ($equipment['status'] ?? '') === 'inativo' && (string) ($equipment['condition_state'] ?? '') === 'ruim') ? 'table-danger' : '' ?>">
                         <td class="fw-semibold"><?= htmlspecialchars((string) ($equipment['code'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars(ucwords(str_replace('_', ' ', (string) ($equipment['type'] ?? ''))), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars(ucwords(str_replace('_', ' ', (string) ($equipment['condition_state'] ?? ''))), ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars(ucwords(str_replace('_', ' ', (string) ($equipment['status'] ?? ''))), ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars((string) ($equipment['notes'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td>
+                            <?= htmlspecialchars(ucwords(str_replace('_', ' ', (string) ($equipment['status'] ?? ''))), ENT_QUOTES, 'UTF-8') ?>
+                            <?php if ((string) ($equipment['status'] ?? '') === 'inativo' && (string) ($equipment['condition_state'] ?? '') === 'ruim') : ?>
+                                <div class="badge text-bg-danger mt-1">Alerta de manutencao</div>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <div><?= htmlspecialchars((string) ($equipment['notes'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                            <?php if (!empty($equipment['maintenance_notes'])) : ?>
+                                <div class="small text-danger mt-1">
+                                    Manutencao pendente: <?= htmlspecialchars((string) $equipment['maintenance_notes'], ENT_QUOTES, 'UTF-8') ?>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (!empty($equipment['maintenance_completed_at'])) : ?>
+                                <div class="small text-secondary mt-1">
+                                    Ultima manutencao: <?= htmlspecialchars((string) $equipment['maintenance_completed_at'], ENT_QUOTES, 'UTF-8') ?>
+                                </div>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <div class="d-flex flex-wrap gap-2">
                                 <a class="btn btn-sm btn-outline-secondary" href="/equipment/edit?id=<?= $equipmentId ?>">Editar</a>

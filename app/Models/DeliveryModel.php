@@ -264,6 +264,41 @@ final class DeliveryModel
         return $stmt->fetchColumn() !== false;
     }
 
+    public function findFamilyMonthlyWithdrawal(int $familyId, string $eventDate, ?int $excludeEventId = null): ?array
+    {
+        $sql = 'SELECT
+                    d.id,
+                    d.event_id,
+                    d.ticket_number,
+                    d.quantity,
+                    d.delivered_at,
+                    de.name AS event_name,
+                    de.event_date
+                FROM deliveries d
+                INNER JOIN delivery_events de ON de.id = d.event_id
+                WHERE d.family_id = :family_id
+                  AND YEAR(de.event_date) = YEAR(:event_date_year)
+                  AND MONTH(de.event_date) = MONTH(:event_date_month)
+                  AND d.status = :status';
+        $params = [
+            'family_id' => $familyId,
+            'event_date_year' => $eventDate,
+            'event_date_month' => $eventDate,
+            'status' => 'retirou',
+        ];
+
+        if ($excludeEventId !== null) {
+            $sql .= ' AND d.event_id <> :exclude_event_id';
+            $params['exclude_event_id'] = $excludeEventId;
+        }
+
+        $sql .= ' ORDER BY de.event_date DESC, d.id DESC LIMIT 1';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $row = $stmt->fetch();
+        return is_array($row) ? $row : null;
+    }
+
     public function existsPersonDeliveryInMonth(int $personId, string $eventDate, ?int $excludeEventId = null): bool
     {
         $sql = 'SELECT 1
@@ -289,6 +324,41 @@ final class DeliveryModel
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchColumn() !== false;
+    }
+
+    public function findPersonMonthlyWithdrawal(int $personId, string $eventDate, ?int $excludeEventId = null): ?array
+    {
+        $sql = 'SELECT
+                    d.id,
+                    d.event_id,
+                    d.ticket_number,
+                    d.quantity,
+                    d.delivered_at,
+                    de.name AS event_name,
+                    de.event_date
+                FROM deliveries d
+                INNER JOIN delivery_events de ON de.id = d.event_id
+                WHERE d.person_id = :person_id
+                  AND YEAR(de.event_date) = YEAR(:event_date_year)
+                  AND MONTH(de.event_date) = MONTH(:event_date_month)
+                  AND d.status = :status';
+        $params = [
+            'person_id' => $personId,
+            'event_date_year' => $eventDate,
+            'event_date_month' => $eventDate,
+            'status' => 'retirou',
+        ];
+
+        if ($excludeEventId !== null) {
+            $sql .= ' AND d.event_id <> :exclude_event_id';
+            $params['exclude_event_id'] = $excludeEventId;
+        }
+
+        $sql .= ' ORDER BY de.event_date DESC, d.id DESC LIMIT 1';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $row = $stmt->fetch();
+        return is_array($row) ? $row : null;
     }
 
     public function listByFamilyId(int $familyId, int $limit = 20): array
