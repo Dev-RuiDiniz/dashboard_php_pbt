@@ -52,6 +52,9 @@ $statuses = is_array($statuses ?? null) ? $statuses : ['rascunho', 'aberto', 'co
                                     Bloquear multiplas entregas no mesmo mes para a mesma familia
                                 </label>
                             </div>
+                            <div class="form-text">
+                                A regra continua ativa por padrao. Quando necessario, apenas administradores podem liberar uma entrega manual excepcional no detalhe do evento, com justificativa registrada.
+                            </div>
                         </div>
                     </div>
 

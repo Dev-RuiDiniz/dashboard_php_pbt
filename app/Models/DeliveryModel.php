@@ -207,10 +207,12 @@ final class DeliveryModel
         $stmt = $this->pdo->prepare(
             'INSERT INTO deliveries (
                 event_id, family_id, person_id, ticket_number, document_id, observations,
-                status, quantity, delivered_at, delivered_by, signature_name
+                status, quantity, delivered_at, delivered_by, signature_name,
+                monthly_block_exception, monthly_block_exception_reason, monthly_block_exception_authorized_by
              ) VALUES (
                 :event_id, :family_id, :person_id, :ticket_number, :document_id, :observations,
-                :status, :quantity, :delivered_at, :delivered_by, :signature_name
+                :status, :quantity, :delivered_at, :delivered_by, :signature_name,
+                :monthly_block_exception, :monthly_block_exception_reason, :monthly_block_exception_authorized_by
              )'
         );
         $stmt->execute($data);
@@ -374,6 +376,8 @@ final class DeliveryModel
                 d.quantity,
                 d.delivered_at,
                 d.signature_name,
+                d.monthly_block_exception,
+                d.monthly_block_exception_reason,
                 de.name AS event_name,
                 de.event_date,
                 de.status AS event_status

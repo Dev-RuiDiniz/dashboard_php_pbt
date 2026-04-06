@@ -212,6 +212,8 @@ final class DeliveryEventController
             'person_id' => 0,
             'quantity' => 1,
             'observations' => '',
+            'monthly_block_exception' => 0,
+            'monthly_block_exception_reason' => '',
         ];
         $old = Session::consumeFlash('delivery_form_old');
         if (is_array($old)) {
@@ -900,6 +902,8 @@ final class DeliveryEventController
             'person_id' => (int) ($post['person_id'] ?? 0),
             'quantity' => max(1, (int) ($post['quantity'] ?? 1)),
             'observations' => trim((string) ($post['observations'] ?? '')),
+            'monthly_block_exception' => isset($post['monthly_block_exception']) ? 1 : 0,
+            'monthly_block_exception_reason' => trim((string) ($post['monthly_block_exception_reason'] ?? '')),
         ];
     }
 
@@ -983,6 +987,14 @@ final class DeliveryEventController
         if ((int) ($input['quantity'] ?? 0) <= 0) {
             return 'Quantidade de cestas deve ser maior que zero.';
         }
+        if ((int) ($input['monthly_block_exception'] ?? 0) === 1) {
+            if (!$this->isAdminUser()) {
+                return 'Somente administradores podem liberar excecao do bloqueio mensal.';
+            }
+            if (trim((string) ($input['monthly_block_exception_reason'] ?? '')) === '') {
+                return 'Informe a justificativa para liberar a excecao do bloqueio mensal.';
+            }
+        }
         return null;
     }
 
@@ -1029,10 +1041,12 @@ final class DeliveryEventController
                     $eventId
                 );
                 if ($withdrawal !== null) {
+                    if ((int) ($input['monthly_block_exception'] ?? 0) !== 1) {
                     return [
                         'error' => $this->buildMonthlyBlockMessage('Esta familia', $withdrawal),
                         'data' => null,
                     ];
+                    }
                 }
             }
         } else {
@@ -1053,12 +1067,23 @@ final class DeliveryEventController
                     $eventId
                 );
                 if ($withdrawal !== null) {
+                    if ((int) ($input['monthly_block_exception'] ?? 0) !== 1) {
                     return [
                         'error' => $this->buildMonthlyBlockMessage('Esta pessoa', $withdrawal),
                         'data' => null,
                     ];
+                    }
                 }
             }
+        }
+
+        $exceptionAuthorizedBy = null;
+        $exceptionReason = null;
+        $exceptionEnabled = (int) ($input['monthly_block_exception'] ?? 0) === 1 ? 1 : 0;
+        if ($exceptionEnabled === 1) {
+            $authUser = Session::get('auth_user', []);
+            $exceptionAuthorizedBy = is_array($authUser) ? (int) ($authUser['id'] ?? 0) : null;
+            $exceptionReason = trim((string) ($input['monthly_block_exception_reason'] ?? ''));
         }
 
         return [
@@ -1075,8 +1100,17 @@ final class DeliveryEventController
                 'delivered_at' => null,
                 'delivered_by' => null,
                 'signature_name' => null,
+                'monthly_block_exception' => $exceptionEnabled,
+                'monthly_block_exception_reason' => $exceptionReason !== '' ? $exceptionReason : null,
+                'monthly_block_exception_authorized_by' => $exceptionAuthorizedBy,
             ],
         ];
+    }
+
+    private function isAdminUser(): bool
+    {
+        $authUser = Session::get('auth_user', []);
+        return is_array($authUser) && (string) ($authUser['role'] ?? '') === 'admin';
     }
 
     private function validateDeliveryStatusTransition(string $current, string $target, string $signatureName): ?string

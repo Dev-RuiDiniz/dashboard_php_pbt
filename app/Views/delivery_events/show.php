@@ -14,6 +14,8 @@ $deliveryFilters = is_array($deliveryFilters ?? null) ? $deliveryFilters : ['q' 
 $eventId = (int) ($event['id'] ?? 0);
 $eventStatus = (string) ($event['status'] ?? '');
 $isConcluded = $eventStatus === 'concluido';
+$authUser = is_array($authUser ?? null) ? $authUser : [];
+$canMonthlyException = (string) ($authUser['role'] ?? '') === 'admin';
 $filterQuery = http_build_query([
     'q' => (string) ($deliveryFilters['q'] ?? ''),
     'status' => (string) ($deliveryFilters['status'] ?? ''),
@@ -43,6 +45,27 @@ $filterSuffix = $filterQuery !== '' ? '&' . $filterQuery : '';
         </form>
     <?php endif; ?>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var checkbox = document.getElementById('monthly_block_exception');
+    var group = document.querySelector('[data-monthly-exception-group]');
+    if (!checkbox || !group) {
+        return;
+    }
+
+    var textarea = group.querySelector('textarea[name="monthly_block_exception_reason"]');
+    var sync = function () {
+        group.classList.toggle('d-none', !checkbox.checked);
+        if (!checkbox.checked && textarea) {
+            textarea.value = '';
+        }
+    };
+
+    checkbox.addEventListener('change', sync);
+    sync();
+});
+</script>
 
 <div class="row g-3 mb-3">
     <div class="col-12 col-md-6 col-xl-3">
@@ -107,6 +130,9 @@ $filterSuffix = $filterQuery !== '' ? '&' . $filterQuery : '';
     <strong><?= ($event['max_baskets'] ?? null) !== null ? (int) $event['max_baskets'] : 'sem limite' ?></strong>.
     Status atual:
     <strong><?= htmlspecialchars((string) ($event['status'] ?? ''), ENT_QUOTES, 'UTF-8') ?></strong>.
+    <?php if ($canMonthlyException) : ?>
+        Administradores podem registrar uma entrega excepcional manual com justificativa quando houver autorizacao da supervisao.
+    <?php endif; ?>
 </div>
 
 <div class="row g-3">
@@ -158,6 +184,18 @@ $filterSuffix = $filterQuery !== '' ? '&' . $filterQuery : '';
                                 <label class="form-label">Observacoes</label>
                                 <input class="form-control" name="observations" value="<?= htmlspecialchars((string) ($deliveryForm['observations'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
+                            <?php if ($canMonthlyException) : ?>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="monthly_block_exception" name="monthly_block_exception" value="1" <?= ((int) ($deliveryForm['monthly_block_exception'] ?? 0) === 1) ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="monthly_block_exception">Permitir entrega excepcional neste mes</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 <?= ((int) ($deliveryForm['monthly_block_exception'] ?? 0) === 1) ? '' : 'd-none' ?>" data-monthly-exception-group>
+                                    <label class="form-label">Justificativa da excecao</label>
+                                    <textarea class="form-control" name="monthly_block_exception_reason" rows="2"><?= htmlspecialchars((string) ($deliveryForm['monthly_block_exception_reason'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
+                                </div>
+                            <?php endif; ?>
                         </div>
                         <div class="mt-3 d-flex gap-2">
                             <button type="submit" class="btn btn-teal text-white">Adicionar na lista</button>
@@ -282,6 +320,9 @@ $filterSuffix = $filterQuery !== '' ? '&' . $filterQuery : '';
                                         <div class="fw-semibold"><?= htmlspecialchars($name !== '' ? $name : 'Sem identificacao', ENT_QUOTES, 'UTF-8') ?></div>
                                         <?php if (!empty($d['observations'])) : ?>
                                             <div class="small text-secondary"><?= htmlspecialchars((string) $d['observations'], ENT_QUOTES, 'UTF-8') ?></div>
+                                        <?php endif; ?>
+                                        <?php if ((int) ($d['monthly_block_exception'] ?? 0) === 1) : ?>
+                                            <div class="small text-danger">Excecao mensal: <?= htmlspecialchars((string) (($d['monthly_block_exception_reason'] ?? '') ?: 'Sem justificativa'), ENT_QUOTES, 'UTF-8') ?></div>
                                         <?php endif; ?>
                                     </td>
                                     <td><?= htmlspecialchars((string) (($d['document_id'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></td>
