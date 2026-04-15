@@ -15,7 +15,7 @@ final class ChildModel
     public function search(array $filters): array
     {
         $sql = 'SELECT
-                    c.id, c.family_id, c.name, c.cpf, c.rg, c.birth_date, c.age_years, c.relationship, c.studies, c.notes,
+                    c.id, c.family_id, c.name, c.cpf, c.rg, c.birth_date, c.age_years, c.relationship, c.studies, c.notes, c.income,
                     f.responsible_name, f.phone, f.city, f.neighborhood
                 FROM children c
                 INNER JOIN families f ON f.id = c.family_id
@@ -61,7 +61,7 @@ final class ChildModel
     public function findByFamilyId(int $familyId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, family_id, name, cpf, rg, birth_date, age_years, relationship, studies, notes
+            'SELECT id, family_id, name, cpf, rg, birth_date, age_years, relationship, studies, notes, income
              FROM children
              WHERE family_id = :family_id
              ORDER BY name ASC, id ASC'
@@ -85,6 +85,7 @@ final class ChildModel
                 c.relationship,
                 c.studies,
                 c.notes,
+                c.income,
                 f.responsible_name AS family_name,
                 d.ticket_number
              FROM deliveries d
@@ -101,8 +102,8 @@ final class ChildModel
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO children (family_id, name, cpf, rg, birth_date, age_years, relationship, studies, notes)
-             VALUES (:family_id, :name, :cpf, :rg, :birth_date, :age_years, :relationship, :studies, :notes)'
+            'INSERT INTO children (family_id, name, cpf, rg, birth_date, age_years, relationship, studies, notes, income)
+             VALUES (:family_id, :name, :cpf, :rg, :birth_date, :age_years, :relationship, :studies, :notes, :income)'
         );
         $stmt->execute($data);
         return (int) $this->pdo->lastInsertId();
@@ -121,7 +122,8 @@ final class ChildModel
                  age_years = :age_years,
                  relationship = :relationship,
                  studies = :studies,
-                 notes = :notes
+                 notes = :notes,
+                 income = :income
              WHERE id = :id'
         );
         $stmt->execute($data);

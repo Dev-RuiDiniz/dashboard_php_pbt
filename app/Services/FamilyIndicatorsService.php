@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\ChildModel;
 use App\Models\FamilyModel;
 
 final class FamilyIndicatorsService
 {
-    public function __construct(private readonly FamilyModel $familyModel)
-    {
+    public function __construct(
+        private readonly FamilyModel $familyModel,
+        private readonly ChildModel $childModel
+    ) {
     }
 
     public function recalculate(int $familyId): void
@@ -20,7 +23,8 @@ final class FamilyIndicatorsService
         }
 
         $members = $this->familyModel->listFamilyMembersSummary($familyId);
-        $childrenCount = $this->familyModel->countChildren($familyId);
+        $children = $this->childModel->findByFamilyId($familyId);
+        $childrenCount = count($children);
 
         $adultsCount = FamilyDataSupport::isAdult((string) ($family['birth_date'] ?? '')) ? 1 : 0;
         $workersCount = (int) ($family['responsible_works'] ?? 0) === 1 ? 1 : 0;
@@ -36,6 +40,10 @@ final class FamilyIndicatorsService
                 $adultsCount++;
             }
             $familyIncomeTotal += (float) ($member['income'] ?? 0);
+        }
+
+        foreach ($children as $child) {
+            $familyIncomeTotal += (float) ($child['income'] ?? 0);
         }
 
         $peopleCount = 1 + $memberCount + $childrenCount;

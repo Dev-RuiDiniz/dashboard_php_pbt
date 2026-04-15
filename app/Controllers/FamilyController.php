@@ -539,7 +539,7 @@ final class FamilyController
 
     private function indicatorsService(): FamilyIndicatorsService
     {
-        return new FamilyIndicatorsService($this->familyModel());
+        return new FamilyIndicatorsService($this->familyModel(), $this->childModel());
     }
 
     private function familyModel(): FamilyModel

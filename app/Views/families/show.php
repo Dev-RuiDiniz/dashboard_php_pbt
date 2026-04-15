@@ -349,7 +349,7 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">CPF</label>
-                                <input class="form-control" name="cpf" required placeholder="000.000.000-00" value="<?= htmlspecialchars((string) ($memberForm['cpf'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                <input class="form-control" name="cpf" placeholder="000.000.000-00" value="<?= htmlspecialchars((string) ($memberForm['cpf'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
                             <div class="col-12 col-md-2">
                                 <label class="form-label">RG</label>
@@ -444,6 +444,10 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                             <div class="col-12 col-md-2">
                                 <label class="form-label">Idade</label>
                                 <input type="text" class="form-control" data-family-age-display readonly tabindex="-1" placeholder="Automatica">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label">Renda</label>
+                                <input class="form-control" name="income" value="<?= htmlspecialchars((string) ($childForm['income'] ?? '0.00'), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">Parentesco</label>
@@ -564,6 +568,7 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                                     <th>Nascimento / Idade</th>
                                     <th>Estuda</th>
                                     <th>Documentos</th>
+                                    <th>Renda</th>
                                     <th>Acoes</th>
                                 </tr>
                             </thead>
@@ -593,6 +598,7 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                                             <div>CPF: <?= htmlspecialchars((string) ($child['cpf'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                             <div>RG: <?= htmlspecialchars((string) ($child['rg'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></div>
                                         </td>
+                                        <td>R$ <?= number_format((float) ($child['income'] ?? 0), 2, ',', '.') ?></td>
                                         <td>
                                             <div class="d-flex flex-wrap gap-2">
                                                 <a class="btn btn-sm btn-outline-secondary" href="<?= htmlspecialchars($personUrl('child', ['child_edit' => $childId]), ENT_QUOTES, 'UTF-8') ?>">Editar</a>

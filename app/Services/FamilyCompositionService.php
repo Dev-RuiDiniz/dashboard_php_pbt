@@ -77,6 +77,7 @@ final class FamilyCompositionService
             'relationship' => '',
             'studies' => 0,
             'notes' => '',
+            'income' => '0.00',
             'person_type' => 'child',
         ];
     }
@@ -131,6 +132,7 @@ final class FamilyCompositionService
             'relationship' => trim((string) ($post['relationship'] ?? '')),
             'studies' => isset($post['studies']) ? 1 : 0,
             'notes' => trim((string) ($post['notes'] ?? '')),
+            'income' => FamilyDataSupport::sanitizeMoney((string) ($post['income'] ?? '0')),
             'person_type' => 'child',
         ];
     }
@@ -249,6 +251,10 @@ final class FamilyCompositionService
             return 'RG invalido. Use o formato 00.000.000-0.';
         }
 
+        if (!is_numeric((string) ($input['income'] ?? '0'))) {
+            return 'Renda da crianca invalida.';
+        }
+
         return null;
     }
 
@@ -348,6 +354,7 @@ final class FamilyCompositionService
             'relationship' => ($input['relationship'] ?? '') !== '' ? $input['relationship'] : null,
             'studies' => (int) ($input['studies'] ?? 0),
             'notes' => ($input['notes'] ?? '') !== '' ? $input['notes'] : null,
+            'income' => $input['income'],
         ];
     }
 }
