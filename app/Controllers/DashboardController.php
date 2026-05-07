@@ -36,7 +36,7 @@ final class DashboardController
             $staleFamilies = $this->dashboardModel()->listStaleFamilies($staleDays, 5);
             $overdueLoansCount = $this->loanModel()->countOverdue();
             $overdueLoans = $this->loanModel()->listOverdue(5);
-            $neighborhoodHeatmap = $this->dashboardModel()->listNeighborhoodNeedHeatmap(30);
+            $neighborhoodPriorityMap = $this->dashboardModel()->listNeighborhoodPriorityMap(30, $staleDays);
         } catch (Throwable $exception) {
             $summary = [];
             $pendingDocsCount = 0;
@@ -47,7 +47,7 @@ final class DashboardController
             $staleFamilies = [];
             $overdueLoansCount = 0;
             $overdueLoans = [];
-            $neighborhoodHeatmap = [];
+            $neighborhoodPriorityMap = [];
         }
 
         View::render('dashboard.index', [
@@ -66,7 +66,8 @@ final class DashboardController
             'staleFamilies' => $staleFamilies,
             'overdueLoansCount' => $overdueLoansCount,
             'overdueLoans' => $overdueLoans,
-            'neighborhoodHeatmap' => $neighborhoodHeatmap,
+            'neighborhoodPriorityMap' => $neighborhoodPriorityMap,
+            'neighborhoodHeatmap' => $neighborhoodPriorityMap,
             'staleDays' => $staleDays,
             'periodStart' => $periodStart,
             'periodEnd' => $periodEnd,
