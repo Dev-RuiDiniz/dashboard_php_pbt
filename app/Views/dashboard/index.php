@@ -9,6 +9,10 @@ $summary = is_array($summary ?? null) ? $summary : [];
 $familiesSummary = is_array($summary['families'] ?? null) ? $summary['families'] : [];
 $peopleSummary = is_array($summary['people'] ?? null) ? $summary['people'] : [];
 $deliveriesSummary = is_array($summary['deliveries'] ?? null) ? $summary['deliveries'] : [];
+$pendingDocs = is_array($pendingDocs ?? null) ? $pendingDocs : [];
+$pendingVisits = is_array($pendingVisits ?? null) ? $pendingVisits : [];
+$staleFamilies = is_array($staleFamilies ?? null) ? $staleFamilies : [];
+$overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
 $priorityMap = is_array($neighborhoodPriorityMap ?? null)
     ? $neighborhoodPriorityMap
     : (is_array($neighborhoodHeatmap ?? null) ? $neighborhoodHeatmap : []);
@@ -122,13 +126,111 @@ $priorityMap = is_array($neighborhoodPriorityMap ?? null)
                                             <td class="text-end"><?= (int) ($row['children_count'] ?? 0) ?></td>
                                             <td class="text-end">
                                                 <span class="heat-badge" style="background-color: rgba(186, 138, 69, <?= number_format($opacity, 3, '.', '') ?>);">
-                                                    <?= $score ?>
+                                                    <?= $scor ?>
                                                 </span>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-secondary mb-3">Documentacao pendente</h2>
+                    <?php if (empty($pendingDocs)) : ?>
+                        <div class="small text-secondary">Sem pendencias de documentacao.</div>
+                    <?php else : ?>
+                        <div class="list-group list-group-flush">
+                            <?php foreach ($pendingDocs as $doc) : ?>
+                                <a class="list-group-item list-group-item-action px-0" href="/families/show?id=<?= (int) ($doc['id'] ?? 0) ?>">
+                                    <div class="fw-semibold"><?= $e($doc['responsible_name'] ?? '') ?></div>
+                                    <div class="small text-secondary"><?= $e($doc['documentation_status'] ?? '') ?></div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-secondary mb-3">Visitas pendentes</h2>
+                    <?php if (empty($pendingVisits)) : ?>
+                        <div class="small text-secondary">Sem visitas pendentes.</div>
+                    <?php else : ?>
+                        <div class="list-group list-group-flush">
+                            <?php foreach ($pendingVisits as $visit) : ?>
+                                <a class="list-group-item list-group-item-action px-0" href="/visits">
+                                    <div class="fw-semibold">
+                                        <?= $e(($visit['family_name'] ?? '') ?: (($visit['person_full_name'] ?? '') ?: ($visit['person_social_name'] ?? ''))) ?>
+                                    </div>
+                                    <div class="small text-secondary">
+                                        <?= $e($visit['status'] ?? '') ?>
+                                        <?php if (!empty($visit['scheduled_date'])) : ?>
+                                            · <?= $e($visit['scheduled_date']) ?>
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-secondary mb-3">Familias sem atualizacao ha mais de <?= (int) ($staleDays ?? 30) ?> dias</h2>
+                    <?php if (empty($staleFamilies)) : ?>
+                        <div class="small text-secondary">Sem alertas de familias sem atualizacao.</div>
+                    <?php else : ?>
+                        <div class="list-group list-group-flush">
+                            <?php foreach ($staleFamilies as $family) : ?>
+                                <a class="list-group-item list-group-item-action px-0" href="/families/show?id=<?= (int) ($family['id'] ?? 0) ?>">
+                                    <div class="fw-semibold"><?= $e($family['responsible_name'] ?? '') ?></div>
+                                    <div class="small text-secondary">
+                                        <?= $e(trim((string) (($family['neighborhood'] ?? '') . ' ' . ($family['city'] ?? '')))) ?>
+                                        · <?= $e($family['updated_at'] ?? '') ?>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-secondary mb-3">Devolucoes atrasadas</h2>
+                    <?php if (empty($overdueLoans)) : ?>
+                        <div class="small text-secondary">Sem devolucoes atrasadas no momento.</div>
+                    <?php else : ?>
+                        <div class="list-group list-group-flush">
+                            <?php foreach ($overdueLoans as $loan) : ?>
+                                <a class="list-group-item list-group-item-action px-0" href="/equipment-loans">
+                                    <div class="fw-semibold">
+                                        <?= $e($loan['equipment_code'] ?? '') ?>
+                                        · <?= $e($loan['equipment_type'] ?? '') ?>
+                                    </div>
+                                    <div class="small text-secondary">
+                                        <?= $e(($loan['family_name'] ?? '') ?: (($loan['person_full_name'] ?? '') ?: ($loan['person_social_name'] ?? '-'))) ?>
+                                        · venc.: <?= $e($loan['due_date'] ?? '') ?>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -150,7 +252,7 @@ $priorityMap = is_array($neighborhoodPriorityMap ?? null)
                 <a class="btn btn-outline-secondary" href="/visits/create">Solicitar visita</a>
                 <a class="btn btn-outline-secondary" href="/reports">Relatorios</a>
                 <?php if ($userRole === 'admin') : ?>
-                    <a class="btn btn-teal text-white" href="/users">Gerenciar userios</a>
+                    <a class="btn btn-teal text-white" href="/users">Gerenciar usuarios</a>
                 <?php endif; ?>
             </div>
         </div>
