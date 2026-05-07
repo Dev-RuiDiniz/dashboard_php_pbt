@@ -107,6 +107,49 @@ final class DashboardModel
         return is_array($rows) ? $rows : [];
     }
 
+    public function listNeighborhoodNeedHeatmap(int $limit = 30): array
+    {
+        $sql = 'SELECT
+                    base.neighborhood_label AS neighborhood,
+                    base.total_families,
+                    COALESCE(served.served_families, 0) AS served_families,
+                    ROUND(
+                        (COALESCE(served.served_families, 0) / NULLIF(base.total_families, 0)) * 100,
+                        2
+                    ) AS need_percentage
+                FROM (
+                    SELECT
+                        UPPER(TRIM(f.neighborhood)) AS neighborhood_key,
+                        MAX(TRIM(f.neighborhood)) AS neighborhood_label,
+                        COUNT(*) AS total_families
+                    FROM families f
+                    WHERE f.is_active = 1
+                      AND TRIM(COALESCE(f.neighborhood, \'\')) <> \'\'
+                      AND LOWER(TRIM(COALESCE(f.city, \'\'))) IN (\'taubate\', \'taubaté\')
+                    GROUP BY UPPER(TRIM(f.neighborhood))
+                ) base
+                LEFT JOIN (
+                    SELECT
+                        UPPER(TRIM(f.neighborhood)) AS neighborhood_key,
+                        COUNT(DISTINCT d.family_id) AS served_families
+                    FROM deliveries d
+                    INNER JOIN families f ON f.id = d.family_id
+                    WHERE d.status = \'retirou\'
+                      AND f.is_active = 1
+                      AND TRIM(COALESCE(f.neighborhood, \'\')) <> \'\'
+                      AND LOWER(TRIM(COALESCE(f.city, \'\'))) IN (\'taubate\', \'taubaté\')
+                    GROUP BY UPPER(TRIM(f.neighborhood))
+                ) served ON served.neighborhood_key = base.neighborhood_key
+                ORDER BY need_percentage DESC, base.total_families DESC, base.neighborhood_label ASC
+                LIMIT :limit_rows';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':limit_rows', max(1, min(100, $limit)), PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+        return is_array($rows) ? $rows : [];
+    }
+
     private function fetchOne(string $sql, array $params = []): array
     {
         $stmt = $this->pdo->prepare($sql);

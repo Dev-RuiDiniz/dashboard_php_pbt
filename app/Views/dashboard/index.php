@@ -14,6 +14,7 @@ $pendingDocs = is_array($pendingDocs ?? null) ? $pendingDocs : [];
 $pendingVisits = is_array($pendingVisits ?? null) ? $pendingVisits : [];
 $staleFamilies = is_array($staleFamilies ?? null) ? $staleFamilies : [];
 $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
+$neighborhoodHeatmap = is_array($neighborhoodHeatmap ?? null) ? $neighborhoodHeatmap : [];
 ?>
 <?php if (!empty($success)) : ?>
     <div class="alert alert-success shadow-sm border-0"><?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?></div>
@@ -203,6 +204,49 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
                 <?php endif; ?>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h2 class="h6 text-uppercase text-secondary mb-0">Mapa de calor por bairro (Taubate)</h2>
+            <div class="small text-secondary">Historico: familias com retirada / familias ativas cadastradas</div>
+        </div>
+        <?php if (empty($neighborhoodHeatmap)) : ?>
+            <div class="small text-secondary">Sem dados suficientes para calcular o mapa de calor.</div>
+        <?php else : ?>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Bairro</th>
+                            <th scope="col" class="text-end">Familias ativas</th>
+                            <th scope="col" class="text-end">Familias com retirada</th>
+                            <th scope="col" class="text-end">% carencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($neighborhoodHeatmap as $row) : ?>
+                            <?php
+                            $percentage = max(0, min(100, (float) ($row['need_percentage'] ?? 0)));
+                            $opacity = 0.08 + (0.007 * $percentage);
+                            ?>
+                            <tr>
+                                <td><?= htmlspecialchars((string) ($row['neighborhood'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                <td class="text-end"><?= (int) ($row['total_families'] ?? 0) ?></td>
+                                <td class="text-end"><?= (int) ($row['served_families'] ?? 0) ?></td>
+                                <td class="text-end">
+                                    <span class="heat-badge" style="background-color: rgba(186, 138, 69, <?= number_format($opacity, 3, '.', '') ?>);">
+                                        <?= number_format($percentage, 2, ',', '.') ?>%
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

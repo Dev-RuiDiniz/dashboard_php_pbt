@@ -125,6 +125,17 @@ Sistema web em PHP + MySQL para operacao social da igreja, com controle de famil
 - Entregas de cesta basica mantem o bloqueio mensal como regra padrao, mas agora administradores podem registrar excecao manual com justificativa gravada na propria entrega.
 - A aplicacao passou a definir timezone padrao em `America/Sao_Paulo` no bootstrap e na sessao MySQL para reduzir o adiantamento de horario reportado pelo cliente.
 
+## Atualizacoes funcionais de 07/05/2026
+- Dashboard passou a exibir o bloco `Mapa de calor por bairro (Taubate)` em formato de tabela com intensidade por cor.
+- Calculo do indicador por bairro:
+  - numerador: familias com pelo menos uma entrega de cesta em status `retirou` (historico acumulado)
+  - denominador: total de familias ativas cadastradas no bairro
+  - formula: `% carencia = familias com retirada / familias ativas`
+- Escopo geografico atual do indicador:
+  - somente registros da cidade de Taubate (incluindo variacao `Taubaté`)
+  - bairros vazios sao desconsiderados do agrupamento
+- Ordenacao do bloco: maior `% carencia`, depois maior total de familias, depois nome do bairro.
+
 ## Migrations disponiveis
 - `012_family_people_addiction_housing_and_chronic_multiselect.sql`
   - adiciona campos de vicio e complementos de saude/moradia em `families` e `people`
