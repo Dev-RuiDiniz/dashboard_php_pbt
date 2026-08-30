@@ -190,7 +190,7 @@ body.bg-light {
 
 .system-logo {
   display: block;
-  height: 44px;
+  height: 60px;
   width: auto;
   object-fit: contain;
   border-radius: 0.55rem;
@@ -535,7 +535,7 @@ code {
   }
 
   .system-logo {
-    height: 36px;
+    height: 58px;
   }
 
   .login-logo {
@@ -567,7 +567,7 @@ code {
 
   .system-logo {
     width: 100%;
-    height: 34px;
+    height: 56px;
     object-fit: contain;
   }
 

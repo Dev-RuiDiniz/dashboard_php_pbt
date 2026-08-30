@@ -86,7 +86,6 @@ if ($layoutUserRole === 'admin') {
                             <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
                                 Menu
                             </button>
-                            <div class="small text-uppercase text-secondary fw-semibold text-truncate"><?= htmlspecialchars($layoutAppName, ENT_QUOTES, 'UTF-8') ?></div>
                         </div>
                         <div class="system-logos d-flex align-items-center justify-content-between mb-3">
                             <img src="/assets/logo_cliente.jpeg" alt="Logo cliente" class="system-logo">
@@ -115,8 +114,7 @@ if ($layoutUserRole === 'admin') {
 
                 <footer class="app-footer border-top bg-white">
                     <div class="container-fluid px-3 px-md-4 py-2 small text-secondary d-flex justify-content-between flex-wrap gap-2">
-                        <span>Dashboard PHP PBT</span>
-                        <span>MVP pronto para deploy</span>
+                        <span>Dashboard Primeira Igreja Batista</span>
                     </div>
                 </footer>
             </div>
