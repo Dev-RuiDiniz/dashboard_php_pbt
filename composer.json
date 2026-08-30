@@ -1,6 +1,7 @@
 {
   "name": "dashboard-php-pbt/igreja-social",
   "description": "Sistema web de acao social (Igreja Social) em PHP + MySQL",
+  "license": "proprietary",
   "type": "project",
   "require": {
     "php": "^8.2",
