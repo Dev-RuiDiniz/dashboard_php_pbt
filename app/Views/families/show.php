@@ -243,8 +243,8 @@ $hasDocumentationPending = in_array((string) ($family['documentation_status'] ??
                                 <input class="form-control" name="responsible_name" required value="<?= htmlspecialchars((string) ($principalForm['responsible_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
                             <div class="col-12 col-md-3">
-                                <label class="form-label">CPF</label>
-                                <input class="form-control" name="cpf_responsible" required placeholder="000.000.000-00" value="<?= htmlspecialchars((string) ($principalForm['cpf_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                <label class="form-label">CPF (opcional)</label>
+                                <input class="form-control" name="cpf_responsible" placeholder="000.000.000-00" value="<?= htmlspecialchars((string) ($principalForm['cpf_responsible'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label">RG</label>

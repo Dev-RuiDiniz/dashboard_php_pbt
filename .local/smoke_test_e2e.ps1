@@ -1,6 +1,10 @@
+param(
+    [string]$BaseUrl = 'http://127.0.0.1:8000'
+)
+
 $ErrorActionPreference = 'Stop'
 
-$baseUrl = 'http://127.0.0.1:8102'
+$baseUrl = $BaseUrl.TrimEnd('/')
 $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $tag = [guid]::NewGuid().ToString('N').Substring(0, 8)
 $today = Get-Date -Format 'yyyy-MM-dd'
@@ -37,6 +41,30 @@ $null = Invoke-WebRequest -Uri "$baseUrl/families/update?id=$familyId" -Method P
 $checkUpdated = Invoke-WebRequest -Uri "$baseUrl/families?q=$([uri]::EscapeDataString($familyNameUpdated))" -WebSession $session -UseBasicParsing
 Assert-True ($checkUpdated.Content -match [regex]::Escape($familyNameUpdated)) 'family update'
 $results.Add('Familias CRUD: OK')
+
+$principalWithoutCpf = Invoke-WebRequest -Uri "$baseUrl/families/principal/update?family_id=$familyId" -Method Post -Body @{
+    responsible_name=$familyNameUpdated
+    cpf_responsible=''
+    responsible_income='1234.56'
+    responsible_works='1'
+} -WebSession $session -UseBasicParsing
+Assert-True ($principalWithoutCpf.Content -match '1\.234,56' -and $principalWithoutCpf.Content -notmatch 'CPF.{0,40}obrigat') 'salvar renda do responsavel sem CPF'
+$results.Add('Renda do responsavel sem CPF: OK')
+
+$principalWithValidCpf = Invoke-WebRequest -Uri "$baseUrl/families/principal/update?family_id=$familyId" -Method Post -Body @{
+    responsible_name=$familyNameUpdated
+    cpf_responsible='529.982.247-25'
+    responsible_income='2345.67'
+} -WebSession $session -UseBasicParsing
+Assert-True ($principalWithValidCpf.Content -match '2\.345,67' -and $principalWithValidCpf.Content -notmatch 'CPF invalido') 'validar CPF valido do responsavel'
+
+$principalWithInvalidCpf = Invoke-WebRequest -Uri "$baseUrl/families/principal/update?family_id=$familyId" -Method Post -Body @{
+    responsible_name=$familyNameUpdated
+    cpf_responsible='111.111.111-11'
+    responsible_income='2345.67'
+} -WebSession $session -UseBasicParsing
+Assert-True ($principalWithInvalidCpf.Content -match 'CPF invalido') 'rejeitar CPF invalido do responsavel'
+$results.Add('Validacao de CPF informado: OK')
 
 # People CRUD + Social Record CRUD
 $personName = "Teste Pessoa $tag"

@@ -143,10 +143,6 @@ final class FamilyCompositionService
             return 'Nome do responsavel principal e obrigatorio.';
         }
 
-        if (trim((string) ($input['cpf_responsible'] ?? '')) === '') {
-            return 'CPF do responsavel principal e obrigatorio.';
-        }
-
         $rg = trim((string) ($input['rg_responsible'] ?? ''));
         if ($rg !== '' && !FamilyDataSupport::isRgValid($rg)) {
             return 'RG invalido. Use o formato 00.000.000-0.';
@@ -156,22 +152,25 @@ final class FamilyCompositionService
             return 'Renda do responsavel principal invalida.';
         }
 
-        if (!CpfService::isValid((string) ($input['cpf_responsible'] ?? ''))) {
-            return 'CPF invalido.';
-        }
+        $cpf = trim((string) ($input['cpf_responsible'] ?? ''));
+        if ($cpf !== '') {
+            if (!CpfService::isValid($cpf)) {
+                return 'CPF invalido.';
+            }
 
-        $input['cpf_responsible'] = (string) CpfService::format((string) $input['cpf_responsible']);
+            $input['cpf_responsible'] = (string) CpfService::format($cpf);
 
-        try {
-            $conflict = $this->familyModel->findCpfConflict((string) $input['cpf_responsible'], [
-                'family_id' => $familyId,
-            ]);
-        } catch (Throwable) {
-            return 'Falha ao validar duplicidade de CPF.';
-        }
+            try {
+                $conflict = $this->familyModel->findCpfConflict((string) $input['cpf_responsible'], [
+                    'family_id' => $familyId,
+                ]);
+            } catch (Throwable) {
+                return 'Falha ao validar duplicidade de CPF.';
+            }
 
-        if ($conflict !== null) {
-            return FamilyDataSupport::buildCpfConflictMessage($conflict);
+            if ($conflict !== null) {
+                return FamilyDataSupport::buildCpfConflictMessage($conflict);
+            }
         }
 
         return null;
