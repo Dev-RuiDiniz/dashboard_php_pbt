@@ -37,7 +37,7 @@ O cadastro geral já tratava `cpf_responsible` como opcional, mas a tela de comp
 - Foi criado teste transacional com 205 famílias para impedir regressão do truncamento.
 - Os logos do cabeçalho foram ampliados para melhorar a leitura em telas estreitas.
 - O rótulo redundante do cabeçalho móvel e os textos promocionais do rodapé foram removidos; o rodapé agora identifica a instituição como “Dashboard Primeira Igreja Batista”.
-- A tela de login passou a exibir somente o logo principal, ampliado para 192×192 px e centralizado no card.
+- A tela de login passou a exibir somente o logo principal, dimensionado em 96×96 px e centralizado no card.
 - O rótulo “Igreja Social” foi removido da tela de login e o subtítulo foi atualizado para “Dashboard Primeira Igreja Batista”.
 
 ## 4. Arquivos modificados
@@ -53,7 +53,7 @@ O cadastro geral já tratava `cpf_responsible` como opcional, mas a tela de comp
 | `.local/test_family_listing.php` | Teste transacional de listagem acima de 200 registros |
 | `app/Views/auth/login.php` | Mantém apenas o logo principal, centraliza-o e atualiza a identidade textual |
 | `app/Views/layouts/app.php` | Remove rótulo móvel e textos antigos do rodapé |
-| `public/assets/app.css` | Amplia os logos do cabeçalho e o logo do login para 192 px |
+| `public/assets/app.css` | Amplia os logos do cabeçalho e dimensiona o logo do login em 96 px |
 | `docs/RELATORIO_CORRECOES_FAMILIAS_ENTREGAS_2026-08-30.md` | Registro técnico desta entrega |
 
 ## 5. Banco e preservação de dados
@@ -75,7 +75,7 @@ Não foi necessária migration. A coluna `families.cpf_responsible` já aceita `
 - `/health`: HTTP 200 com `status: ok`.
 - Navegador real: busca por nome e CPF filtrou corretamente as opções do seletor.
 - Navegador real: tela de login validada em 770×740 e 390×844, com apenas um logo, sem overflow horizontal e sem erros de console; o link de recuperação de senha continuou navegando para `/forgot-password`.
-- Navegador real: logo do login validado com 192×192 px e centralização exata dentro do card em 770×740 e 390×844; “Igreja Social” ausente e subtítulo institucional atualizado.
+- Navegador real: logo do login validado com 96×96 px e centralização exata dentro do card em 770×740 e 390×844; “Igreja Social” ausente e subtítulo institucional atualizado.
 - `git diff --check`: executado antes dos commits funcionais.
 
 O navegador ainda registra dois avisos preexistentes fora deste escopo: a fonte Google é bloqueada pela CSP atual e `favicon.ico` retorna 404. Não houve erro JavaScript introduzido pelo seletor.
@@ -95,5 +95,7 @@ O navegador ainda registra dois avisos preexistentes fora deste escopo: a fonte 
 - `docs(login): registra ajustes de identidade visual`
 - `fix(login): amplia logo institucional`
 - `docs(login): atualiza tamanho do logo institucional`
+- `fix(login): reduz logo institucional pela metade`
+- `docs(login): registra redução do logo institucional`
 
 O push foi realizado após a conclusão das validações finais.
