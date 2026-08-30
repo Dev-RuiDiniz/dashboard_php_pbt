@@ -53,7 +53,7 @@ $results.Add('Renda do responsavel sem CPF: OK')
 
 $principalWithValidCpf = Invoke-WebRequest -Uri "$baseUrl/families/principal/update?family_id=$familyId" -Method Post -Body @{
     responsible_name=$familyNameUpdated
-    cpf_responsible='529.982.247-25'
+    cpf_responsible='123.456.789-09'
     responsible_income='2345.67'
 } -WebSession $session -UseBasicParsing
 Assert-True ($principalWithValidCpf.Content -match '2\.345,67' -and $principalWithValidCpf.Content -notmatch 'CPF invalido') 'validar CPF valido do responsavel'
@@ -105,6 +105,9 @@ $eventName = "Teste Evento $tag"
 $null = Invoke-WebRequest -Uri "$baseUrl/delivery-events" -Method Post -Body @{ name=$eventName; event_date=$today; status='rascunho'; block_multiple_same_month='1' } -WebSession $session -UseBasicParsing
 $eventsPage = Invoke-WebRequest -Uri "$baseUrl/delivery-events?q=$([uri]::EscapeDataString($eventName))" -WebSession $session -UseBasicParsing
 $eventId = Get-FirstMatch $eventsPage.Content "/delivery-events/show\?id=(\d+)" 'event id'
+
+$eventShowBeforeDelivery = Invoke-WebRequest -Uri "$baseUrl/delivery-events/show?id=$eventId" -WebSession $session -UseBasicParsing
+Assert-True ($eventShowBeforeDelivery.Content -match 'data-family-selector-search') 'campo pesquisavel de familias nas entregas'
 
 $null = Invoke-WebRequest -Uri "$baseUrl/delivery-events/deliveries?event_id=$eventId" -Method Post -Body @{ target_type='family'; family_id=$deliveryFamilyId; quantity='1'; observations='Teste' } -WebSession $session -UseBasicParsing
 $eventShow = Invoke-WebRequest -Uri "$baseUrl/delivery-events/show?id=$eventId" -WebSession $session -UseBasicParsing

@@ -153,13 +153,18 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Familia (quando tipo = familia)</label>
-                                <select class="form-select" name="family_id">
+                                <label class="form-label" for="delivery-family-search">Pesquisar familia por nome ou CPF</label>
+                                <input type="search" class="form-control mb-2" id="delivery-family-search" placeholder="Digite o nome ou CPF" data-family-selector-search="#delivery-family-selector">
+                                <label class="form-label" for="delivery-family-selector">Familia (quando tipo = familia)</label>
+                                <select class="form-select" id="delivery-family-selector" name="family_id">
                                     <option value="0">Selecione</option>
                                     <?php foreach ($families as $family) : ?>
                                         <?php $fid = (int) ($family['id'] ?? 0); ?>
+                                        <?php $familyName = (string) ($family['responsible_name'] ?? ''); ?>
+                                        <?php $familyCpf = (string) ($family['cpf_responsible'] ?? ''); ?>
                                         <option value="<?= $fid ?>" <?= ((int) ($deliveryForm['family_id'] ?? 0) === $fid) ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars((string) ($family['responsible_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
+                                            <?= htmlspecialchars($familyName, ENT_QUOTES, 'UTF-8') ?>
+                                            <?= $familyCpf !== '' ? ' - ' . htmlspecialchars($familyCpf, ENT_QUOTES, 'UTF-8') : '' ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

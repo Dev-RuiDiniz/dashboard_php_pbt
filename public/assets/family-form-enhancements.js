@@ -172,6 +172,31 @@
         });
     }
 
+    function initFamilySelectorSearch(scope) {
+        var root = scope || document;
+        Array.prototype.slice.call(root.querySelectorAll('[data-family-selector-search]')).forEach(function (input) {
+            var selector = input.getAttribute('data-family-selector-search');
+            var select = selector ? root.querySelector(selector) : null;
+            if (!select || input.dataset.familySearchBound === '1') {
+                return;
+            }
+
+            input.dataset.familySearchBound = '1';
+            var options = Array.prototype.slice.call(select.querySelectorAll('option'));
+
+            function filterOptions() {
+                var query = String(input.value || '').trim().toLocaleLowerCase();
+                options.forEach(function (option) {
+                    var text = String(option.textContent || '').trim().toLocaleLowerCase();
+                    option.hidden = query !== '' && text.indexOf(query) === -1;
+                });
+            }
+
+            input.addEventListener('input', filterOptions);
+            filterOptions();
+        });
+    }
+
     function initFamilyPersonHub() {
         var hub = document.querySelector('[data-person-hub]');
         if (!hub) {
@@ -264,12 +289,14 @@
         formatPhone: formatPhone,
         formatRg: formatRg,
         initMasks: initMasks,
-        initFormBehaviors: initFormBehaviors
+        initFormBehaviors: initFormBehaviors,
+        initFamilySelectorSearch: initFamilySelectorSearch
     };
 
     document.addEventListener('DOMContentLoaded', function () {
         initMasks(document);
         initFormBehaviors(document);
+        initFamilySelectorSearch(document);
         initFamilyPersonHub();
     });
 })();
