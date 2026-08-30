@@ -91,7 +91,19 @@ $results.Add('Eventos de entrega + lista operacional delete: OK')
 $null = Invoke-WebRequest -Uri "$baseUrl/equipment" -Method Post -Body @{ type='muleta'; condition_state='bom'; status='disponivel'; notes='equip teste e2e' } -WebSession $session -UseBasicParsing
 $equipmentPage = Invoke-WebRequest -Uri "$baseUrl/equipment" -WebSession $session -UseBasicParsing
 $equipmentId = Get-FirstMatch $equipmentPage.Content '/equipment/edit\?id=(\d+)' 'equipment id'
-$null = Invoke-WebRequest -Uri "$baseUrl/equipment-loans" -Method Post -Body @{ equipment_id=$equipmentId; target_type='family'; family_id=$deliveryFamilyId; loan_date=$today; due_date=$due; notes='Emprestimo teste' } -WebSession $session -UseBasicParsing
+$null = Invoke-WebRequest -Uri "$baseUrl/equipment-loans" -Method Post -Body @{
+    equipment_id=$equipmentId
+    target_type='family'
+    family_id=$deliveryFamilyId
+    borrower_name="Responsavel Teste $tag"
+    borrower_phone='(12) 99999-0000'
+    borrower_cpf='123.456.789-00'
+    borrower_address='Rua de Teste, 100 - Centro'
+    equipment_user_name="Usuario Equipamento $tag"
+    loan_date=$today
+    due_date=$due
+    notes='Emprestimo teste'
+} -WebSession $session -UseBasicParsing
 $loansAfterCreate = Invoke-WebRequest -Uri "$baseUrl/equipment-loans" -WebSession $session -UseBasicParsing
 $loanId = Get-FirstMatch $loansAfterCreate.Content '/equipment-loans/delete\?id=(\d+)' 'loan id'
 $null = Invoke-WebRequest -Uri "$baseUrl/equipment-loans/delete?id=$loanId" -Method Post -WebSession $session -UseBasicParsing
