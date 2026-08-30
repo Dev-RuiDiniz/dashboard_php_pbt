@@ -16,13 +16,12 @@ declare(strict_types=1);
             <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
                 <div class="card border-0 shadow-lg rounded-4 login-card">
                     <div class="card-body p-4 p-md-5">
-                        <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="d-flex align-items-center justify-content-center mb-4">
                             <img src="/assets/logo_cliente.jpeg" alt="Logo cliente" class="login-logo">
                         </div>
                         <div class="mb-4">
-                            <div class="text-uppercase small text-secondary fw-semibold">Igreja Social</div>
                             <h1 class="h4 mb-1">Login</h1>
-                            <p class="text-secondary mb-0"><?= htmlspecialchars($appName ?? 'Dashboard PHP PBT', ENT_QUOTES, 'UTF-8') ?></p>
+                            <p class="text-secondary mb-0">Dashboard Primeira Igreja Batista</p>
                         </div>
 
                         <?php if (!empty($error)) : ?>
