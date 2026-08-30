@@ -25,6 +25,30 @@ function Get-FirstMatch([string]$content, [string]$pattern, [string]$label) {
     return $m.Groups[1].Value
 }
 
+function New-ValidCpf([string]$seed) {
+    $baseNumber = [Convert]::ToInt64($seed, 16) % 1000000000
+    $digits = $baseNumber.ToString('D9')
+    if ($digits -match '^(\d)\1{8}$') {
+        $digits = '123456789'
+    }
+
+    $sum = 0
+    for ($index = 0; $index -lt 9; $index++) {
+        $sum += ([int] $digits.Substring($index, 1)) * (10 - $index)
+    }
+    $firstCheck = (($sum * 10) % 11) % 10
+    $withFirstCheck = $digits + $firstCheck
+
+    $sum = 0
+    for ($index = 0; $index -lt 10; $index++) {
+        $sum += ([int] $withFirstCheck.Substring($index, 1)) * (11 - $index)
+    }
+    $secondCheck = (($sum * 10) % 11) % 10
+    $raw = $withFirstCheck + $secondCheck
+
+    return '{0}.{1}.{2}-{3}' -f $raw.Substring(0, 3), $raw.Substring(3, 3), $raw.Substring(6, 3), $raw.Substring(9, 2)
+}
+
 # Login
 $null = Invoke-WebRequest -Uri "$baseUrl/login" -WebSession $session -UseBasicParsing
 $loginResp = Invoke-WebRequest -Uri "$baseUrl/login" -Method Post -Body @{ email='admin@igrejasocial.local'; password='admin123' } -WebSession $session -UseBasicParsing
@@ -34,6 +58,7 @@ $results.Add('Login admin: OK')
 # Families CRUD
 $familyName = "Teste Familia $tag"
 $familyNameUpdated = "Teste Familia $tag Atualizada"
+$validCpf = New-ValidCpf $tag
 $null = Invoke-WebRequest -Uri "$baseUrl/families" -Method Post -Body @{ responsible_name=$familyName; city='Sao Paulo'; state='SP'; is_active='1' } -WebSession $session -UseBasicParsing
 $familiesPage = Invoke-WebRequest -Uri "$baseUrl/families?q=$([uri]::EscapeDataString($familyName))" -WebSession $session -UseBasicParsing
 $familyId = Get-FirstMatch $familiesPage.Content "/families/show\?id=(\d+)" 'family id'
@@ -53,7 +78,7 @@ $results.Add('Renda do responsavel sem CPF: OK')
 
 $principalWithValidCpf = Invoke-WebRequest -Uri "$baseUrl/families/principal/update?family_id=$familyId" -Method Post -Body @{
     responsible_name=$familyNameUpdated
-    cpf_responsible='123.456.789-09'
+    cpf_responsible=$validCpf
     responsible_income='2345.67'
 } -WebSession $session -UseBasicParsing
 Assert-True ($principalWithValidCpf.Content -match '2\.345,67' -and $principalWithValidCpf.Content -notmatch 'CPF invalido') 'validar CPF valido do responsavel'
