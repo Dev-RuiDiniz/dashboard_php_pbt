@@ -90,4 +90,4 @@ O navegador ainda registra dois avisos preexistentes fora deste escopo: a fonte 
 - `fix(layout): ajusta logos e textos institucionais`
 - `docs(layout): registra ajustes visuais do cabeçalho e login`
 
-O push será feito somente depois de todos os testes finais passarem.
+O push foi realizado após a conclusão das validações finais.
