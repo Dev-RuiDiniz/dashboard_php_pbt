@@ -37,7 +37,8 @@ O cadastro geral já tratava `cpf_responsible` como opcional, mas a tela de comp
 - Foi criado teste transacional com 205 famílias para impedir regressão do truncamento.
 - Os logos do cabeçalho foram ampliados para melhorar a leitura em telas estreitas.
 - O rótulo redundante do cabeçalho móvel e os textos promocionais do rodapé foram removidos; o rodapé agora identifica a instituição como “Dashboard Primeira Igreja Batista”.
-- A tela de login passou a exibir somente o logo principal.
+- A tela de login passou a exibir somente o logo principal, ampliado e centralizado no card.
+- O rótulo “Igreja Social” foi removido da tela de login e o subtítulo foi atualizado para “Dashboard Primeira Igreja Batista”.
 
 ## 4. Arquivos modificados
 
@@ -50,9 +51,9 @@ O cadastro geral já tratava `cpf_responsible` como opcional, mas a tela de comp
 | `public/assets/family-form-enhancements.js` | Filtro client-side das opções do seletor |
 | `.local/smoke_test_e2e.ps1` | Regressões funcionais e URL parametrizável |
 | `.local/test_family_listing.php` | Teste transacional de listagem acima de 200 registros |
-| `app/Views/auth/login.php` | Remove o segundo logo da tela de login |
+| `app/Views/auth/login.php` | Mantém apenas o logo principal, centraliza-o e atualiza a identidade textual |
 | `app/Views/layouts/app.php` | Remove rótulo móvel e textos antigos do rodapé |
-| `public/assets/app.css` | Amplia os logos do cabeçalho em desktop e telas estreitas |
+| `public/assets/app.css` | Amplia os logos do cabeçalho e do login |
 | `docs/RELATORIO_CORRECOES_FAMILIAS_ENTREGAS_2026-08-30.md` | Registro técnico desta entrega |
 
 ## 5. Banco e preservação de dados
@@ -74,6 +75,7 @@ Não foi necessária migration. A coluna `families.cpf_responsible` já aceita `
 - `/health`: HTTP 200 com `status: ok`.
 - Navegador real: busca por nome e CPF filtrou corretamente as opções do seletor.
 - Navegador real: tela de login validada em 770×740 e 390×844, com apenas um logo, sem overflow horizontal e sem erros de console; o link de recuperação de senha continuou navegando para `/forgot-password`.
+- Navegador real: logo do login validado com 64×64 px e centralização exata dentro do card; “Igreja Social” ausente e subtítulo institucional atualizado.
 - `git diff --check`: executado antes dos commits funcionais.
 
 O navegador ainda registra dois avisos preexistentes fora deste escopo: a fonte Google é bloqueada pela CSP atual e `favicon.ico` retorna 404. Não houve erro JavaScript introduzido pelo seletor.
@@ -89,5 +91,7 @@ O navegador ainda registra dois avisos preexistentes fora deste escopo: a fonte 
 - `docs(correcoes): registra causa raiz e evidencias`
 - `fix(layout): ajusta logos e textos institucionais`
 - `docs(layout): registra ajustes visuais do cabeçalho e login`
+- `fix(login): ajusta identidade visual da tela`
+- `docs(login): registra ajustes de identidade visual`
 
 O push foi realizado após a conclusão das validações finais.
