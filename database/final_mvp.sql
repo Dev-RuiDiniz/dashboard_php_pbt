@@ -133,6 +133,7 @@ CREATE TABLE IF NOT EXISTS children (
   relationship VARCHAR(40) NULL,
   studies TINYINT(1) NOT NULL DEFAULT 0,
   notes TEXT NULL,
+  income DECIMAL(10,2) NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_children_family FOREIGN KEY (family_id) REFERENCES families(id)
@@ -296,6 +297,9 @@ CREATE TABLE IF NOT EXISTS deliveries (
   delivered_at DATETIME NULL,
   delivered_by INT NULL,
   signature_name VARCHAR(160) NULL,
+  monthly_block_exception TINYINT(1) NOT NULL DEFAULT 0,
+  monthly_block_exception_reason VARCHAR(255) NULL,
+  monthly_block_exception_authorized_by INT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_deliveries_event FOREIGN KEY (event_id) REFERENCES delivery_events(id)
@@ -306,11 +310,14 @@ CREATE TABLE IF NOT EXISTS deliveries (
     ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT fk_deliveries_user FOREIGN KEY (delivered_by) REFERENCES users(id)
     ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_deliveries_monthly_block_exception_authorized_by FOREIGN KEY (monthly_block_exception_authorized_by) REFERENCES users(id)
+    ON DELETE SET NULL ON UPDATE CASCADE,
   UNIQUE KEY uq_deliveries_event_ticket (event_id, ticket_number),
   INDEX idx_deliveries_status (status),
   INDEX idx_deliveries_family_id (family_id),
   INDEX idx_deliveries_person_id (person_id),
-  INDEX idx_deliveries_delivered_at (delivered_at)
+  INDEX idx_deliveries_delivered_at (delivered_at),
+  INDEX idx_deliveries_monthly_block_exception (monthly_block_exception)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS equipment (
@@ -493,5 +500,9 @@ VALUES
   ('008_family_people_health_and_benefits.sql'),
   ('009_equipment_loans_borrowers_and_maintenance.sql'),
   ('010_family_and_person_multiple_phones.sql'),
-  ('011_family_rent_amount.sql');
+  ('011_family_rent_amount.sql'),
+  ('012_family_people_addiction_housing_and_chronic_multiselect.sql'),
+  ('013_family_members_social_benefit_and_purpose.sql'),
+  ('014_delivery_monthly_block_exception.sql'),
+  ('015_add_income_to_children.sql');
 
