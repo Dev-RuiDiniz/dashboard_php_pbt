@@ -24,7 +24,7 @@ final class FamilyModel
 
         $sql .= $this->buildFilterSql($filters, $params);
 
-        $sql .= ' ORDER BY responsible_name ASC, id DESC LIMIT 200';
+        $sql .= ' ORDER BY responsible_name ASC, id DESC';
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
