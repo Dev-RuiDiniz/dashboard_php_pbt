@@ -199,7 +199,7 @@ body.bg-light {
 }
 
 .login-logo {
-  height: 192px;
+  height: 96px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
@@ -540,7 +540,7 @@ code {
   }
 
   .login-logo {
-    height: 192px;
+    height: 96px;
   }
 
   .app-header .h4 {
