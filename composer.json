@@ -13,7 +13,6 @@
     }
   },
   "scripts": {
-    "serve": "php -S localhost:8000 -t public",
-    "lint": "find app config database public -name '*.php' -print0 | xargs -0 -n1 php -l"
+    "serve": "php -S localhost:8000 -t public"
   }
 }

@@ -190,7 +190,7 @@ body.bg-light {
 
 .system-logo {
   display: block;
-  height: 44px;
+  height: 60px;
   width: auto;
   object-fit: contain;
   border-radius: 0.55rem;
@@ -199,8 +199,9 @@ body.bg-light {
 }
 
 .login-logo {
-  height: 40px;
+  height: 96px;
   width: auto;
+  max-width: 100%;
   object-fit: contain;
 }
 
@@ -298,7 +299,10 @@ body.bg-light {
   border: 1px solid rgba(213, 195, 162, 0.45);
   border-radius: 0.8rem;
   background: rgba(255, 255, 255, 0.7);
+  max-height: 60rem;
   overflow-x: auto;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -310,12 +314,26 @@ body.bg-light {
   background: linear-gradient(180deg, #fcf7ee 0%, #f2e9d7 100%);
 }
 
+.table-responsive > .table > thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, #fcf7ee 0%, #f2e9d7 100%);
+}
+
 .table > :not(caption) > * > * {
   padding: 0.75rem 0.65rem;
 }
 
 .list-group-item {
   border-color: var(--line);
+}
+
+.list-group {
+  max-height: 60rem;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
 }
 
 .btn-teal {
@@ -535,11 +553,11 @@ code {
   }
 
   .system-logo {
-    height: 36px;
+    height: 58px;
   }
 
   .login-logo {
-    height: 30px;
+    height: 96px;
   }
 
   .app-header .h4 {
@@ -567,7 +585,7 @@ code {
 
   .system-logo {
     width: 100%;
-    height: 34px;
+    height: 56px;
     object-fit: contain;
   }
 
