@@ -35,6 +35,16 @@ Este diretorio contem o historico separado de cada sprint concluida no projeto.
 - [Sprint 31](sprints/sprint-31.md)
 - [Sprint 32](sprints/sprint-32.md)
 - [Sprint 33](sprints/sprint-33.md)
+- [Sprint 34](sprints/sprint-34.md)
+- [Sprint 35](sprints/sprint-35.md)
+- [Sprint 36](sprints/sprint-36.md)
+- [Sprint 37](sprints/sprint-37.md)
+
+## Guias principais do projeto
+- [PRD e regras de negócio](../PRD.md)
+- [Roadmap](../ROADMAP.md)
+- [Fluxograma](../FLUXOGRAMA.md)
+- [Regras do repositório](../AGENTS.md)
 
 ## Operacao e Deploy
 - [Deploy Hostinger - Checklist](DEPLOY_HOSTINGER_CHECKLIST.md)

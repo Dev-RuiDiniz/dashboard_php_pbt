@@ -1,0 +1,16 @@
+.git
+.agents
+.local
+vendor
+node_modules
+storage
+docs
+database
+tests
+.env
+.env.*
+!.env.example
+/ACESSOS.md
+skills-lock.json
+tmp
+dist

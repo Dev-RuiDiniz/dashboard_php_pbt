@@ -1,0 +1,33 @@
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "127.0.0.1:8093:80"
+    volumes:
+      - ./app:/var/www/html/app:ro
+      - ./config:/var/www/html/config:ro
+      - ./public:/var/www/html/public:ro
+      - ./.env.local:/var/www/html/.env.local:ro
+      - local_storage:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    env_file:
+      - .env.local
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/final_mvp.sql:/docker-entrypoint-initdb.d/01-final_mvp.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+volumes:
+  mysql_data:
+  local_storage:

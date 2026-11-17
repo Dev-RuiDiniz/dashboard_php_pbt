@@ -1,151 +1,66 @@
-# Dashboard PHP PBT - Sistema Igreja Social
+# Sistema Igreja Social
 
-Sistema web em PHP + MySQL para operacao social da igreja, com controle de familias, pessoas acompanhadas, entregas, equipamentos, visitas, usuarios e relatorios.
+O Sistema Igreja Social é uma aplicação web para a equipe organizar o atendimento social da igreja. Reúne cadastros de famílias e pessoas acompanhadas, entregas, empréstimos de equipamentos, visitas e relatórios em um só lugar.
 
-## Stack e requisitos
-- PHP `8.2+`
-- MySQL/MariaDB
-- Composer
-- Extensoes PHP: `pdo_mysql`, `mbstring`, `openssl`, `json`
+## O que ajuda a equipe a fazer
 
-## Estrutura principal
-- `public/` front controller e assets
-- `app/` controllers, models, services, views
-- `config/` rotas e configuracoes
-- `database/` schema, migrations e seed
-- `docs/` documentacao operacional e deploy
+- Manter o cadastro e o histórico de cada família, sua composição, contatos e pendências.
+- Registrar pessoas acompanhadas, atendimentos sociais, encaminhamentos e acompanhamento espiritual.
+- Preparar listas de entrega e acompanhar quem compareceu e quem retirou.
+- Controlar equipamentos disponíveis, emprestados, atrasados e aguardando manutenção.
+- Solicitar visitas e acompanhar o que ainda está pendente.
+- Consultar indicadores e gerar relatórios para apoiar o acompanhamento da operação.
 
-## Skill local do Codex
-- Skill instalada localmente: `C:\Users\RUI FRANCISCO\.codex\skills\maintain-dashboard-php-pbt`
-- Guia versionado no repositório: `docs/CODEX_LOCAL_SKILL.md`
-- Exemplo de uso: `Use $maintain-dashboard-php-pbt to extend or debug this custom PHP dashboard.`
+## Como é usado
 
-## Modulos do sistema
-- Autenticacao e seguranca
-  - login/logout
-  - bloqueio por tentativas de login
-  - recuperacao de senha por token
-  - auditoria em `audit_logs`
-- Dashboard
-  - indicadores operacionais e atalhos
-- Familias
-  - CRUD de familias
-  - detalhe da familia com abas: composicao familiar, resumo, entregas, emprestimos, visitas/anotacoes e pendencias
-  - cadastro unificado de pessoas da familia (principal, membro e crianca) na primeira aba do detalhe
-  - indicadores com renda total e media per capita por familia
-- Criancas
-  - cadastro centralizado na aba de detalhe da familia
-- Pessoas acompanhadas
-  - CRUD completo
-- Fichas sociais (dentro de pessoa)
-  - CRUD completo
-- Encaminhamentos (dentro de pessoa)
-  - CRUD completo
-- Acompanhamento espiritual (dentro de pessoa)
-  - CRUD completo
-- Entregas
-  - CRUD de eventos
-  - CRUD da lista operacional (convidados/entregas)
-  - fluxo de status `nao_veio -> presente -> retirou`
-  - fechar/reabrir evento, CSV e impressao
-- Equipamentos
-  - CRUD completo
-- Emprestimos de equipamentos
-  - criar, listar, devolver, excluir
-- Visitas
-  - CRUD completo + concluir visita
-- Relatorios
-  - filtros e exportacoes PDF/CSV/Excel
-- Usuarios (admin)
-  - criar, listar, editar, ativar/desativar, excluir (com regras de seguranca)
+1. A equipe entra com uma conta individual.
+2. Registra ou localiza a família ou pessoa atendida.
+3. Mantém o histórico de entregas, visitas e equipamentos ligado ao atendimento.
+4. Acompanha pendências no painel e consulta os relatórios.
 
-## Perfis de acesso (RBAC)
-- `admin`: acesso total
-- `voluntario`: operacao social + gestao operacional (sem modulo de pessoas/fichas sociais)
-- `pastoral`: leitura geral + gestao de visitas (sem modulo de pessoas/fichas sociais)
-- `viewer`: somente leitura
+O acesso a cada área depende do perfil do usuário. A área `PROJETO AMOR` e as fichas sociais são restritas a administradores.
 
-## Rotas principais
-- `/login`
-- `/dashboard`
-- `/families`
-- `/children` (compatibilidade: redireciona para `Familias`)
-- `/people` (admin)
-- `/social-records` (admin)
-- `/delivery-events`
-- `/equipment`
-- `/equipment-loans`
-- `/visits`
-- `/reports`
-- `/users` (admin)
-- `/health`
+## Módulos
 
-## Setup local rapido
-1. Instalar dependencias:
-```bash
-composer install
-```
-2. Configurar ambiente:
-```bash
-copy .env.example .env
-```
-3. Ajustar credenciais de banco no `.env`.
-4. Criar schema/dados iniciais:
-```bash
-# banco novo:
-# importar database/final_mvp.sql no MySQL
-#
-# banco ja existente:
-# php database/migrate.php
-```
-5. Subir servidor local:
-```bash
-composer run serve
-```
+- **Dashboard:** indicadores e alertas da operação.
+- **Famílias:** cadastro, telefones, composição familiar, resumo, entregas, empréstimos, visitas e pendências.
+- **Crianças:** cadastro e acompanhamento dentro do detalhe da família.
+- **PROJETO AMOR:** pessoas acompanhadas, disponível para administradores.
+- **Fichas Sociais:** atendimentos, consentimento, encaminhamentos e acompanhamento espiritual, disponível para administradores.
+- **Entregas:** eventos, lista operacional, controle de retirada, exportação e impressão.
+- **Equipamentos:** estoque, empréstimos, devoluções e manutenção.
+- **Visitas:** solicitações, agendamentos, conclusão e observações.
+- **Relatórios:** consulta por filtros e exportação em PDF, CSV ou formato compatível com Excel.
+- **Usuários:** administração de contas e perfis.
 
-## Deploy (Hostinger)
-Checklist completo em:
-- `docs/DEPLOY_HOSTINGER_CHECKLIST.md`
+## Abrir a versão local
 
-Resumo:
-- apontar Document Root para `public/`
-- configurar `.env` de producao (`APP_ENV=production`, `APP_DEBUG=false`)
-- banco novo: importar `database/final_mvp.sql`
-- banco existente: rodar `php database/migrate.php` ou aplicar as migrations pendentes
-- validar `/health`
-
-## Manual do cliente
-- Markdown: `docs/MANUAL_CLIENTE.md`
-- PDF: `docs/MANUAL_CLIENTE.pdf`
-
-## Estado dos testes (02/03/2026)
-- `OK`: lint PHP completo, rotas compilando, servidor subindo, `/health` e `/login` respondendo `200`.
-- `OK`: teste funcional E2E autenticado (CRUD por abas) aprovado, cobrindo:
-  - login admin
-  - familias (`create/read/update/delete`)
-  - pessoas (`create/read/update/delete`)
-  - ficha social (`create/update/delete`)
-  - eventos de entrega e lista operacional (`create/delete`)
-  - emprestimos de equipamentos (`create/delete`)
-  - usuarios (`create/delete`)
-
-## Observacao de ambiente local
-- Se o projeto estiver sem `vendor/`, execute `composer install` antes de subir `public/index.php`.
-- No ambiente avaliado nesta implementacao, o PHP local nao possui extensao `openssl`; isso impede instalar dependencias pelo Composer nessa maquina sem ajuste do PHP.
-
-## Pronto para producao
-- Template de ambiente de producao: `.env.production.example`
-- Checklist de deploy Hostinger: `docs/DEPLOY_HOSTINGER_CHECKLIST.md`
-- Relatorio de prontidao: `docs/RELATORIO_PRONTIDAO_HOSTINGER.md`
-- Manual do cliente (PDF): `docs/MANUAL_CLIENTE.pdf`
-
-## Publicacao em comando unico (Hostinger)
-Use o script abaixo para executar build, validacoes finais e gerar o `.zip` pronto para upload:
+O projeto já está configurado para Docker Desktop. No PowerShell, dentro desta pasta, execute:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\publish_hostinger.ps1 -AppUrl "https://SEU_DOMINIO" -DbHost "127.0.0.1" -DbPort 3306 -DbName "SEU_BANCO" -DbUser "SEU_USUARIO" -DbPass "SUA_SENHA"
+docker compose -p dashboard-php-pbt-local up -d --build
 ```
 
-Saida:
-- pacote: `dist/hostinger_release_YYYYMMDD_HHMMSS.zip`
-- checklist final: `dist/hostinger_release_YYYYMMDD_HHMMSS.checklist.txt`
+Depois abra [http://localhost:8093/login](http://localhost:8093/login). O banco local começa com o schema e os dados de exemplo de `database/final_mvp.sql`; ele não usa uma cópia do banco de produção.
+
+Para parar os containers mantendo os dados locais:
+
+```powershell
+docker compose -p dashboard-php-pbt-local down
+```
+
+As credenciais de desenvolvimento estão em `ACESSOS.md`, um arquivo local ignorado pelo Git e pelo Docker. Não use as contas de exemplo em produção.
+
+## Documentos do projeto
+
+- [PRD e regras de negócio](PRD.md)
+- [Roadmap](ROADMAP.md)
+- [Fluxograma](FLUXOGRAMA.md)
+- [Regras de execução do repositório](AGENTS.md)
+- [Histórico de sprints e operação](docs/README.md)
+- [Guia de operação](docs/OPERACAO_MVP.md)
+- [Checklist de publicação Hostinger](docs/DEPLOY_HOSTINGER_CHECKLIST.md)
+
+## Tecnologia
+
+PHP 8.2+, MySQL 8/MariaDB, Composer, PDO, Bootstrap e Apache. A aplicação segue uma arquitetura MVC simples e usa rotas PHP server-side.

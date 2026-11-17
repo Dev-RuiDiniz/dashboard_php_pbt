@@ -172,6 +172,192 @@
         });
     }
 
+    function initPhoneCollections(scope) {
+        var root = scope || document;
+        Array.prototype.slice.call(root.querySelectorAll('[data-phone-add][data-phone-target]')).forEach(function (addButton) {
+            if (addButton.dataset.phoneCollectionBound === '1') {
+                return;
+            }
+
+            var targetId = addButton.getAttribute('data-phone-target');
+            var container = document.getElementById(targetId);
+            var template = document.getElementById(targetId + '-template');
+            if (!container || !template) {
+                return;
+            }
+
+            addButton.dataset.phoneCollectionBound = '1';
+
+            function sync() {
+                var rows = Array.prototype.slice.call(container.querySelectorAll('[data-phone-row]'));
+                rows.forEach(function (row, index) {
+                    var number = row.querySelector('[name*="[number]"], [data-phone-number]');
+                    var label = row.querySelector('[name*="[label]"], [data-phone-label]');
+                    var radio = row.querySelector('[data-phone-primary]');
+                    var hidden = row.querySelector('[data-phone-primary-hidden]');
+
+                    if (number) {
+                        number.name = 'phones[' + index + '][number]';
+                    }
+                    if (label) {
+                        label.name = 'phones[' + index + '][label]';
+                    }
+                    if (radio) {
+                        radio.name = 'phone_primary';
+                        radio.value = String(index);
+                    }
+                    if (hidden) {
+                        hidden.name = 'phones[' + index + '][is_primary]';
+                    }
+                });
+
+                if (!rows.some(function (row) {
+                    var radio = row.querySelector('[data-phone-primary]');
+                    return radio && radio.checked;
+                }) && rows[0]) {
+                    var firstRadio = rows[0].querySelector('[data-phone-primary]');
+                    if (firstRadio) {
+                        firstRadio.checked = true;
+                    }
+                }
+
+                rows.forEach(function (row) {
+                    var hidden = row.querySelector('[data-phone-primary-hidden]');
+                    var radio = row.querySelector('[data-phone-primary]');
+                    if (hidden) {
+                        hidden.value = radio && radio.checked ? '1' : '0';
+                    }
+                });
+            }
+
+            container.addEventListener('change', function (event) {
+                if (event.target.matches('[data-phone-primary]')) {
+                    sync();
+                }
+            });
+
+            container.addEventListener('click', function (event) {
+                var removeButton = event.target.closest('[data-phone-remove]');
+                if (!removeButton) {
+                    return;
+                }
+
+                var row = removeButton.closest('[data-phone-row]');
+                if (row) {
+                    row.remove();
+                    sync();
+                }
+            });
+
+            addButton.addEventListener('click', function () {
+                container.appendChild(template.content.cloneNode(true));
+                initMasks(container);
+                sync();
+            });
+
+            sync();
+        });
+    }
+
+    function initHousingFields(scope) {
+        var root = scope || document;
+        Array.prototype.slice.call(root.querySelectorAll('[data-housing-type]')).forEach(function (housingType) {
+            if (housingType.dataset.housingFieldsBound === '1') {
+                return;
+            }
+
+            var form = housingType.closest('form') || root;
+            var rentGroup = form.querySelector('[data-rent-amount-group]');
+            var otherGroup = form.querySelector('[data-housing-other-group]');
+            if (!rentGroup && !otherGroup) {
+                return;
+            }
+
+            var rentInput = rentGroup ? rentGroup.querySelector('input[name="rent_amount"]') : null;
+            var otherInput = otherGroup ? otherGroup.querySelector('input[name="housing_type_other_details"]') : null;
+            function sync() {
+                var isRented = housingType.value === 'alugada';
+                var isOther = housingType.value === 'outro';
+
+                if (rentGroup) {
+                    rentGroup.classList.toggle('d-none', !isRented);
+                    if (!isRented && rentInput) {
+                        rentInput.value = '';
+                    }
+                }
+                if (otherGroup) {
+                    otherGroup.classList.toggle('d-none', !isOther);
+                    if (!isOther && otherInput) {
+                        otherInput.value = '';
+                    }
+                }
+            }
+
+            housingType.dataset.housingFieldsBound = '1';
+            housingType.addEventListener('change', sync);
+            sync();
+        });
+    }
+
+    function initChronicDiseaseOther(scope) {
+        var root = scope || document;
+        Array.prototype.slice.call(root.querySelectorAll('[data-chronic-other-group]')).forEach(function (group) {
+            var form = group.closest('form') || root;
+            var input = group.querySelector('input[name="chronic_disease_other_details"]');
+            var options = Array.prototype.slice.call(form.querySelectorAll('[data-chronic-disease-option]'));
+            if (group.dataset.chronicOtherBound === '1') {
+                return;
+            }
+
+            function sync() {
+                var otherChecked = options.some(function (checkbox) {
+                    return checkbox.value === 'outra' && checkbox.checked;
+                });
+                group.classList.toggle('d-none', !otherChecked);
+                if (!otherChecked && input) {
+                    input.value = '';
+                }
+            }
+
+            group.dataset.chronicOtherBound = '1';
+            options.forEach(function (checkbox) {
+                checkbox.addEventListener('change', sync);
+            });
+            sync();
+        });
+    }
+
+    function initConditionalFields(scope) {
+        var root = scope || document;
+        Array.prototype.slice.call(root.querySelectorAll('[data-conditional-toggle]')).forEach(function (select) {
+            if (select.dataset.conditionalFieldBound === '1') {
+                return;
+            }
+
+            var target = select.getAttribute('data-conditional-toggle');
+            var form = select.closest('form') || root;
+            var group = Array.prototype.slice.call(form.querySelectorAll('[data-conditional-group]')).find(function (item) {
+                return item.getAttribute('data-conditional-group') === target;
+            });
+            if (!group) {
+                return;
+            }
+
+            var input = group.querySelector('input, textarea, select');
+            function sync() {
+                var visible = select.value === '1';
+                group.classList.toggle('d-none', !visible);
+                if (!visible && input) {
+                    input.value = '';
+                }
+            }
+
+            select.dataset.conditionalFieldBound = '1';
+            select.addEventListener('change', sync);
+            sync();
+        });
+    }
+
     function initFamilySelectorSearch(scope) {
         var root = scope || document;
         Array.prototype.slice.call(root.querySelectorAll('[data-family-selector-search]')).forEach(function (input) {
@@ -296,6 +482,10 @@
     document.addEventListener('DOMContentLoaded', function () {
         initMasks(document);
         initFormBehaviors(document);
+        initPhoneCollections(document);
+        initHousingFields(document);
+        initChronicDiseaseOther(document);
+        initConditionalFields(document);
         initFamilySelectorSearch(document);
         initFamilyPersonHub();
     });

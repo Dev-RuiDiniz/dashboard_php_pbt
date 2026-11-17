@@ -172,7 +172,15 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
                     $needsMaintenance = $isReturned
                         && (string) ($loan['return_condition'] ?? '') === 'ruim'
                         && (string) ($loan['equipment_status'] ?? '') === 'inativo';
-                    $dest = (string) (($loan['family_name'] ?? '') !== '' ? $loan['family_name'] : (($loan['person_full_name'] ?? '') !== '' ? $loan['person_full_name'] : ($loan['person_social_name'] ?? '-')));
+                    $familyName = trim((string) ($loan['family_name'] ?? ''));
+                    $socialName = trim((string) ($loan['person_social_name'] ?? ''));
+                    $fullName = trim((string) ($loan['person_full_name'] ?? ''));
+                    $personName = $socialName !== '' ? $socialName : $fullName;
+                    $borrowerName = trim((string) ($loan['borrower_name'] ?? ''));
+                    $dest = $familyName !== '' ? $familyName : ($personName !== '' ? $personName : ($borrowerName !== '' ? $borrowerName : '-'));
+                    if ($borrowerName === '') {
+                        $borrowerName = $personName !== '' ? $personName : ($familyName !== '' ? $familyName : '-');
+                    }
                     ?>
                     <tr class="<?= $needsMaintenance || $isOverdue ? 'table-danger' : '' ?>">
                         <td>
@@ -184,7 +192,7 @@ $overdueLoans = is_array($overdueLoans ?? null) ? $overdueLoans : [];
                         </td>
                         <td>
                             <div><?= htmlspecialchars($dest, ENT_QUOTES, 'UTF-8') ?></div>
-                            <div class="small text-secondary mt-1">Retirante: <?= htmlspecialchars((string) (($loan['borrower_name'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="small text-secondary mt-1">Retirante: <?= htmlspecialchars($borrowerName, ENT_QUOTES, 'UTF-8') ?></div>
                             <div class="small text-secondary">Usuario: <?= htmlspecialchars((string) (($loan['equipment_user_name'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
                             <div class="small text-secondary">Telefone: <?= htmlspecialchars((string) (($loan['borrower_phone'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>
                             <div class="small text-secondary">CPF: <?= htmlspecialchars((string) (($loan['borrower_cpf'] ?? '') ?: '-'), ENT_QUOTES, 'UTF-8') ?></div>

@@ -1,6 +1,7 @@
 /vendor/
 /.env
 /.env.local
+/ACESSOS.md
 /dist/
 /storage/logs/*
 /storage/exports/*
